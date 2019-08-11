@@ -4,9 +4,9 @@
 		<!-- namespace对应到接口上就不需要实例化了, 框架帮着实例化 mapper对应着接口所有相关的功能 -->
 <mapper namespace="com.lisz.mapper.AccountMapper">
 	<!-- 一个select的SQL的实现, 通过id绑定SQL和AccountMapper接口中的方法 -->
-	<select id="findAll" resultMap="BaseResultMap">
+	<!-- <select id="findAll" resultMap="BaseResultMap">
 		select * from account
-	</select>
+	</select> -->
 	<!-- 数据库表中的列和类的属性的对应关系 -->
 	<resultMap type="com.lisz.mapper.Account" id="BaseResultMap">
 		<result column="username" property="username"/>
