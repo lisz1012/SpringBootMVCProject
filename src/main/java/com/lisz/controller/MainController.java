@@ -33,7 +33,7 @@ public class MainController {
 		Account account = new Account();
 		account.setLocation("Jinan");
 		account.setNickName("w8");
-		account.setUsername("zhangjc5");
+		account.setUsername("zhangjc7");
 		account.setPassword("000");
 		account.setAge(12);
 		accountService.add(account);
