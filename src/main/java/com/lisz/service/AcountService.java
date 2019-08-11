@@ -16,4 +16,8 @@ public class AcountService {
 	public List<Account> findAll() {
 		return mapper.findAll();
 	}
+	
+	public void add(Account account) {
+	mapper.add(account);
+	}
 }

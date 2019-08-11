@@ -11,7 +11,8 @@ import org.apache.ibatis.annotations.Select;
 public interface AccountMapper {
 
 	// 在application.properties.xml中去找sql的文件的位置，然后找到sql，然后通过反射或者动态代理，拿sql并实现类
-	@Select("select * from account")
+	@Select("select * from account" ) //也可以在mapper的xml文件中配置. 对于驼峰标识，要在application.properties中开启
 	List<Account> findAll();
 
+	void add(Account account);
 }

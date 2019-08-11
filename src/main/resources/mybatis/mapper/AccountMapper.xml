@@ -3,7 +3,7 @@
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 		<!-- namespace对应到接口上就不需要实例化了, 框架帮着实例化 mapper对应着接口所有相关的功能 -->
 <mapper namespace="com.lisz.mapper.AccountMapper">
-	<!-- 一个select的SQL的实现, 通过id绑定SQL和AccountMapper接口中的方法 -->
+	<!-- 一个select的SQL的实现, 通过id绑定SQL和AccountMapper接口中的方法，也可以在com.lisz.mapper.AccountMapper.findAll方法上写@Select("select * from account")注解  -->
 	<!-- <select id="findAll" resultMap="BaseResultMap">
 		select * from account
 	</select> -->
@@ -13,4 +13,14 @@
 		<result column="password" property="password"/>
 		<result column="nick_name" property="nickName"/>
 	</resultMap>
+	
+	<insert id="add" parameterType="Account">
+		insert into account (username, password, nick_name, age, location) values (
+			#{username}, <!-- 类似EL表达式，从参数的Account对象中取值，然后填入到这里，这里的表达式通过反射转成getter，然后取值并填回 -->
+			#{password}, <!-- 动态代理和反射是写框架的基本技能 -->
+			#{nickName},
+			#{age}, 
+			#{location}
+		);
+	</insert>
 </mapper>
