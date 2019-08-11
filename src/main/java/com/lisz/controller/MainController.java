@@ -52,9 +52,32 @@ public class MainController {
 		return menuService.findAll();
 	}
 	
-	@GetMapping("/menus/{name}")
+	@GetMapping("/getMenuById/{id}")
+	@ResponseBody //节省点时间，不搞前端页面了，用@ResponseBody即可
+	public Menu getMenusById(@PathVariable Integer id, Model model) { //这里由于用了@ResponseBody，返回的accounts会被转化成一个JSON数组在前端显示，这里返回Object即可,List<Account>也行
+		return menuService.findById(id);
+	}
+	
+	@GetMapping("/getMenuByName/{name}")
 	@ResponseBody //节省点时间，不搞前端页面了，用@ResponseBody即可
 	public Object getMenusByName(@PathVariable String name, Model model) { //这里由于用了@ResponseBody，返回的accounts会被转化成一个JSON数组在前端显示，这里返回Object即可,List<Account>也行
 		return menuService.findByName(name);
+	}
+	
+	@GetMapping("/getMenuByPage/{pageNumber}/{pageSize}")
+	@ResponseBody //节省点时间，不搞前端页面了，用@ResponseBody即可
+	public List<Menu> getMenusByPage(@PathVariable Integer pageNumber, @PathVariable Integer pageSize, Model model) { //这里由于用了@ResponseBody，返回的accounts会被转化成一个JSON数组在前端显示，这里返回Object即可,List<Account>也行
+		return menuService.findAllByPage(pageNumber, pageSize);
+	}
+	
+	@RequestMapping("/menus/add")
+	@ResponseBody //节省点时间，不搞前端页面了，用@ResponseBody即可
+	public Object addMenu(Model model) { //这里由于用了@ResponseBody，返回的accounts会被转化成一个JSON数组在前端显示，这里返回Object即可,List<Account>也行
+		Menu menu = new Menu();
+		menu.setName("view");
+		menu.setRoles("user");
+		menu.setIndex("aaa");
+		menuService.add(menu);
+		return "OK";
 	}
 }
