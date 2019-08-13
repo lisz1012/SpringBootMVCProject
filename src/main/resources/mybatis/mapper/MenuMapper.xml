@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lisz.mapper.MenuMapper">
-  <resultMap id="BaseResultMap" type="com.lisz.mapper.Menu">
+  <resultMap id="BaseResultMap" type="com.lisz.entity.Menu">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="roles" jdbcType="VARCHAR" property="roles" />
@@ -106,13 +106,13 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.lisz.mapper.Menu" useGeneratedKeys="true">
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.lisz.entity.Menu" useGeneratedKeys="true">
     insert into menu (`name`, roles, `index`
       )
     values (#{name,jdbcType=VARCHAR}, #{roles,jdbcType=VARCHAR}, #{index,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.lisz.mapper.Menu" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.lisz.entity.Menu" useGeneratedKeys="true">
     insert into menu
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="name != null">
@@ -173,7 +173,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.lisz.mapper.Menu">
+  <update id="updateByPrimaryKeySelective" parameterType="com.lisz.entity.Menu">
     update menu
     <set>
       <if test="name != null">
@@ -188,7 +188,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.lisz.mapper.Menu">
+  <update id="updateByPrimaryKey" parameterType="com.lisz.entity.Menu">
     update menu
     set `name` = #{name,jdbcType=VARCHAR},
       roles = #{roles,jdbcType=VARCHAR},

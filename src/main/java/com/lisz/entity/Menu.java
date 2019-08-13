@@ -1,4 +1,4 @@
-package com.lisz.mapper;
+package com.lisz.entity;
 
 import java.io.Serializable;
 
