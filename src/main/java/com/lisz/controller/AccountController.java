@@ -2,6 +2,8 @@ package com.lisz.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +23,7 @@ import com.lisz.entity.Account;
 @RequestMapping("/account")
 public class AccountController {
 	@Autowired
-	private AccountService accountService;
+	private AccountService accountService; //service属于model，和后端做计算存储和整理数据的
 	
 	@GetMapping("login") //login前面写不写反斜杠都可以
 	public String login() {
@@ -29,14 +31,22 @@ public class AccountController {
 		return "account/login";
 	}
 	
+	/**
+	 * 异步校验用户登录
+	 * @param username
+	 * @param password
+	 * @return
+	 */
 	@PostMapping("validateAccount") //validateAccount前面写不写反斜杠都可以
 	@ResponseBody // 前端只需要一个数据结果而不需要页面，所以写@ResponseBody
-	public String validate(@RequestParam String username, @RequestParam String password) { //不写@RequestParam也可以的
-		List<Account> accounts = accountService.findByUsernameAndPassword(username, password);
+	public String validate(@RequestParam String username, @RequestParam String password, HttpServletRequest request) { //不写@RequestParam也可以的
+		Account account = accountService.findByUsernameAndPassword(username, password);
 		System.out.println("aaa");
-		if (accounts.isEmpty()) {
+		if (account == null) { // 简单的前端业务逻辑写在Controller中就可以了
 			return "error";
 		} else {
+			// 登录成功就要把用户对象写到session里，在不同的controller或者页面都能使用当前的Account对象
+			request.getSession().setAttribute("account", account);
 			return "success";
 		}
 	}

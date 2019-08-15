@@ -15,10 +15,11 @@ public class AccountService {
 	@Autowired
 	private AccountMapper mapper;
 
-	public List<Account> findByUsernameAndPassword(String username, String password) {
+	public Account findByUsernameAndPassword(String username, String password) {
 		AccountExample example = new AccountExample();
 		example.createCriteria().andUsernameEqualTo(username).andPasswordEqualTo(password);
-		return mapper.selectByExample(example);
+		List<Account> list = mapper.selectByExample(example);
+		return list.isEmpty() ? null : list.get(0);
 	}
 
 }
