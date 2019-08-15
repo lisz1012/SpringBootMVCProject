@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.lisz.entity.Account;
 import com.lisz.mapper.AccountExample;
 import com.lisz.mapper.AccountMapper;
+import com.lisz.utils.AES256Utils;
 
 @Service
 public class AccountService {
@@ -16,10 +17,19 @@ public class AccountService {
 	private AccountMapper mapper;
 
 	public Account findByUsernameAndPassword(String username, String password) {
+		password = AES256Utils.Encrypt(password);
 		AccountExample example = new AccountExample();
 		example.createCriteria().andUsernameEqualTo(username).andPasswordEqualTo(password);
 		List<Account> list = mapper.selectByExample(example);
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	/*public void updatePassword() {
+		List<Account> list = mapper.selectByExample(null);
+		list.forEach(a -> {
+			a.setPassword(AES256Utils.Encrypt(a.getPassword()));
+			mapper.updateByPrimaryKey(a);
+		});
+		
+	}*/
 }

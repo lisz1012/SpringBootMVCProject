@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -51,4 +52,8 @@ public class AccountController {
 		}
 	}
 	
+	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
+	public void updatePassword() { //不写@RequestParam也可以的
+		accountService.updatePassword();
+	}*/
 }
