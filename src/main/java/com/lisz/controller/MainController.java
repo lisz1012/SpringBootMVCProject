@@ -13,7 +13,7 @@ public class MainController {
 	
 	@GetMapping("/index")
 	public String index1() { //这里由于用了@ResponseBody，返回的accounts会被转化成一个JSON数组在前端显示，这里返回Object即可,List<Account>也行
-		return "index";
+		return "index";  // 这里写"account/login"（带目录的），会跳转到login页面
 	}
 	
 }
