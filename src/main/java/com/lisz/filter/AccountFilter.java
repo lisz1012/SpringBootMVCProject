@@ -67,9 +67,4 @@ public class AccountFilter implements Filter {
 		Filter.super.init(filterConfig);
 	}
 	
-	@GetMapping("/account/logout")
-	public String logout (HttpServletRequest request) {
-		request.getSession().removeAttribute("account");
-		return "/account/login";
-	}
 }

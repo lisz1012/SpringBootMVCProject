@@ -51,6 +51,11 @@ public class AccountController {
 		}
 	}
 	
+	@GetMapping("logout")
+	public String logout (HttpServletRequest request) {
+		request.getSession().removeAttribute("account");
+		return "/account/login";
+	}
 	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
 	public void updatePassword() { //不写@RequestParam也可以的
 		accountService.updatePassword();
