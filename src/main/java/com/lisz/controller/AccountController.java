@@ -29,7 +29,7 @@ public class AccountController {
 	@GetMapping("login") //login前面写不写反斜杠都可以
 	public String login() {
 		
-		return "account/login";
+		return "account/login"; //返回template目录下面的login.html页面，此页面并不会被AccountFilter过滤
 	}
 	
 	/**
@@ -42,7 +42,6 @@ public class AccountController {
 	@ResponseBody // 前端只需要一个数据结果而不需要页面，所以写@ResponseBody
 	public String validate(@RequestParam String username, @RequestParam String password, HttpServletRequest request) { //不写@RequestParam也可以的
 		Account account = accountService.findByUsernameAndPassword(username, password);
-		System.out.println("aaa");
 		if (account == null) { // 简单的前端业务逻辑写在Controller中就可以了
 			return "error";
 		} else {
