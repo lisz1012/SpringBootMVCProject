@@ -38,10 +38,10 @@ public class AccountFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = ((HttpServletRequest)req);
-		HttpServletResponse response = ((HttpServletResponse)resp);
+		HttpServletRequest request = (HttpServletRequest)req;
+		HttpServletResponse response = (HttpServletResponse)resp;
 		Object obj = request.getSession().getAttribute("account");
-		String uri = request.getRequestURI();  //"/index" 是个uri
+		String uri = request.getRequestURI();  //"/index" 是个uri 8080后面的"/index"是一个URI
 		if (obj == null && !canIgnore(uri)) {
 			// 跳转登录页面
 			response.sendRedirect("/account/login");
