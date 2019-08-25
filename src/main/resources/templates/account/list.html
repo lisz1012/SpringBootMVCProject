@@ -85,8 +85,8 @@
 				<th>操作</th>
 			</tr>
 			<tbody>
-				<tr th:each="account,status : ${accounts}"> <!-- 这里要定义一下status下面才可以用 status.count-->
-					<td>[[${status.count}]]</td>
+				<tr th:each="account : ${accounts}"> 
+					<td>[[${accountStat.count}]]</td>
 					<!-- 或者：td标签里面写：th:text="${status.count}" -->
 					<td th:text="${account.id}"></td> <!-- Account 会以反射的方法调用getters，所以必须得写get方法 -->
 					<td th:text="${account.username}"></td>
