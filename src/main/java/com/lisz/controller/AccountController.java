@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,6 +56,13 @@ public class AccountController {
 	public String logout (HttpServletRequest request) {
 		request.getSession().removeAttribute("account");
 		return "/account/login";
+	}
+	
+	@GetMapping("list")
+	public String list (Model model) {
+		List<Account> accounts = accountService.findAll();
+		model.addAttribute("accounts", accounts);
+		return "/account/list"; // “/” 加不加都可以
 	}
 	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
 	public void updatePassword() { //不写@RequestParam也可以的

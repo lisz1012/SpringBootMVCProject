@@ -24,6 +24,10 @@ public class AccountService {
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	public List<Account> findAll() {
+		return mapper.selectByExample(null);
+	}
+
 	/*public void updatePassword() {
 		List<Account> list = mapper.selectByExample(null);
 		list.forEach(a -> {
