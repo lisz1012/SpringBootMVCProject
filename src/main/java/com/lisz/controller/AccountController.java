@@ -55,7 +55,8 @@ public class AccountController {
 	@GetMapping("logout")
 	public String logout (HttpServletRequest request) {
 		request.getSession().removeAttribute("account");
-		return "/account/login";
+		//return "/account/login";
+		return "index";
 	}
 	
 	@GetMapping("list")

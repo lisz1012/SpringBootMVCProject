@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<tittle>Accounts</tittle>
+		<!-- 想用样式的话必须把相关的文件拷贝过来然后写下面两行 -->
+		<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"> <!-- 自动补上项目名 -->
+		<script th:src="@{/js/bootstrap.min.js}"></script>
+	</head>
+	<body>
+		Account List
+		<hr>
+		<table class="table table-striped">
+		
+			<tr>
+				<th>ID</th>
+				<th>Userame</th>
+				<th>Password</th>
+				<th>Age</th>
+				<th>NickName</th>
+				<th>Location</th>
+			</tr>
+			<tbody>
+			<tr th:each="account : ${accounts}">
+				<td th:text="${account.id}"></td> <!-- Account 会以反射的方法调用getters，所以必须得写get方法 -->
+				<td th:text="${account.username}"></td>
+				<td th:text="${account.password}"></td>
+				<td th:text="${account.age}"></td>
+				<td th:text="${account.nickName}"></td>
+				<td th:text="${account.location}"></td>
+			</tr> <!-- "${}" 表示的是从scope动态取值 -->
+			</tbody>
+		</table>
+	</body>
+</html>
