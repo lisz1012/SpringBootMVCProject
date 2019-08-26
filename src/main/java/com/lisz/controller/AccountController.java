@@ -69,14 +69,11 @@ public class AccountController {
 		return "/account/list"; // “/” 加不加都可以
 	}
 	
-	@RequestMapping("delete/{id}")
-	public String delete(@PathVariable Integer id, Model model) {
-		System.out.println(id);
-		accountService.deleteById(id);
-		PageInfo<Account> page = accountService.findByPage(1, 5);
-		model.addAttribute("page", page);
-		
-		return "/account/list";
+	@RequestMapping("delete")
+	@ResponseBody
+	public ResponseStatus delete(@RequestParam Integer id) {
+		ResponseStatus status = accountService.deleteById(id);
+		return status;
 	}
 	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
 	public void updatePassword() { //不写@RequestParam也可以的

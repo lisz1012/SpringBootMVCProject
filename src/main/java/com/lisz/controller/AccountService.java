@@ -35,8 +35,12 @@ public class AccountService {
 		return new PageInfo<Account>(findAll(), 10);//包装成一个PageInfo对象，解决分页的问题.可以通过第二个参数动态调整最多显示的页码数,default = 8
 	}
 
-	public void deleteById(int id) {
-		mapper.deleteByPrimaryKey(id);
+	public ResponseStatus deleteById(int id) {
+		int rows = mapper.deleteByPrimaryKey(id);
+		if (rows == 1) {
+			return new ResponseStatus(200, "OK", "Delete successfully");
+		}
+		return new ResponseStatus(500, "Internal error", "Delete failed.");
 	}
 
 	/*public void updatePassword() {

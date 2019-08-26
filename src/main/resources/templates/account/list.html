@@ -97,7 +97,7 @@
 					<td th:text="${account.location}"></td>
 					<td th:text="${account.role}"></td>
 					<td>
-						<a th:href="'/account/delete/' + ${account.id}">删除</a> 
+						<a th:href="@{'javascript:deleteById(' + ${account.id} + ');'}">删除</a> 
 						<a>修改密码</a>
 					</td>
 				</tr> <!-- "${}" 表示的是从scope动态取值 -->
@@ -121,5 +121,21 @@
 		    </li>
 		  </ul>
 		</nav>
+		
+		<script type="text/javascript">
+			function deleteById(id) {
+				// 去访问一个带有JSON ResponseStatus类型的结果的controller就行了，@ResponseBody
+				var url = "/account/delete";
+				var args = {id:id};
+				$.post (url, args, function(data) {
+					console.log(data);
+					if (data.code == 200) {
+						window.location.reload();
+					} else {
+						alert(data.message);
+					}
+				});
+			}
+		</script>
 	</body>
 </html>
