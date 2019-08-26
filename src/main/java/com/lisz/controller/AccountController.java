@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.PageInfo;
 import com.lisz.entity.Account;
 
 /**
@@ -60,9 +61,9 @@ public class AccountController {
 	}
 	
 	@GetMapping("list")
-	public String list (Model model) {
-		List<Account> accounts = accountService.findAll();
-		model.addAttribute("accounts", accounts);
+	public String list (@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "5") int pageSize, Model model) {
+		PageInfo<Account> page = accountService.findByPage(pageNum, pageSize);
+		model.addAttribute("page", page);
 		return "/account/list"; // “/” 加不加都可以
 	}
 	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
