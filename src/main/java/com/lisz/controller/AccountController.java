@@ -61,7 +61,7 @@ public class AccountController {
 	}
 	
 	@GetMapping("list")
-	public String list (@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "1") int pageSize, Model model) {
+	public String list (@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "5") int pageSize, Model model) {
 		PageInfo<Account> page = accountService.findByPage(pageNum, pageSize);
 		model.addAttribute("page", page);
 		return "/account/list"; // “/” 加不加都可以
