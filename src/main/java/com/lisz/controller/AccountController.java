@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,6 +67,16 @@ public class AccountController {
 		PageInfo<Account> page = accountService.findByPage(pageNum, pageSize);
 		model.addAttribute("page", page);
 		return "/account/list"; // “/” 加不加都可以
+	}
+	
+	@RequestMapping("delete/{id}")
+	public String delete(@PathVariable Integer id, Model model) {
+		System.out.println(id);
+		accountService.deleteById(id);
+		PageInfo<Account> page = accountService.findByPage(1, 5);
+		model.addAttribute("page", page);
+		
+		return "/account/list";
 	}
 	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
 	public void updatePassword() { //不写@RequestParam也可以的

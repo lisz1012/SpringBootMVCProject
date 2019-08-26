@@ -96,7 +96,10 @@
 					<td th:text="${account.nickName}"></td>
 					<td th:text="${account.location}"></td>
 					<td th:text="${account.role}"></td>
-					<td></td>
+					<td>
+						<a th:href="'/account/delete/' + ${account.id}">删除</a> 
+						<a>修改密码</a>
+					</td>
 				</tr> <!-- "${}" 表示的是从scope动态取值 -->
 			</tbody>
 		</table>
