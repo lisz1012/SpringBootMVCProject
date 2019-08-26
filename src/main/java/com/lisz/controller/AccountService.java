@@ -32,7 +32,7 @@ public class AccountService {
 
 	public PageInfo<Account> findByPage(int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
-		return new PageInfo<Account>(findAll(), 10);//包装成一个PageInfo对象，解决分页的问题.可以通过第二个参数动态调整最多显示的页码数,default = 8.或者调用PageInfo.setNavigatePages设置
+		return new PageInfo<Account>(findAll(), 10);//包装成一个PageInfo对象，解决分页的问题.可以通过第二个参数动态调整最多显示的页码数,default = 8
 	}
 
 	/*public void updatePassword() {
