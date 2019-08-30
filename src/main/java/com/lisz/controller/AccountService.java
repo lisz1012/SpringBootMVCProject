@@ -36,7 +36,7 @@ public class AccountService {
 	}
 
 	public ResponseStatus deleteById(int id) {
-		// 1. 提示用户将要删除
+		// 1. 提示用户将要删除，不能直接删
 		// 2. 回收站等通过删除标记来完成删除操作，以达到数据永远删不掉的效果 / update有的也是只增不改，多余的数据存储到别的机器或者数据库表
 		int rows = mapper.deleteByPrimaryKey(id);
 		if (rows == 1) {
