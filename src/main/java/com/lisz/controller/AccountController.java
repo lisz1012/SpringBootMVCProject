@@ -70,7 +70,7 @@ public class AccountController {
 	}
 	
 	@RequestMapping("delete")
-	@ResponseBody
+	@ResponseBody // 不需要页面，直接返回JSON数据
 	public ResponseStatus delete(@RequestParam Integer id) {
 		ResponseStatus status = accountService.deleteById(id);
 		return status;
