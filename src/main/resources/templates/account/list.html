@@ -125,6 +125,7 @@
 		<script type="text/javascript">
 			function deleteById(id) {
 				// 去访问一个带有JSON ResponseStatus类型的结果的controller就行了，@ResponseBody
+				// 不用ajax的话会造成页面的跳转
 				var url = "/account/delete";
 				var args = {id:id};
 				$.post (url, args, function(data) {
