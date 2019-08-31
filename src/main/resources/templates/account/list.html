@@ -131,7 +131,7 @@
 				$.post (url, args, function(data) {
 					console.log(data);
 					if (data.code == 200) {
-						window.location.reload();
+						window.location.reload();//刷新页面
 					} else {
 						alert(data.message);
 					}
