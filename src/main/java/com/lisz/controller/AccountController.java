@@ -72,6 +72,10 @@ public class AccountController {
 	@RequestMapping("delete")
 	@ResponseBody // 不需要页面，直接返回JSON数据
 	public ResponseStatus delete(@RequestParam Integer id) {
+		Account account = accountService.findById(id);
+		if (!account.getRole().equals("admin")) {
+			return new ResponseStatus(403, "Error", "Not authorized to delete an account");
+		}
 		ResponseStatus status = accountService.deleteById(id);
 		return status;
 	}
@@ -79,6 +83,10 @@ public class AccountController {
 	@RequestMapping("updatePasswordById")
 	@ResponseBody // 不需要页面，直接返回JSON数据
 	public ResponseStatus updatePasswordById(@RequestParam Integer id, @RequestParam String newPassword) {
+		Account account = accountService.findById(id);
+		if (!account.getRole().equals("admin")) {
+			return new ResponseStatus(403, "Error", "Not authorized to update the password");
+		}
 		ResponseStatus status = accountService.updatePasswordById(id, newPassword);
 		return status;
 	}

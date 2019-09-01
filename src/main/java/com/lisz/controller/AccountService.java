@@ -58,6 +58,10 @@ public class AccountService {
 		}
 	}
 
+	public Account findById(Integer id) {
+		return mapper.selectByPrimaryKey(id);
+	}
+
 	/*public void updatePassword() {
 		List<Account> list = mapper.selectByExample(null);
 		list.forEach(a -> {
