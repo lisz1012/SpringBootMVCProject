@@ -96,11 +96,11 @@
 					<td th:text="${account.nickName}"></td>
 					<td th:text="${account.location}"></td>
 					<td th:text="${account.role}"></td>
-					<td th:if="${account.role} == 'admin'">
+					<td th:if="${session.account.role} == 'admin'">
 						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${account.id} + ');'}">删除</a> 
 						<a class="btn btn-info" th:href="@{'javascript:changePassword(' + ${account.id} + ',\'' + ${account.username} + '\');'}">修改密码</a> 
 					</td>
-					<td th:if="${account.role} != 'admin'">
+					<td th:if="${session.account.role} != 'admin'">
 						<a class="btn btn-danger" disabled>删除</a> 
 						<a class="btn btn-info" disabled>修改密码</a> 
 					</td>

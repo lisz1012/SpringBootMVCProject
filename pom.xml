@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.lisz</groupId>
-	<artifactId>SpringBootMyBatis</artifactId>
+	<artifactId>SpringBootMVCProjectApplication</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>SpringBootMyBatis</name>
+	<name>SpringBootMVCProjectApplication</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
