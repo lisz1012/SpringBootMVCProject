@@ -124,6 +124,9 @@
 		
 		<script type="text/javascript">
 			function deleteById(id) {
+				if (!confirm("确定要删除用户ID = " + id + "吗？")) {
+					return;
+				}
 				// 去访问一个带有JSON ResponseStatus类型的结果的controller就行了，@ResponseBody
 				// 不用ajax的话会造成页面的跳转
 				var url = "/account/delete";
