@@ -75,6 +75,13 @@ public class AccountController {
 		ResponseStatus status = accountService.deleteById(id);
 		return status;
 	}
+	
+	@RequestMapping("updatePasswordById")
+	@ResponseBody // 不需要页面，直接返回JSON数据
+	public ResponseStatus updatePasswordById(@RequestParam Integer id, @RequestParam String newPassword) {
+		ResponseStatus status = accountService.updatePasswordById(id, newPassword);
+		return status;
+	}
 	/*@PutMapping("updatePassword") //validateAccount前面写不写反斜杠都可以
 	public void updatePassword() { //不写@RequestParam也可以的
 		accountService.updatePassword();

@@ -45,6 +45,19 @@ public class AccountService {
 		return new ResponseStatus(500, "Internal error", "Delete failed.");
 	}
 
+	public ResponseStatus updatePasswordById(Integer id, String newPassword) {
+		try {
+			newPassword = AES256Utils.Encrypt(newPassword);
+			Account account = mapper.selectByPrimaryKey(id);
+			account.setPassword(newPassword);
+			mapper.updateByPrimaryKey(account);
+			return new ResponseStatus(200, "OK", "Password update successful");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseStatus(500, "Internal Error", "Password update failed");
+		}
+	}
+
 	/*public void updatePassword() {
 		List<Account> list = mapper.selectByExample(null);
 		list.forEach(a -> {

@@ -97,8 +97,8 @@
 					<td th:text="${account.location}"></td>
 					<td th:text="${account.role}"></td>
 					<td>
-						<a th:href="@{'javascript:deleteById(' + ${account.id} + ');'}">删除</a> 
-						<a>修改密码</a>
+						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${account.id} + ');'}">删除</a> 
+						<a class="btn btn-info" th:href="@{'javascript:changePassword(' + ${account.id} + ',\'' + ${account.username} + '\');'}">修改密码</a> 
 					</td>
 				</tr> <!-- "${}" 表示的是从scope动态取值 -->
 			</tbody>
@@ -122,6 +122,35 @@
 		  </ul>
 		</nav>
 		
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">修改密码</h4>
+                </div>
+                <div class="modal-body">
+					<div class="form-group" hidden="true">
+                        <label for="txt_departmentname">ID</label>
+                        <input type="text" name="id" class="form-control" id="id" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="txt_departmentname">Username</label>
+                        <input type="text" name="username" class="form-control" id="username" disabled placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="txt_departmentname">新密码</label>
+                        <input type="text" name="newPassword" class="form-control" id="newPassword" placeholder="新密码">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal" th:onclick="@{'javascript:confirmChangePassword();'}">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+		
 		<script type="text/javascript">
 			function deleteById(id) {
 				if (!confirm("确定要删除用户ID = " + id + "吗？")) {
@@ -139,6 +168,28 @@
 						alert(data.message);
 					}
 				});
+			}
+			
+			function changePassword(id, username) {
+				$('#myModal').modal();
+				$('#id').val(id);
+				$('#username').val(username);
+				$('#newPassword').val('');
+			}
+			
+			function confirmChangePassword() {
+				var id = $('#id').val();
+				var newPassword = $('#newPassword').val();
+				var url = "/account/updatePasswordById";
+				var args = {id:id, newPassword:newPassword};
+				$.post (url, args, function(data) {
+					console.log(data);
+					if (data.code == 200) {
+						window.location.reload();//刷新页面
+					} else {
+						alert(data.message);
+					}
+				}); 
 			}
 		</script>
 	</body>
