@@ -37,7 +37,7 @@
 	                    error: function () {
 	                        alert('Error loading XML document');
 	                    },
-	                    success: function (data, status) {//如果调用php成功
+	                    success: function (data, status) {
 	                        if (data.errno != 0) {
 	                            if (data.errmsg != '') {
 	                                alert(data.errmsg);
