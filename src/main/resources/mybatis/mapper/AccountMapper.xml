@@ -9,6 +9,7 @@
     <result column="age" jdbcType="INTEGER" property="age" />
     <result column="location" jdbcType="VARCHAR" property="location" />
     <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="profile_url" jdbcType="VARCHAR" property="profileUrl" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, username, `password`, nick_name, age, `location`, `role`
+    id, username, `password`, nick_name, age, `location`, `role`, profile_url
   </sql>
   <select id="selectByExample" parameterType="com.lisz.mapper.AccountExample" resultMap="BaseResultMap">
     select
@@ -111,11 +112,11 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.lisz.entity.Account" useGeneratedKeys="true">
     insert into account (username, `password`, nick_name, 
-      age, `location`, `role`
-      )
+      age, `location`, `role`, 
+      profile_url)
     values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, 
-      #{age,jdbcType=INTEGER}, #{location,jdbcType=VARCHAR}, #{role,jdbcType=VARCHAR}
-      )
+      #{age,jdbcType=INTEGER}, #{location,jdbcType=VARCHAR}, #{role,jdbcType=VARCHAR}, 
+      #{profileUrl,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.lisz.entity.Account" useGeneratedKeys="true">
     insert into account
@@ -138,6 +139,9 @@
       <if test="role != null">
         `role`,
       </if>
+      <if test="profileUrl != null">
+        profile_url,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="username != null">
@@ -157,6 +161,9 @@
       </if>
       <if test="role != null">
         #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="profileUrl != null">
+        #{profileUrl,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -190,6 +197,9 @@
       <if test="record.role != null">
         `role` = #{record.role,jdbcType=VARCHAR},
       </if>
+      <if test="record.profileUrl != null">
+        profile_url = #{record.profileUrl,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -203,7 +213,8 @@
       nick_name = #{record.nickName,jdbcType=VARCHAR},
       age = #{record.age,jdbcType=INTEGER},
       `location` = #{record.location,jdbcType=VARCHAR},
-      `role` = #{record.role,jdbcType=VARCHAR}
+      `role` = #{record.role,jdbcType=VARCHAR},
+      profile_url = #{record.profileUrl,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -229,6 +240,9 @@
       <if test="role != null">
         `role` = #{role,jdbcType=VARCHAR},
       </if>
+      <if test="profileUrl != null">
+        profile_url = #{profileUrl,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -239,7 +253,8 @@
       nick_name = #{nickName,jdbcType=VARCHAR},
       age = #{age,jdbcType=INTEGER},
       `location` = #{location,jdbcType=VARCHAR},
-      `role` = #{role,jdbcType=VARCHAR}
+      `role` = #{role,jdbcType=VARCHAR},
+      profile_url = #{profileUrl,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

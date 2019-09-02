@@ -62,6 +62,18 @@ public class AccountService {
 		return mapper.selectByPrimaryKey(id);
 	}
 
+	public ResponseStatus updateProfileUrlById(String profileUrl, Integer id) {
+		try {
+			Account account = mapper.selectByPrimaryKey(id);
+			account.setProfileUrl(profileUrl);
+			mapper.updateByPrimaryKey(account);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseStatus(500, "Internal Error", "Profile URL update failed");
+		}
+		return null;
+	}
+
 	/*public void updatePassword() {
 		List<Account> list = mapper.selectByExample(null);
 		list.forEach(a -> {

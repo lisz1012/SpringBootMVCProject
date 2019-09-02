@@ -1,0 +1,55 @@
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"> <!-- 自动补上项目名 -->
+		<script th:src="@{/js/common/jquery-3.4.1.min.js}"></script><!-- 先引入JQuery再引入bootstrap -->
+		<script th:src="@{/js/bootstrap.min.js}"></script>
+		<title>Profile</title>
+	</head>
+	<body>
+		<form id="upform" enctype='multipart/form-data' style="display:none;">
+		    <div class="form-group">
+		    	<input id="id" name="id" type="text" hidden="true" th:value="${session.account.id}">
+		        <label for="upteainput">上传文件</label>
+		        <input id="upteainput" name="filename" type="file" class="form-control-file">
+		    </div>
+		</form>
+		<button id="uptea" type="button" class="btn btn-primary">上传</button>
+	</body>
+	<script type="text/javascript">
+	$("#uptea").click(function () {
+	    $("#upteainput").click();
+	});
+
+	//下面是ajax上传文件的代码，此处就不做过多讲解。 
+	$("#upteainput").change(function () {//如果上传文件的input内容发生了变化
+	            $val = $("#upteainput").val();
+	            if ($val != '') {//要上传的文件名不为空
+	                $data = new FormData($("#upform")[0]);//创建一个formdata对象
+	                $host = window.location.host;
+	                $.ajax({
+	                    url: "http://localhost/account/uploadProfile",
+	                    type: "POST",
+	                    data: $data,
+	                    processData: false,
+	                    contentType: false,
+	                    dataType: "json",
+	                    error: function () {
+	                        alert('Error loading XML document');
+	                    },
+	                    success: function (data, status) {//如果调用php成功
+	                        if (data.errno != 0) {
+	                            if (data.errmsg != '') {
+	                                alert(data.errmsg);
+	                            } else {
+	                                alert("系统错误");
+	                            }
+	                        }
+	                        console.log(data);
+	                        alert("导入成功");
+	                        window.location.reload();
+	                    }
+	                });
+	            }
+	        });
+	</script>
+</html>

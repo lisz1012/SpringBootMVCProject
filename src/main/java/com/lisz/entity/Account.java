@@ -21,6 +21,8 @@ public class Account implements Serializable {
 
     private String role;
 
+    private String profileUrl;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -79,6 +81,14 @@ public class Account implements Serializable {
         this.role = role;
     }
 
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -97,7 +107,8 @@ public class Account implements Serializable {
             && (this.getNickName() == null ? other.getNickName() == null : this.getNickName().equals(other.getNickName()))
             && (this.getAge() == null ? other.getAge() == null : this.getAge().equals(other.getAge()))
             && (this.getLocation() == null ? other.getLocation() == null : this.getLocation().equals(other.getLocation()))
-            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()));
+            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()))
+            && (this.getProfileUrl() == null ? other.getProfileUrl() == null : this.getProfileUrl().equals(other.getProfileUrl()));
     }
 
     @Override
@@ -111,6 +122,7 @@ public class Account implements Serializable {
         result = prime * result + ((getAge() == null) ? 0 : getAge().hashCode());
         result = prime * result + ((getLocation() == null) ? 0 : getLocation().hashCode());
         result = prime * result + ((getRole() == null) ? 0 : getRole().hashCode());
+        result = prime * result + ((getProfileUrl() == null) ? 0 : getProfileUrl().hashCode());
         return result;
     }
 
@@ -127,6 +139,7 @@ public class Account implements Serializable {
         sb.append(", age=").append(age);
         sb.append(", location=").append(location);
         sb.append(", role=").append(role);
+        sb.append(", profileUrl=").append(profileUrl);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

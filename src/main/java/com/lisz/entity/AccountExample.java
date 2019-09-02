@@ -1,4 +1,4 @@
-package com.lisz.mapper;
+package com.lisz.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -593,8 +593,8 @@ public class AccountExample {
             addCriterion("`role` not between", value1, value2, "role");
             return (Criteria) this;
         }
-        
-        public Criteria andProfileUrlNull() {
+
+        public Criteria andProfileUrlIsNull() {
             addCriterion("profile_url is null");
             return (Criteria) this;
         }
@@ -605,57 +605,62 @@ public class AccountExample {
         }
 
         public Criteria andProfileUrlEqualTo(String value) {
-            addCriterion("profile_url =", value, "profile_url");
+            addCriterion("profile_url =", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlNotEqualTo(String value) {
-            addCriterion("profile_url <>", value, "profile_url");
+            addCriterion("profile_url <>", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlGreaterThan(String value) {
-            addCriterion("profile_url >", value, "profile_url");
+            addCriterion("profile_url >", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("profile_url >=", value, "profile_url");
+            addCriterion("profile_url >=", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlLessThan(String value) {
-            addCriterion("profile_url <", value, "profile_url");
+            addCriterion("profile_url <", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlLessThanOrEqualTo(String value) {
-            addCriterion("profile_url <=", value, "profile_url");
+            addCriterion("profile_url <=", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlLike(String value) {
-            addCriterion("profile_url like", value, "profile_url");
+            addCriterion("profile_url like", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlNotLike(String value) {
-            addCriterion("profile_url not like", value, "profile_url");
+            addCriterion("profile_url not like", value, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlIn(List<String> values) {
-            addCriterion("profile_url in", values, "profile_url");
+            addCriterion("profile_url in", values, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlNotIn(List<String> values) {
-            addCriterion("profile_url not in", values, "profile_url");
+            addCriterion("profile_url not in", values, "profileUrl");
             return (Criteria) this;
         }
 
         public Criteria andProfileUrlBetween(String value1, String value2) {
-            addCriterion("profile_url between", value1, value2, "profile_url");
+            addCriterion("profile_url between", value1, value2, "profileUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfileUrlNotBetween(String value1, String value2) {
+            addCriterion("profile_url not between", value1, value2, "profileUrl");
             return (Criteria) this;
         }
     }

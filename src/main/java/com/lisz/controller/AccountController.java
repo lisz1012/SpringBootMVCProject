@@ -1,20 +1,19 @@
 package com.lisz.controller;
 
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.PageInfo;
 import com.lisz.entity.Account;
@@ -27,6 +26,8 @@ import com.lisz.entity.Account;
 @Controller // 写@RestController里面就没法跳转页面了
 @RequestMapping("/account")
 public class AccountController {
+	private static final String PROFILE_URL_PREFIX = "/Users/shuzheng/Documents/upload/";
+	
 	@Autowired
 	private AccountService accountService; //service属于model，和后端做计算存储和整理数据的
 	
@@ -94,4 +95,27 @@ public class AccountController {
 	public void updatePassword() { //不写@RequestParam也可以的
 		accountService.updatePassword();
 	}*/
+	
+	@GetMapping("profile")
+	public String getProfile() {
+		return "/account/profile";
+	}
+	
+	@PostMapping("uploadProfile")
+	@ResponseBody
+	public ResponseStatus uploadProfile(MultipartFile filename, Integer id) {
+		String profileUrl = filename.getOriginalFilename(); //URL prefix is: "/Users/shuzheng/Documents/upload/", so when read, add this beforee the filename
+		ResponseStatus responseStatus = accountService.updateProfileUrlById(profileUrl, id);
+		if (responseStatus != null) {
+			return responseStatus;
+		}
+		try {
+			filename.transferTo(new File(PROFILE_URL_PREFIX + profileUrl));//这里太棒了，一句话copy到指定的目录
+		} catch (IllegalStateException | IOException e) {
+			e.printStackTrace();
+			return new ResponseStatus(500, "Uploading failed", "Updloading failed");
+		}
+		return new ResponseStatus(200, "OK", "Uploading succeeded");
+	}
+	
 }
