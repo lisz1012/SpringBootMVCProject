@@ -7,3 +7,6 @@ java -jar命令或者双击都可以运行他.
 bootstrap有默认头像的图片。
 数据库里可以只有Username password，这些的查询频率最高，其他的数据可以放到es里（冷数据备份）
 account_role, role_permission这种连接表都是手动处理，不用mybatis-generator-gui生成
+
+MyBatis的坑：关联的各个表里面不能有相同的列名，否则就要起别名避免冲突, 所以SQL中要起别名，而且在resultMap的column那里也要改，
+比如id改aid，rid，pid，name改成role_name, permission_name

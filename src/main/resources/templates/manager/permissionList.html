@@ -91,22 +91,23 @@
 				<th>读取</th>
 				<th>修改</th>
 				<th>删除</th>
-				<th>更改权限</th>
+				<th>操作</th>
 			</tr>
 			<tbody>
-				<tr th:each="permission : ${page.list}"> 
-					<td>[[${permissionStat.count}]]</td>
+				<!-- 用item和page是减少个性化的代码和变量，这样复制粘贴的时候改得少 -->
+				<tr th:each="item : ${page.list}"> 
+					<td>[[${itemStat.count}]]</td>
 					<!-- 或者：td标签里面写：th:text="${status.count}" -->
-					<td th:text="${permission.id}"></td> <!-- Account 会以反射的方法调用getters，所以必须得写get方法 -->
-					<td th:text="${permission.uri}"></td>
-					<td th:text="${permission.name}"></td>
-					<td th:text="${permission.c}"></td>
-					<td th:text="${permission.r}"></td>
-					<td th:text="${permission.u}"></td>
-					<td th:text="${permission.d}"></td>
+					<td th:text="${item.id}"></td> <!-- Account 会以反射的方法调用getters，所以必须得写get方法 -->
+					<td th:text="${item.uri}"></td>
+					<td th:text="${item.name}"></td>
+					<td th:text="${item.c}"></td>
+					<td th:text="${item.r}"></td>
+					<td th:text="${item.u}"></td>
+					<td th:text="${item.d}"></td>
 					<td th:if="${session.account.role} == 'admin'">
-						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${permission.id} + ');'}">删除</a> 
-						<a class="btn btn-info" th:href="@{'javascript:changePassword(' + ${permission.id} + ',\'' + ${permission.name} + '\');'}">修改密码</a> 
+						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${item.id} + ');'}">删除</a> 
+						<a class="btn btn-info" th:href="@{'javascript:modify(' + ${item.id} + ');'}">修改</a> 
 					</td>
 					<td th:if="${session.account.role} != 'admin'">
 						<a class="btn btn-danger" disabled>删除</a> 
@@ -124,22 +125,22 @@
 		      </a>
 		    </li>
 		    <li th:each="pageNum : ${page.navigatepageNums}">
-		    	<a th:href="@{'/account/list?pageNum=' + ${pageNum}}">[[${pageNum}]]</a>  <!-- 直接加${pageNum}不行，静态的部分和动态的部分要用 + 连接才可以 -->
+		    	<a th:href="@{'/manager/accountList?pageNum=' + ${pageNum}}">[[${pageNum}]]</a>  <!-- a标签里直接加${pageNum}不行，静态的部分和动态的部分要用 + 连接才可以 -->
 		    </li>
 		    <li th:class="${!page.hasNextPage} ? disabled : ''">
-		      <a th:href="${!page.hasNextPage} ? 'javascript:void(0)' : @{'/account/list?pageNum=' + ${page.nextPage}}" aria-label="Next">
+		      <a th:href="${!page.hasNextPage} ? 'javascript:void(0)' : @{'/manager/accountList?pageNum=' + ${page.nextPage}}" aria-label="Next">
 		        <span aria-hidden="true">&raquo;</span>
 		      </a>
 		    </li>
 		  </ul>
 		</nav>
 		
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fade" id="permissionModifyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">修改密码</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加或修改权限</h4>
                 </div>
                 <div class="modal-body">
 					<div class="form-group" hidden="true">
@@ -164,6 +165,13 @@
     </div>
 		
 		<script type="text/javascript">
+			function modify (id) {
+				window.location.href = "/manager/permissionModify?id=" + id;
+			}
+		
+		
+		
+		
 			function deleteById(id) {
 				if (!confirm("确定要删除用户ID = " + id + "吗？")) {
 					return;
@@ -183,7 +191,7 @@
 			}
 			
 			function changePassword(id, username) {
-				$('#myModal').modal();
+				$('#permissionModifyModal').modal();
 				$('#id').val(id);
 				$('#username').val(username);
 				$('#newPassword').val('');
