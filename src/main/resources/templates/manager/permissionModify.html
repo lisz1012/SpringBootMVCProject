@@ -117,7 +117,7 @@
 				$.ajax({
 					type:'POST',
 					url:url,
-					data:JSON.stringify(formObject),  // 这里转成字符串，在controller里@RequestBody参数在直接转换成目标Entity类
+					data:JSON.stringify(formObject),  // 这里转成字符串，在controller里@RequestBody参数在直接转换成目标Entity类,Controller里面用了Jackson来parse
 					success:function(data) {
 						console.log("Success: " + data);
 					},
