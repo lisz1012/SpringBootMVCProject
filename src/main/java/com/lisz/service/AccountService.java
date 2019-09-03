@@ -32,6 +32,9 @@ public class AccountService {
 	}
 
 	public PageInfo<Account> findByPage(int pageNum, int pageSize) {
+		List<Account> accounts = findPermissions(pageNum, pageSize);
+		System.out.println(accounts);
+		
 		PageHelper.startPage(pageNum, pageSize); // PageHelper和PageInfo是分页主要用到的工具类。
 		return new PageInfo<Account>(findAll(), 10);//包装成一个PageInfo对象，解决分页的问题.可以通过第二个参数动态调整最多显示的页码数,default = 8
 	}
@@ -73,6 +76,10 @@ public class AccountService {
 			return new ResponseStatus(500, "Internal Error", "Profile URL update failed");
 		}
 		return null;
+	}
+
+	public List<Account> findPermissions(int pageNum, int pageSize) {
+		return mapper.findPermissions();
 	}
 
 	/*public void updatePassword() {

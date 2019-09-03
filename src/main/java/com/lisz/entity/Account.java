@@ -1,6 +1,10 @@
 package com.lisz.entity;
 
 import java.io.Serializable;
+import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * account
@@ -22,6 +26,26 @@ public class Account implements Serializable {
     private String role;
 
     private String profileUrl;
+    
+    private List<Role> roles;
+    
+    public List<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+
+	public List<Permission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<Permission> permissions) {
+		this.permissions = permissions;
+	}
+
+	private List<Permission> permissions;
 
     private static final long serialVersionUID = 1L;
 
@@ -128,20 +152,6 @@ public class Account implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", username=").append(username);
-        sb.append(", password=").append(password);
-        sb.append(", nickName=").append(nickName);
-        sb.append(", age=").append(age);
-        sb.append(", location=").append(location);
-        sb.append(", role=").append(role);
-        sb.append(", profileUrl=").append(profileUrl);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

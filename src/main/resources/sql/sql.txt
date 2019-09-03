@@ -15,3 +15,79 @@ CREATE TABLE IF NOT EXISTS `role`(
    `name` VARCHAR(40) NOT NULL UNIQUE,
    PRIMARY KEY ( `id` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `account_role`(
+   `id` INT UNSIGNED AUTO_INCREMENT,
+   `account_id` INT UNSIGNED NOT NULL,
+   `role_id` INT UNSIGNED NOT NULL,
+   PRIMARY KEY ( `id` ),
+   FOREIGN KEY (account_id) references account(id),
+   FOREIGN KEY (role_id) references role(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+选出所有人的ID，Username和角色名称：
+select account.id, username,role.name from account 
+	join account_role on (account.id = account_role.account_id) 
+	join role on (account_role.role_id = role.id);
+
+CREATE TABLE IF NOT EXISTS `role_permission`(
+   `id` INT UNSIGNED AUTO_INCREMENT,
+   `role_id` INT UNSIGNED NOT NULL,
+   `permission_id` INT UNSIGNED NOT NULL,
+   PRIMARY KEY ( `id` ),
+   FOREIGN KEY (permission_id) references permission(id),
+   FOREIGN KEY (role_id) references role(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+// 注意⚠下面这种写法️左边的数据当右边没有数据join得上的时候，会被丢弃，所以要用left join
+select account.id, username,role.name, permission.name, permission.c, permission.r, permission.u, permission.d from account 
+	join account_role on (account.id = account_role.account_id) 
+	join role on (account_role.role_id = role.id)
+	join role_permission on (role.id = role_permission.role_id)
+	join permission on (role_permission.permission_id = permission.id);
+	
++----+----------+-----------+--------------+------+------+------+------+
+| id | username | name      | name         | c    | r    | u    | d    |
++----+----------+-----------+--------------+------+------+------+------+
+|  1 | lisz1012 | 管理员     | 权限管理      |    1 |    1 |    0 |    1 |
+|  1 | lisz1012 | 管理员     | 3123         |    1 |    1 |    1 |    1 |
++----+----------+-----------+--------------+------+------+------+------+
+	
+select account.id, username,role.name role_name, permission.name permission_name, permission.c, permission.r, permission.u, permission.d from account 
+	join account_role on (account.id = account_role.account_id) 
+	join role on (account_role.role_id = role.id)
+	left join role_permission on (role.id = role_permission.role_id)
+	left join permission on (role_permission.permission_id = permission.id);
++----+----------+-----------+-----------------+------+------+------+------+
+| id | username | role_name | permission_name | c    | r    | u    | d    |
++----+----------+-----------+-----------------+------+------+------+------+
+|  1 | lisz1012 | 管理员     | 权限管理          |    1 |    1 |    0 |    1 |
+|  1 | lisz1012 | 管理员     | 3123             |    1 |    1 |    1 |    1 |
+|  1 | lisz1012 | 用户       | NULL             | NULL | NULL | NULL | NULL |
++----+----------+-----------+-----------------+------+------+------+------+
+
+MyBatis的坑：关联的各个表里面不能有相同的列名，否则就要起别名避免冲突, 而且在resultMap那里也要改，比如id改aid，rid，pid，name改成role_name, permission_name
+select account.id as aid, 
+	   username,
+	   password,
+	   nick_name,
+	   age,
+	   location,
+	   role.name role_name, permission.name permission_name, permission.c, permission.r, permission.u, permission.d from account 
+	join account_role on (account.id = account_role.account_id) 
+	join role on (account_role.role_id = role.id as rid)
+	left join role_permission on (role.id = role_permission.role_id)
+	left join permission on (role_permission.permission_id = permission.id as pid);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
