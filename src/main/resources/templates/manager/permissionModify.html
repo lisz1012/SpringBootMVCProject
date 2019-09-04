@@ -99,10 +99,10 @@
 				$.each(data, function(i, item){
 					formObject[item.name] = item.value;
 				});
-				formObject["c"] = $("#c").attr("checked") == null ? true : false;
-				formObject["r"] = $("#r").attr("checked") == null ? true : false;
-				formObject["u"] = $("#u").attr("checked") == null ? true : false;
-				formObject["d"] = $("#d").attr("checked") == null ? true : false;
+				formObject["c"] = $("#c").attr("checked") == null ? false : true;
+				formObject["r"] = $("#r").attr("checked") == null ? false : true;
+				formObject["u"] = $("#u").attr("checked") == null ? false : true;
+				formObject["d"] = $("#d").attr("checked") == null ? false : true;
 				
 				var url = "/api/v1/manager/permission/add";
 				// 不能用下面多行注释中的代码，因为$.post提交的编码是'application/x-www-form-urlencoded;charset=UTF-8'
