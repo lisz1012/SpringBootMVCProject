@@ -97,7 +97,7 @@
 				// 没有复选框的可以 var data = $("#p").serialize();直接获得JSON对象。但是复选框name不起作用，所以要转成JSONArray
 				var data = $("#p").serializeArray();
 				$.each(data, function(i, item){
-					formObject[item.name] = item.value;
+					formObject[item.name] = item.value; //name和value就是取的input中的值
 				});
 				formObject["c"] = $("#c").is(":checked");
 				formObject["r"] = $("#r").is(":checked");
