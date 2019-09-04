@@ -84,11 +84,11 @@
 		<input type="text" name="id" th:value="${permission.id}" hidden="true"/>
 		权限名称：<input type="text" name="name" th:value="${permission.name}"/><br />
 		URI： <input type="text" name="uri" th:value="${permission.uri}"/><br />
-		// 根据当前的permission状态确定复选框是否被勾选
-		权限：<input id="c" type="checkbox" th:checked="${permission.c} ? true : false">创建 
-		     <input id="r" type="checkbox" th:checked="${permission.r} ? true : false">读取
-		     <input id="u" type="checkbox" th:checked="${permission.u} ? true : false">更新
-		     <input id="d" type="checkbox" th:checked="${permission.d} ? true : false">删除
+		<!-- 根据当前的permission状态确定复选框是否被勾选 -->
+		权限：<input id="c" type="checkbox" th:checked="${permission.c}">创建 
+		     <input id="r" type="checkbox" th:checked="${permission.r}">读取
+		     <input id="u" type="checkbox" th:checked="${permission.u}">更新
+		     <input id="d" type="checkbox" th:checked="${permission.d}">删除
 		     <a class="btn btn-danger" href="javascript:submit()">提交</a>
 		</form>
 		<script type="text/javascript">
@@ -99,10 +99,11 @@
 				$.each(data, function(i, item){
 					formObject[item.name] = item.value;
 				});
-				formObject["c"] = $("#c").attr("checked") == null ? false : true;
-				formObject["r"] = $("#r").attr("checked") == null ? false : true;
-				formObject["u"] = $("#u").attr("checked") == null ? false : true;
-				formObject["d"] = $("#d").attr("checked") == null ? false : true;
+				formObject["c"] = $("#c").is(":checked");
+				formObject["r"] = $("#r").is(":checked");
+				formObject["u"] = $("#u").is(":checked");
+				//formObject["d"] = $("#d").attr("checked") != null;
+				formObject["d"] = $("#d").is(":checked"); // 这么写跟上面的写法一样效果
 				
 				var url = "/api/v1/manager/permission/add";
 				// 不能用下面多行注释中的代码，因为$.post提交的编码是'application/x-www-form-urlencoded;charset=UTF-8'
@@ -119,7 +120,7 @@
 					url:url,
 					data:JSON.stringify(formObject),  // 这里转成字符串，在controller里@RequestBody参数在直接转换成目标Entity类,Controller里面用了Jackson来parse
 					success:function(data) {
-						console.log("Success: " + data);
+						console.log("Success: " + JSON.stringify(data));
 					},
 					error:function(data) { //返回只不是200都会进到这里
 						console.log("Error: " + data);
@@ -127,6 +128,7 @@
 					contentType:'application/json;charset=utf-8',//其中;charset=utf-8可以不写
 					dataType:'json'
 				});
+				window.local.reload;
 			}
 		</script>
 	</body>

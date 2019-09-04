@@ -39,4 +39,23 @@ public class PermissionService {
 	public Permission findById(Integer id) {
 		return mapper.selectByPrimaryKey(id);
 	}
+
+	public ResponseStatus save(Permission permission) {
+		Permission existingPermission = mapper.selectByPrimaryKey(permission.getId());
+		if (existingPermission == null) {
+			int inserted = mapper.insert(permission);
+			if (inserted == 1) {
+				return new ResponseStatus(200, "OK", "Insertion succeeded!");
+			} else {
+				return new ResponseStatus(500, "Failed", "Insertion of a permission failed");
+			}
+		} else {
+			int updated = mapper.updateByPrimaryKey(permission);
+			if (updated != 1) {
+				return new ResponseStatus(200, "OK", "Update succeeded!");
+			} else {
+				return new ResponseStatus(500, "Failed", "Update of a permission failed");
+			}
+		}
+	}
 }
