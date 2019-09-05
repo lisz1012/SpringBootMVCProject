@@ -64,4 +64,8 @@ public class ManagerController {
 		return "/manager/permissionModify";
 	}
 	
+	@GetMapping("permissionAdd")
+	public String add() {
+		return "/manager/permissionModify"; //复用permissionModify.html
+	}
 }

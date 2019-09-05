@@ -116,6 +116,8 @@
 				</tr> <!-- "${}" 表示的是从scope动态取值 -->
 			</tbody>
 		</table>
+		<br />
+		<a class="btn btn-default" href="/manager/permissionAdd">添加权限</a><br /> 
 		<!-- 用户列表 结束 ⬆️-->
 		<nav aria-label="Page navigation">
 		  <ul class="pagination">
@@ -173,21 +175,25 @@
 		
 		
 			function deleteById(id) {
-				if (!confirm("确定要删除用户ID = " + id + "吗？")) {
+				if (!confirm("确定要删除权限ID = " + id + "吗？")) {
 					return;
 				}
 				// 去访问一个带有JSON ResponseStatus类型的结果的controller就行了，@ResponseBody
 				// 不用ajax的话会造成页面的跳转
-				var url = "/account/delete";
-				var args = {id:id};
-				$.post (url, args, function(data) {
-					console.log(data);
-					if (data.code == 200) {
-						window.location.reload();//刷新页面
-					} else {
-						alert(data.message);
-					}
+				var url = "/api/v1/manager/permission/delete?id=" + id;
+				$.ajax({
+					type:'DELETE',
+					url:url,
+					success:function(data) {
+						console.log("Success: " + JSON.stringify(data));
+					},
+					error:function(data) { //返回只不是200都会进到这里
+						console.log("Error: " + data);
+					},
+					contentType:'application/json;charset=utf-8',//其中;charset=utf-8可以不写
+					dataType:'json'
 				});
+				window.local.reload;
 			}
 			
 			function changePassword(id, username) {

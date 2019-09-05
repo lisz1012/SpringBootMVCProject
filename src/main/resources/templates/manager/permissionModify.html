@@ -78,17 +78,16 @@
 		  </div><!-- /.container-fluid -->
 		</nav>
 		<!-- 导航栏 结束 ⬆️-->
-		<h1>添加或修改权限</h1>
-		[[${permission}]] <br />
+		<h1><span th:text="${permission} == null ? 添加权限 : 修改权限"></span></h1>
 		<form id="p">
-		<input type="text" name="id" th:value="${permission.id}" hidden="true"/>
-		权限名称：<input type="text" name="name" th:value="${permission.name}"/><br />
-		URI： <input type="text" name="uri" th:value="${permission.uri}"/><br />
+		<input type="text" id="id" name="id" th:value="${permission} == null ? '' : ${permission.id}" hidden="true"/>
+		权限名称：<input type="text" name="name" th:value="${permission} == null ? '' : ${permission.name}"/><br />
+		URI： <input type="text" name="uri" th:value="${permission} == null ? '' : ${permission.uri}"/><br />
 		<!-- 根据当前的permission状态确定复选框是否被勾选 -->
-		权限：<input id="c" type="checkbox" th:checked="${permission.c}">创建 
-		     <input id="r" type="checkbox" th:checked="${permission.r}">读取
-		     <input id="u" type="checkbox" th:checked="${permission.u}">更新
-		     <input id="d" type="checkbox" th:checked="${permission.d}">删除
+		权限：<input id="c" type="checkbox" th:checked="${permission} == null ? false : ${permission.c}">创建 
+		     <input id="r" type="checkbox" th:checked="${permission} == null ? false : ${permission.r}">读取
+		     <input id="u" type="checkbox" th:checked="${permission} == null ? false : ${permission.u}">更新
+		     <input id="d" type="checkbox" th:checked="${permission} == null ? false : ${permission.d}">删除
 		     <a class="btn btn-danger" href="javascript:submit()">提交</a>
 		</form>
 		<script type="text/javascript">
@@ -105,7 +104,8 @@
 				//formObject["d"] = $("#d").attr("checked") != null;
 				formObject["d"] = $("#d").is(":checked"); // 这么写跟上面的写法一样效果
 				
-				var url = "/api/v1/manager/permission/add";
+				var id = $("#id").val();
+				var url = id == '' || id == undefined || id == null ? "/api/v1/manager/permission/add" : "/api/v1/manager/permission/update"; //这里不能写$("#id").val() == null否则
 				// 不能用下面多行注释中的代码，因为$.post提交的编码是'application/x-www-form-urlencoded;charset=UTF-8'
 				// 后端不支持，会报HttpMediaTypeNotSupportedException异常
 				/*

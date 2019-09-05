@@ -3,9 +3,11 @@ package com.lisz.controller;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lisz.entity.Permission;
@@ -25,7 +27,18 @@ public class ManagerRestController {
 	@PostMapping("add")
 	public ResponseStatus add(@RequestBody Permission permission) {
 		System.out.println(ToStringBuilder.reflectionToString(permission, ToStringStyle.MULTI_LINE_STYLE));
-		permissionService.save(permission);
-		return new ResponseStatus(200, "", "");
+		return permissionService.add(permission);
+	}
+	
+	@PostMapping("update")
+	public ResponseStatus update(@RequestBody Permission permission) {
+		System.out.println(ToStringBuilder.reflectionToString(permission, ToStringStyle.MULTI_LINE_STYLE));
+		return permissionService.update(permission);
+	}
+	
+	@DeleteMapping("delete")
+	public ResponseStatus deleteById(@RequestParam int id) {
+		System.out.println("Deleting permission id = " + id);
+		return permissionService.deleteById(id);
 	}
 }
