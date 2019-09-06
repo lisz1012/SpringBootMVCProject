@@ -10,3 +10,5 @@ account_role, role_permission这种连接表都是手动处理，不用mybatis-g
 
 MyBatis的坑：关联的各个表里面不能有相同的列名，否则就要起别名避免冲突, 所以SQL中要起别名，而且在resultMap的column那里也要改，
 比如id改aid，rid，pid，name改成role_name, permission_name
+
+前后端分离之后一律只返回JSON，没有什么model.addAttribute什么的了
