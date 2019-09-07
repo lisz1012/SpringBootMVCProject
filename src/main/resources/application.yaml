@@ -1,0 +1,12 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    username: root
+    password: ^abc123$
+    url: jdbc:mysql://localhost:3306/ssm?characterEncoding=utf8&useSSL=false&serverTimezone=GMT-7&allowPublicKeyRetrieval=true
+mybatis:
+  type-aliases-package: com.lisz.entity
+  mapper-locations:
+  - classpath:mybatis/mapper/*.xml
+  

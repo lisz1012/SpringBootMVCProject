@@ -2,7 +2,6 @@ package com.lisz.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.PageInfo;
 import com.lisz.entity.Account;
+import com.lisz.entity.SysConfig;
 import com.lisz.service.AccountService;
 
 /**
@@ -31,11 +31,14 @@ public class AccountController {
 	private static final String PROFILE_URL_PREFIX = "/Users/shuzheng/Documents/upload/";
 	
 	@Autowired
+	private SysConfig sysConfig;
+	
+	@Autowired
 	private AccountService accountService; //service属于model，和后端做计算存储和整理数据的
 	
 	@GetMapping("login") //login前面写不写反斜杠都可以
-	public String login() {
-		
+	public String login(Model model) {
+		model.addAttribute("name", sysConfig.getName());
 		return "account/login"; //返回template目录下面的login.html页面，此页面并不会被AccountFilter过滤
 	}
 	
