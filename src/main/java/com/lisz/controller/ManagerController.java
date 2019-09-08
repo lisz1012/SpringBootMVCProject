@@ -70,10 +70,17 @@ public class ManagerController {
 		return "/manager/permissionModify"; //复用permissionModify.html
 	}
 	
+	@GetMapping("permissionAdd/{roleId}")
+	public String permissionAdd(@PathVariable int roleId) {
+		System.out.println("Role ID: " + roleId);
+		return "/manager/permissionModify"; 
+	}
+	
 	@GetMapping("rolePermissions/{id}")
 	public String getPermissionsForRoleId(@PathVariable int id, Model model) {
 		PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
 		model.addAttribute("page", page);
+		model.addAttribute("roleId", id);
 		return "/manager/permissionList";
 	}
 	
