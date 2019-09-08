@@ -66,7 +66,7 @@ public class ManagerController {
 	}
 	
 	@GetMapping("permissionAdd")
-	public String add() {
+	public String permissionAdd() {
 		return "/manager/permissionModify"; //复用permissionModify.html
 	}
 	
@@ -75,5 +75,10 @@ public class ManagerController {
 		PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
 		model.addAttribute("page", page);
 		return "/manager/permissionList";
+	}
+	
+	@GetMapping("roleAdd")
+	public String roleAdd() {
+		return "/manager/roleAdd";
 	}
 }

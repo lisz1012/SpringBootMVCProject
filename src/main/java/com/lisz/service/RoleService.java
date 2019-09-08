@@ -41,4 +41,22 @@ public class RoleService {
 		return mapper.selectByPrimaryKey(id);
 	}
 
+	public ResponseStatus add(Role role) {
+		int inserted = mapper.insert(role);
+		if (inserted == 1) {
+			return new ResponseStatus(200, "OK", "Insertion succeeded!");
+		} else {
+			return new ResponseStatus(500, "Failed", "Insertion of a role failed");
+		}
+	}
+
+	public ResponseStatus update(Role role) {
+		int updated = mapper.updateByPrimaryKey(role);
+		if (updated == 1) {
+			return new ResponseStatus(200, "OK", "Update succeeded!");
+		} else {
+			return new ResponseStatus(500, "Failed", "Update of a role failed");
+		}
+	}
+
 }

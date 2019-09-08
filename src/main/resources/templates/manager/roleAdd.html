@@ -40,9 +40,9 @@
 		        <li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">系统设置 <span class="caret"></span></a>
 		          <ul class="dropdown-menu">
-		            <li><a href="/account/list">账号列表</a></li>
-		            <li><a href="/account/role">角色管理</a></li>
-		            <li><a href="/account/permission">权限管理</a></li>
+		            <li><a href="/manager/accountList">账号列表</a></li>
+		            <li><a href="/manager/roleList">角色管理</a></li>
+		            <li><a href="/manager/permissionList">权限管理</a></li>
 		          </ul>
 		        </li>
 		      </ul>
@@ -78,95 +78,36 @@
 		  </div><!-- /.container-fluid -->
 		</nav>
 		<!-- 导航栏 结束 ⬆️-->
-		<h1>角色管理</h1>
-		<!-- 用户列表 开始 ⬇️-->
-		<table class="table table-hover">
-		
-			<tr>
-				<th>序号</th>
-				<th>ID</th>
-				<th>名称</th>
-				<!-- <th>Password</th>
-				<th>Age</th>
-				<th>NickName</th>
-				<th>Location</th>
-				<th>Role</th> -->
-				<th>操作</th>
-			</tr>
-			<tbody>
-				<tr th:each="role : ${page.list}"> 
-					<td>[[${roleStat.count}]]</td>
-					<!-- 或者：td标签里面写：th:text="${status.count}" -->
-					<td th:text="${role.id}"></td> <!-- Account 会以反射的方法调用getters，所以必须得写get方法 -->
-					<td th:text="${role.name}"></td>
-					<!-- <td th:text="${account.password}"></td>
-					<td th:text="${account.age}"></td>
-					<td th:text="${account.nickName}"></td>
-					<td th:text="${account.location}"></td>
-					<td th:text="${account.role}"></td> -->
-					<td th:if="${session.account.role} == 'admin'">
-						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${role.id} + ');'}">删除</a> 
-						<a class="btn btn-info" th:href="@{'/manager/rolePermissions/' + ${role.id}}">修改</a> 
-					</td>
-				</tr> <!-- "${}" 表示的是从scope动态取值 -->
-			</tbody>
-		</table> <br />
-		<span th:if="${session.account.role} == 'admin'"><a class="btn btn-default" href="/manager/roleAdd">添加角色</a></span><br /> 
-		<!-- 用户列表 结束 ⬆️-->
-		<nav aria-label="Page navigation">
-		  <ul class="pagination">
-		    <li th:class="${!page.hasPreviousPage} ? 'disabled' : ''"><!--  自己试出来的 sweet,!写在里面跟外面是一样的 -->
-		      <a th:href="${!page.hasPreviousPage} ? 'javascript:void(0)' : @{'/manager/roleList?pageNum=' + ${page.prePage}}" aria-label="Previous"> <!-- 用'javascript:void(0)'代替'#',是为了避免点击之后从最下面跳到最上面，虽然不翻页 -->
-		        <span aria-hidden="true">&laquo;</span>
-		      </a>
-		    </li>
-		    <li th:each="pageNum : ${page.navigatepageNums}">
-		    	<a th:href="@{'/manager/roleList?pageNum=' + ${pageNum}}">[[${pageNum}]]</a>  <!-- 直接加${pageNum}不行，静态的部分和动态的部分要用 + 连接才可以 -->
-		    </li>
-		    <li th:class="${!page.hasNextPage} ? disabled : ''">
-		      <a th:href="${!page.hasNextPage} ? 'javascript:void(0)' : @{'/manager/roleList?pageNum=' + ${page.nextPage}}" aria-label="Next">
-		        <span aria-hidden="true">&raquo;</span>
-		      </a>
-		    </li>
-		  </ul>
-		</nav>
-		
+		<h1>添加角色</h1>
+		<form id="p">
+			 名称：<input type="text" name="name" /><br />
+		     <a class="btn btn-danger" href="javascript:submit()">提交</a>
+		</form>
 		<script type="text/javascript">
-			function deleteById(id) {
-				if (!confirm("确定要删除用户ID = " + id + "吗？")) {
-					return;
-				}
-				// 去访问一个带有JSON ResponseStatus类型的结果的controller就行了，@ResponseBody
-				// 不用ajax的话会造成页面的跳转
-				var url = "/account/delete";
-				var args = {id:id};
-				$.post (url, args, function(data) {
-					console.log(data);
-					if (data.code == 200) {
-						window.location.reload();//刷新页面
-					} else {
-						alert(data.message);
-					}
+			function submit() {
+				var formObject = {};
+				// 没有复选框的可以 var data = $("#p").serialize();直接获得JSON对象。但是复选框name不起作用，所以要转成JSONArray
+				var data = $("#p").serializeArray();
+				$.each(data, function(i, item){
+					formObject[item.name] = item.value; //name和value就是取的input中的值
 				});
-			}
-			
-			function update(id) {
-				window.location.href="/manager/rolePermissions";
-			}
-			
-			function confirmUpdate() {
-				var id = $('#id').val();
-				var newPassword = $('#newPassword').val();
-				var url = "/account/updatePasswordById";
-				var args = {id:id, newPassword:newPassword};
-				$.post (url, args, function(data) {
-					console.log(data);
-					if (data.code == 200) {
-						window.location.reload();//刷新页面
-					} else {
-						alert(data.message);
-					}
-				}); 
+				
+				var url = "/api/v1/manager/role/add";
+				console.log(formObject);
+				$.ajax({
+					type:'POST',
+					url:url,
+					data:JSON.stringify(formObject),  // 这里转成字符串，在controller里@RequestBody参数在直接转换成目标Entity类,Controller里面用了Jackson来parse
+					success:function(data) {
+						console.log("Success: " + JSON.stringify(data));
+					},
+					error:function(data) { //返回只不是200都会进到这里
+						console.log("Error: " + data);
+					},
+					contentType:'application/json;charset=utf-8',//其中;charset=utf-8可以不写
+					dataType:'json'
+				});
+				window.location.href="/manager/roleList";
 			}
 		</script>
 	</body>

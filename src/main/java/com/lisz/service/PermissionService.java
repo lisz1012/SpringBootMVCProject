@@ -51,7 +51,7 @@ public class PermissionService {
 
 	public ResponseStatus update(Permission permission) {
 		int updated = mapper.updateByPrimaryKey(permission);
-		if (updated != 1) {
+		if (updated == 1) {
 			return new ResponseStatus(200, "OK", "Update succeeded!");
 		} else {
 			return new ResponseStatus(500, "Failed", "Update of a permission failed");
