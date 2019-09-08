@@ -57,4 +57,9 @@ public class PermissionService {
 			return new ResponseStatus(500, "Failed", "Update of a permission failed");
 		}
 	}
+	
+	public PageInfo<Permission> getPermissionsForRoleId(int id) {
+		List<Permission> permissions = mapper.getPermissionsForRoleId(id);
+		return new PageInfo<Permission>(permissions);
+	}
 }

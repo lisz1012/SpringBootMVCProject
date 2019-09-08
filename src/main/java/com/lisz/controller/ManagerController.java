@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -67,5 +68,12 @@ public class ManagerController {
 	@GetMapping("permissionAdd")
 	public String add() {
 		return "/manager/permissionModify"; //复用permissionModify.html
+	}
+	
+	@GetMapping("rolePermissions/{id}")
+	public String getPermissionsForRoleId(@PathVariable int id, Model model) {
+		PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
+		model.addAttribute("page", page);
+		return "/manager/permissionList";
 	}
 }

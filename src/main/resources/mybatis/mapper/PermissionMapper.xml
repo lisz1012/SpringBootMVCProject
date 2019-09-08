@@ -10,6 +10,27 @@
     <result column="u" jdbcType="BIT" property="u" />
     <result column="d" jdbcType="BIT" property="d" />
   </resultMap>
+  
+  <resultMap id="getPermissionsForRoleIdResultMap" type="com.lisz.entity.Permission">
+    <id column="pid" jdbcType="INTEGER" property="id" />
+    <result column="uri" jdbcType="VARCHAR" property="uri" />
+    <result column="permission_name" jdbcType="VARCHAR" property="name" />
+    <result column="c" jdbcType="BIT" property="c" />
+    <result column="r" jdbcType="BIT" property="r" />
+    <result column="u" jdbcType="BIT" property="u" />
+    <result column="d" jdbcType="BIT" property="d" />
+  </resultMap>
+  
+  <select id="getPermissionsForRoleId" resultMap="getPermissionsForRoleIdResultMap">
+	 select 
+	   	permission.id as pid,
+	   	permission.uri as uri,
+	   	permission.name permission_name, permission.c, permission.r, permission.u, permission.d
+	 from role_permission
+	 join permission on (role_permission.permission_id = permission.id)
+	 where role_permission.role_id = #{id};
+  </select>
+  
   <sql id="Example_Where_Clause">
     <where>
       <foreach collection="oredCriteria" item="criteria" separator="or">
