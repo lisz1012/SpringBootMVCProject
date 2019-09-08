@@ -79,6 +79,16 @@ public class AccountService {
 		return mapper.findPermissions();
 	}
 
+	public ResponseStatus update(Account account) {
+		try {
+			mapper.updateByPrimaryKeySelective(account); //updateSelective是有哪些字段就更新哪些，没有的不去管,这里都行
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseStatus(500, "Internal Error", "Profile URL update failed");
+		}
+		return null;
+	}
+
 	/*public void updatePassword() {
 		List<Account> list = mapper.selectByExample(null);
 		list.forEach(a -> {

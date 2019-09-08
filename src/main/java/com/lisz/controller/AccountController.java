@@ -113,11 +113,10 @@ public class AccountController {
 		if (account == null) {
 			return new ResponseStatus(403, "Updloading failed", "Username or passord is incorrect");
 		}
-		// 不要从表单的数据中拿，有安全问题，因为可能有人用postman或者curl篡改id。这里倒是也可以直接从前面的Account对象中拿id
-		int id = ((Account)request.getSession().getAttribute("account")).getId();
 		
 		String profileUrl = filename.getOriginalFilename(); //URL prefix is: "/Users/shuzheng/Documents/upload/", so when read, add this before the filename
-		ResponseStatus responseStatus = accountService.updateProfileUrlById(profileUrl, id);
+		account.setProfileUrl(profileUrl);
+		ResponseStatus responseStatus = accountService.update(account);
 		if (responseStatus != null) {
 			return responseStatus;
 		}
