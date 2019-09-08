@@ -108,8 +108,15 @@ public class AccountController {
 	
 	@PostMapping("uploadProfile")
 	@ResponseBody
-	public ResponseStatus uploadProfile(MultipartFile filename, Integer id) {
-		String profileUrl = filename.getOriginalFilename(); //URL prefix is: "/Users/shuzheng/Documents/upload/", so when read, add this beforee the filename
+	public ResponseStatus uploadProfile(MultipartFile filename, HttpServletRequest request, String username, String password) {// 名字与表单中的name一致的话会自动匹配
+		Account account = accountService.findByUsernameAndPassword(username, password);
+		if (account == null) {
+			return new ResponseStatus(403, "Updloading failed", "Username or passord is incorrect");
+		}
+		
+		int id = ((Account)request.getSession().getAttribute("account")).getId();
+		
+		String profileUrl = filename.getOriginalFilename(); //URL prefix is: "/Users/shuzheng/Documents/upload/", so when read, add this before the filename
 		ResponseStatus responseStatus = accountService.updateProfileUrlById(profileUrl, id);
 		if (responseStatus != null) {
 			return responseStatus;
@@ -120,6 +127,7 @@ public class AccountController {
 			e.printStackTrace();
 			return new ResponseStatus(500, "Uploading failed", "Updloading failed");
 		}
+		
 		return new ResponseStatus(200, "OK", "Uploading succeeded");
 	}
 	

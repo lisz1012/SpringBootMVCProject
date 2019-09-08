@@ -6,11 +6,17 @@
 		<title>Profile</title>
 	</head>
 	<body>
-		<form id="upform" enctype='multipart/form-data' style="display:none;">
+		<form id="upform" enctype='multipart/form-data'>
 		    <div class="form-group">
 		    	<input id="id" name="id" type="text" hidden="true" th:value="${session.account.id}">
-		        <label for="upteainput">上传文件</label>
-		        <input id="upteainput" name="filename" type="file" class="form-control-file">
+		    	<label for="username">用户名：</label>
+		    	<!-- 将表单以 POST 或 GET 的方式提交的话，使用了 disabled 后，这个元素的值不会被传递出去，而 readonly 会将该值传递出去 https://blog.wpjam.com/m/input-disabled-vs-readonly/ -->
+		        <input id="username" name="username" type="text" th:value="${session.account.username}" readonly><br />
+		        <label for="password">密码</label>
+		        <input id="password" name="password" type="password"><br />
+		        <label for="upteainput" style="display:none;">上传文件</label>
+		        <input id="upteainput" name="filename" type="file" class="form-control-file" style="display:none;">
+		        
 		    </div>
 		</form>
 		<button id="uptea" type="button" class="btn btn-primary">上传</button>
@@ -22,11 +28,11 @@
 
 	//下面是ajax上传文件的代码，此处就不做过多讲解。 
 	// https://blog.csdn.net/u010358168/article/details/81205116
+	// https://blog.csdn.net/ailo555/article/details/48859425
 	$("#upteainput").change(function () {//如果上传文件的input内容发生了变化
 	            $val = $("#upteainput").val();
 	            if ($val != '') {//要上传的文件名不为空
 	                $data = new FormData($("#upform")[0]);//创建一个formdata对象
-	                $host = window.location.host;
 	                $.ajax({
 	                    url: "http://localhost/account/uploadProfile",
 	                    type: "POST",
@@ -35,19 +41,20 @@
 	                    contentType: false,
 	                    dataType: "json",
 	                    error: function () {
-	                        alert('Error loading XML document');
+	                        alert('Error uploading image');
 	                    },
-	                    success: function (data, status) {
-	                        if (data.errno != 0) {
-	                            if (data.errmsg != '') {
-	                                alert(data.errmsg);
+	                    success: function (data) {
+	                    	if (data.code == 200) {
+	                    		alert("导入成功");
+		                        window.location.reload();
+	                    	} else {
+	                            if (data.message != '' || data.message != undefined || data.message != null) {
+	                                alert(data.message + ":" + data.data);
 	                            } else {
 	                                alert("Error: 系统错误!");
 	                            }
 	                        }
 	                        console.log(data);
-	                        alert("导入成功");
-	                        window.location.reload();
 	                    }
 	                });
 	            }

@@ -67,7 +67,7 @@ public class AccountService {
 		try {
 			Account account = mapper.selectByPrimaryKey(id);
 			account.setProfileUrl(profileUrl);
-			mapper.updateByPrimaryKey(account);
+			mapper.updateByPrimaryKey(account); //updateSelective是有哪些字段就更新哪些，没有的不去管,这里都行
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseStatus(500, "Internal Error", "Profile URL update failed");
