@@ -126,7 +126,8 @@ public class AccountController {
 			e.printStackTrace();
 			return new ResponseStatus(500, "Uploading failed", "Updloading failed");
 		}
-		
+		//更新session使新的头像生效
+		request.getSession().setAttribute("account", account);
 		
 		return new ResponseStatus(200, "OK", "Uploading succeeded");
 	}
