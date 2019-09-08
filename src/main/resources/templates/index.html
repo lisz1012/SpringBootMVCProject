@@ -64,6 +64,7 @@
 		        <!-- 已登录用户 ⬇️-->
 		        <li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+		          	<img width="22px" height="22px" th:src="@{'/upload/' + ${session.account.profileUrl}}" class="img-circle"/> <!-- 见application.properties的资源映射 -->
 		          	欢迎你，[[${session.account.username}]] <span class="caret"></span><span class="badge">666</span><!-- 这个略酷 --></a>
 		          <ul class="dropdown-menu">
 		            <li><a href="/account/profile">个人信息</a></li>
