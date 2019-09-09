@@ -80,7 +80,8 @@
 		<!-- 导航栏 结束 ⬆️-->
 		<h1>修改角色权限</h1>
 		<form id="p">
-			<input type="text" id="roleId" name="roleId" th:value="${roleId}" hidden="true"/>
+			<input type="text" id="roleId" name="roleId" th:value="${role.id}" hidden="true"/> 
+			<input type="text" id="roleName" name="roleName" th:value="${role.name}" disabled /><br />
 			<span th:each="permission : ${permissions}">
 				<input name="permissionIds" type="checkbox" th:value="${permission.id}" />[[${permission.name}]]
 			</span><br />

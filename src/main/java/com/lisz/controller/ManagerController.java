@@ -75,8 +75,9 @@ public class ManagerController {
 	public String getPermissionsForRoleId(@PathVariable int id, Model model) {
 		//PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
 		List<Permission> permissions = permissionService.findAll();
+		Role role = roleService.findById(id);
 		model.addAttribute("permissions", permissions);
-		model.addAttribute("roleId", id);
+		model.addAttribute("role", role);
 		return "/manager/rolePermissions";
 	}
 	
