@@ -60,9 +60,10 @@ public class RoleService {
 	}
 
 	public void addPermissionsForRole(int[] permissionIds, int roleId) {
-		for (int permissionId : permissionIds) {
+		/*for (int permissionId : permissionIds) {
 			mapper.addPermissionForRole(roleId, permissionId);
-		}
+		}*/
+		mapper.addPermissionsForRole(roleId, permissionIds);
 	}
 
 }

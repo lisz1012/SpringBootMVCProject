@@ -11,6 +11,15 @@
   	insert into role_permission (role_id, permission_id) values (#{roleId}, #{permissionId});
   </insert>
   
+  <insert id="addPermissionsForRole">
+    delete from role_permission where role_id = #{roleId};
+    insert into role_permission (role_id,permission_id) values 
+    <foreach collection="permissionIds" item="permissionId" index="index" separator=","> <!-- 注意这里不能写open 和 close，否则有多余的一对括号，最后报错，column数对不上了 -->
+    	(#{roleId},#{permissionId})
+    </foreach>
+  	<!-- 参见https://blog.csdn.net/windy2014s/article/details/78738004 -->
+  </insert>
+  
   
   <sql id="Example_Where_Clause">
     <where>
