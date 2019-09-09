@@ -47,6 +47,9 @@ public class RoleRestController {
 	public ResponseStatus permissionAdd(@RequestParam int roleId, @RequestParam int[] permissionIds) {
 		System.out.println("Role ID: " + roleId);
 		System.out.println("Permission IDs: " + ToStringBuilder.reflectionToString(permissionIds));
+		
+		roleService.addPermissionsForRole(permissionIds, roleId);
+		
 		return new ResponseStatus(200, "OK", "Success!"); 
 	}
 }
