@@ -3,6 +3,7 @@ package com.lisz.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -70,18 +71,13 @@ public class ManagerController {
 		return "/manager/permissionModify"; //复用permissionModify.html
 	}
 	
-	@GetMapping("permissionAdd/{roleId}")
-	public String permissionAdd(@PathVariable int roleId) {
-		System.out.println("Role ID: " + roleId);
-		return "/manager/permissionModify"; 
-	}
-	
 	@GetMapping("rolePermissions/{id}")
 	public String getPermissionsForRoleId(@PathVariable int id, Model model) {
-		PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
-		model.addAttribute("page", page);
+		//PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
+		List<Permission> permissions = permissionService.findAll();
+		model.addAttribute("permissions", permissions);
 		model.addAttribute("roleId", id);
-		return "/manager/permissionList";
+		return "/manager/rolePermissions";
 	}
 	
 	@GetMapping("roleAdd")

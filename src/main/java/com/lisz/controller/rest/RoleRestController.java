@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lisz.controller.ResponseStatus;
-import com.lisz.entity.Permission;
 import com.lisz.entity.Role;
-import com.lisz.service.PermissionService;
 import com.lisz.service.RoleService;
 
 /**
@@ -43,5 +41,12 @@ public class RoleRestController {
 	public ResponseStatus deleteById(@RequestParam int id) {
 		System.out.println("Deleting permission id = " + id);
 		return roleService.deleteById(id);
+	}
+	
+	@PostMapping("rolePermission/add")
+	public ResponseStatus permissionAdd(@RequestParam int roleId, @RequestParam int[] permissionIds) {
+		System.out.println("Role ID: " + roleId);
+		System.out.println("Permission IDs: " + ToStringBuilder.reflectionToString(permissionIds));
+		return new ResponseStatus(200, "OK", "Success!"); 
 	}
 }
