@@ -38,7 +38,7 @@ public class RoleService {
 	}
 
 	public Role findById(Integer id) {
-		return mapper.selectByPrimaryKey(id);
+		return mapper.findById(id);
 	}
 
 	public ResponseStatus add(Role role) {

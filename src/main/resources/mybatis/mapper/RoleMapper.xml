@@ -20,6 +20,25 @@
   	<!-- 参见https://blog.csdn.net/windy2014s/article/details/78738004 -->
   </insert>
   
+  <resultMap id="roleResultMap" type="com.lisz.entity.Role">
+    <id column="rid" jdbcType="INTEGER" property="id" />
+    <result column="rname" jdbcType="VARCHAR" property="name" />
+    <collection property="permissions" ofType="com.lisz.entity.Permission">
+    	<id column="pid" jdbcType="INTEGER" property="id" />
+	    <result column="uri" jdbcType="VARCHAR" property="uri" />
+	    <result column="permission_name" jdbcType="VARCHAR" property="name" />
+	    <result column="c" jdbcType="BIT" property="c" />
+	    <result column="r" jdbcType="BIT" property="r" />
+	    <result column="u" jdbcType="BIT" property="u" />
+	    <result column="d" jdbcType="BIT" property="d" />
+    </collection>
+  </resultMap>
+  
+  <select id="findById" resultMap="roleResultMap">
+  	select r.id rid, r.name rname, p.id pid, p.name as permission_name, p.c, p.r, p.u, p.d, p.uri 
+  		from role r join role_permission rp on (r.id = rp.role_id) join permission p on (rp.permission_id = p.id)
+  		where r.id = #{id};
+  </select>
   
   <sql id="Example_Where_Clause">
     <where>

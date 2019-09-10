@@ -1,6 +1,7 @@
 package com.lisz.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * role
@@ -10,8 +11,10 @@ public class Role implements Serializable {
     private Integer id;
 
     private String name;
+    
+    private List<Permission> permissions;
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
     public Integer getId() {
         return id;
@@ -28,6 +31,14 @@ public class Role implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public List<Permission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<Permission> permissions) {
+		this.permissions = permissions;
+	}
 
     @Override
     public boolean equals(Object that) {

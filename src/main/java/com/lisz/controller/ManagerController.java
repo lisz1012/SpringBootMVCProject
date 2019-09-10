@@ -4,6 +4,7 @@ package com.lisz.controller;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -76,6 +77,7 @@ public class ManagerController {
 		//PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
 		List<Permission> permissions = permissionService.findAll();
 		Role role = roleService.findById(id);
+		System.out.println("Role: " + ToStringBuilder.reflectionToString(role, ToStringStyle.MULTI_LINE_STYLE));
 		model.addAttribute("permissions", permissions);
 		model.addAttribute("role", role);
 		return "/manager/rolePermissions";
