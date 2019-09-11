@@ -23,7 +23,7 @@
   <resultMap id="roleResultMap" type="com.lisz.entity.Role">
     <id column="rid" jdbcType="INTEGER" property="id" />
     <result column="rname" jdbcType="VARCHAR" property="name" />
-    <collection property="permissions" ofType="com.lisz.entity.Permission">
+    <collection property="permissions" ofType="com.lisz.entity.Permission"><!-- property设置在实体类中的成员名，ofType设置泛型<Permission> -->
     	<id column="pid" jdbcType="INTEGER" property="id" />
 	    <result column="uri" jdbcType="VARCHAR" property="uri" />
 	    <result column="permission_name" jdbcType="VARCHAR" property="name" />
