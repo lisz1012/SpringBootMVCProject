@@ -82,8 +82,11 @@
 		<form id="p">
 			<input type="text" id="roleId" name="roleId" th:value="${role.id}" hidden="true"/> 
 			<input type="text" id="roleName" name="roleName" th:value="${role.name}" disabled /><br />
-			<span th:each="permission : ${permissions}">
-				<input name="permissionIds" type="checkbox" th:value="${permission.id}" />[[${permission.name}]]
+			<span th:each="rolePermission : ${role.permissions}">
+				<input name="permissionIds" type="checkbox" th:value="${rolePermission.id}" checked="checked"/>[[${rolePermission.name}]]
+			</span>
+			<span th:each="nonRolePermission : ${nonRolePermissions}">
+				<input name="permissionIds" type="checkbox" th:value="${nonRolePermission.id}" />[[${nonRolePermission.name}]]
 			</span><br />
 		     <a class="btn btn-danger" href="javascript:submit()">提交</a>
 		     
