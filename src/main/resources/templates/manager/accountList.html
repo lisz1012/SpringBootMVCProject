@@ -107,10 +107,12 @@
 					<td th:if="${session.account.role} == 'admin'">
 						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${account.id} + ');'}">删除</a> 
 						<a class="btn btn-info" th:href="@{'javascript:changePassword(' + ${account.id} + ',\'' + ${account.username} + '\');'}">修改密码</a> 
+						<a class="btn btn-info" th:href="@{'/manager/accountRoles/' + ${account.id}}">设定角色</a> 
 					</td>
 					<td th:if="${session.account.role} != 'admin'">
 						<a class="btn btn-danger" disabled>删除</a> 
 						<a class="btn btn-info" disabled>修改密码</a> 
+						<a class="btn btn-info" disabled>设定角色</a> 
 					</td>
 				</tr> <!-- "${}" 表示的是从scope动态取值 -->
 			</tbody>
@@ -202,6 +204,11 @@
 						alert(data.message);
 					}
 				}); 
+			}
+			
+			function setRoles (id) {
+				var url =  "/account/accountRoles";
+				var args = {id:id};
 			}
 		</script>
 	</body>

@@ -60,7 +60,8 @@ public class AccountService {
 	}
 
 	public Account findById(Integer id) {
-		return mapper.selectByPrimaryKey(id);
+		//return mapper.selectByPrimaryKey(id);
+		return mapper.findById(id);
 	}
 
 	public ResponseStatus updateProfileUrlById(String profileUrl, Integer id) {
@@ -75,10 +76,6 @@ public class AccountService {
 		return null;
 	}
 
-	public List<Account> findPermissions(int pageNum, int pageSize) {
-		return mapper.findPermissions();
-	}
-
 	public ResponseStatus update(Account account) {
 		try {
 			mapper.updateByPrimaryKeySelective(account); //updateSelective是有哪些字段就更新哪些，没有的不去管,这里都行
@@ -87,6 +84,10 @@ public class AccountService {
 			return new ResponseStatus(500, "Internal Error", "Profile URL update failed");
 		}
 		return null;
+	}
+
+	public void addRolesForAccount(int[] roleIds, int accountId) {
+		mapper.addRolesForAccount(roleIds, accountId);
 	}
 
 	/*public void updatePassword() {

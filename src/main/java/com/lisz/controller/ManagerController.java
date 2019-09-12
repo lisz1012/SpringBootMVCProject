@@ -89,4 +89,17 @@ public class ManagerController {
 	public String roleAdd() {
 		return "/manager/roleAdd";
 	}
+	
+	@GetMapping("accountRoles/{id}")
+	public String getRolesForAccountId(@PathVariable int id, Model model) {
+		//PageInfo<Permission> page = permissionService.getPermissionsForRoleId(id);
+		List<Role> roles = roleService.findAll();
+		Account account = accountService.findById(id);
+		//TODO NPE if account has no role, need to fix
+		List<Role> nonAccountRoles = roles.stream().filter(r->!account.getRoles().contains(r)).collect(Collectors.toList());
+		System.out.println("Account: " + ToStringBuilder.reflectionToString(account, ToStringStyle.MULTI_LINE_STYLE));
+		model.addAttribute("nonAccountRoles", nonAccountRoles);
+		model.addAttribute("account", account);
+		return "/manager/accountRoles";
+	}
 }

@@ -14,7 +14,7 @@
   
   <!-- 自定义结果集。包含了一对多的关系。只作增加，接受Role和Permission结果集List,由于都是在Account里面，所以type还是相同的实体类. 
   id对应了下面select的id. 以前的各个字段都仍然需要-->
-  <resultMap id="findPermissionsResultMap" type="com.lisz.entity.Account">
+  <resultMap id="findByIdResultMap" type="com.lisz.entity.Account">
   	<id column="aid" jdbcType="INTEGER" property="id" />
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="password" jdbcType="VARCHAR" property="password" />
@@ -39,7 +39,7 @@
     </collection>
   </resultMap>
   
-  <select id="findPermissions" resultMap="findPermissionsResultMap">
+  <select id="findById" resultMap="findByIdResultMap">
   	<!-- select * from account 
 	join account_role on (account.id = account_role.account_id) 
 	join role on (account_role.role_id = role.id)
@@ -61,8 +61,22 @@
 	join account_role on (account.id = account_role.account_id) 
 	join role on (account_role.role_id = role.id)
 	left join role_permission on (role.id = role_permission.role_id)
-	left join permission on (role_permission.permission_id = permission.id);
+	left join permission on (role_permission.permission_id = permission.id)
+	where account.id = #{id};
   </select>
+  
+  
+  
+  
+  
+  <insert id="addRolesForAccount">
+  	delete from account_role where account_id = #{accountId};
+  	insert into account_role (account_id,role_id) values
+  	<foreach collection="roleIds" separator="," index="index" item="roleId"><!-- 一条insert语句插入多条记录 -->
+  		(#{accountId},#{roleId})
+  	</foreach>
+  </insert>
+  
   
   
   
