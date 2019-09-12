@@ -21,7 +21,7 @@
   </insert>
   
   <resultMap id="roleResultMap" type="com.lisz.entity.Role">
-    <id column="rid" jdbcType="INTEGER" property="id" />
+    <id column="rid" jdbcType="INTEGER" property="id" /> <!-- 起别名rid，避免id重名mybatis报错 -->
     <result column="rname" jdbcType="VARCHAR" property="name" />
     <collection property="permissions" ofType="com.lisz.entity.Permission"><!-- property设置在实体类中的成员名，ofType设置泛型<Permission> -->
     	<id column="pid" jdbcType="INTEGER" property="id" />
