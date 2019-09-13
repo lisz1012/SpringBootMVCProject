@@ -14,8 +14,6 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.stereotype.Component;
 
 import com.lisz.entity.Account;
@@ -56,15 +54,10 @@ public class AccountFilter implements Filter {
 		}
 		
 		Account account = (Account)obj;
-		/*if (!canIgnore(uri) && !hasAuth(account, uri)) {
-			request.setAttribute("msg", "您无权访问当前页面" + uri);
-			System.out.println("filter:" + uri);
-			
-			request.getRequestDispatcher("/errorPage").forward(request, response);//server端跳转
-			//response.sendRedirect("/errorPage");
-			/*System.out.println("returning...");
+		if (!canIgnore(uri) && !hasAuth(account, uri)) {
+			request.getRequestDispatcher("/errorPage/401").forward(request, response);//server端跳转
 			return;
-		}*/
+		}
 		
 		chain.doFilter(request, response); //只有这一句的话直接通过，相当于没有filter
 	}

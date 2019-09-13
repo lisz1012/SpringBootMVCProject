@@ -1,13 +1,9 @@
 package com.lisz.controller;
 
-
-import java.net.http.HttpRequest;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class MainController {
@@ -22,9 +18,18 @@ public class MainController {
 		return "index";  // 这里写"account/login"（带目录的），会跳转到login页面
 	}
 	
-	@GetMapping("/errorPage")
-	public String errorPage(HttpRequest request, Model model) {
-		String msg = (String)((HttpServletRequest)request).getAttribute("msg");
+	@GetMapping("/errorPage/{code}")
+	public String errorPage(Model model, @PathVariable int code) {
+		String msg = "未知错误";
+		switch (code) {
+		case 401:
+			msg = "您无权访问当前页面";
+			break;
+		case 500:
+			msg = "服务器内部错误";
+		default:
+			break;
+		}
 		model.addAttribute("msg", msg);
 		return "errorPage";
 	}
