@@ -14,6 +14,13 @@
 		        <input id="username" name="username" type="text" th:value="${session.account.username}" readonly><br />
 		        <label for="password">密码</label>
 		        <input id="password" name="password" type="password"><br />
+		        <label for="roles">角色</label>
+		        <th:block th:each="role : ${session.account.roles}"> 
+		        	&nbsp;&nbsp;<a th:href="@{'/manager/rolePermissions/' + ${role.id}}">[[${role.name}]]</a> &nbsp;&nbsp;
+		        </th:block><br />
+		        <label for="permissions">权限</label>
+		        <th:block th:each="permission : ${session.account.permissions}"> 
+		        	&nbsp;&nbsp;<a href="/manager/permissionAdd/">[[${permission.name}]]</a> &nbsp;&nbsp;</th:block>
 		        <label for="upteainput" style="display:none;">上传文件</label>
 		        <input id="upteainput" name="filename" type="file" class="form-control-file" style="display:none;">
 		        

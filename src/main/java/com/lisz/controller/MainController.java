@@ -1,7 +1,12 @@
 package com.lisz.controller;
 
 
+import java.net.http.HttpRequest;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -17,4 +22,10 @@ public class MainController {
 		return "index";  // 这里写"account/login"（带目录的），会跳转到login页面
 	}
 	
+	@GetMapping("/errorPage")
+	public String errorPage(HttpRequest request, Model model) {
+		String msg = (String)((HttpServletRequest)request).getAttribute("msg");
+		model.addAttribute("msg", msg);
+		return "errorPage";
+	}
 }

@@ -1,0 +1,88 @@
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"> <!-- 自动补上项目名 -->
+		<script th:src="@{/js/common/jquery-3.4.1.min.js}"></script><!-- 先引入JQuery再引入bootstrap -->
+		<script th:src="@{/js/bootstrap.min.js}"></script>
+		<title>办公自动化系统</title>
+	</head>
+	<body>
+	
+		<!-- 导航栏 开始 ⬇️-->
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="/index">首页</a>
+		    </div>
+		
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		      <!-- 每个li是一组按钮 -->
+		        <li><a href="#">公文流转</a></li>
+		        <li><a href="#">Link</a></li>
+		        <li class="dropdown">
+		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">人力资源 <span class="caret"></span></a>
+		          <ul class="dropdown-menu">
+		            <li><a href="/account/list">用户列表</a></li>
+		            <li><a href="#">Another action</a></li>
+		            <li><a href="#">Something else here</a></li>
+		            <li role="separator" class="divider"></li>
+		            <li><a href="#">Separated link</a></li>
+		            <li role="separator" class="divider"></li>
+		            <li><a href="#">One more separated link</a></li>
+		          </ul>
+		        </li>
+		        <li class="dropdown">
+		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">系统设置 <span class="caret"></span></a>
+		          <ul class="dropdown-menu">
+		          	<li><a href="/manager/accountList">账号列表</a></li>
+		            <li><a href="/manager/roleList">角色管理</a></li>
+		            <li><a href="/manager/permissionList">角色管理</a></li>
+		          </ul>
+		        </li>
+		      </ul>
+		      <form class="navbar-form navbar-left">
+		        <div class="form-group">
+		          <input type="text" class="form-control" placeholder="请输入员工姓名或者工号">
+		        </div>
+		        <button type="submit" class="btn btn-default">搜索</button>
+		      </form>
+		      
+		      <ul th:if="${session.account} == null" class="nav navbar-nav navbar-right">
+		      	<!-- 未登录用户 -->
+		        <li><a href="/account/register">注册</a></li>
+		        <li><a href="/account/login">登录</a></li>
+		      </ul>
+		      
+		      <ul th:if="${session.account} != null" class="nav navbar-nav navbar-right">
+		        <!-- 已登录用户 ⬇️-->
+		        <li class="dropdown">
+		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+		          	<img width="22px" height="22px" th:src="@{'/upload/' + ${session.account.profileUrl}}" class="img-circle"/> <!-- 见application.properties的资源映射 -->
+		          	欢迎你，[[${session.account.username}]] <span class="caret"></span><span class="badge">666</span><!-- 这个略酷 --></a>
+		          <ul class="dropdown-menu">
+		            <li><a href="/account/profile">个人信息</a></li>
+		            <li><a href="#">Another action</a></li>
+		            <li><a href="#">Something else here</a></li>
+		            <li role="separator" class="divider"></li>
+		            <li><a href="/account/logout">退出登录</a></li>
+		          </ul>
+		        </li>
+		        <!-- 已登录用户 ⬆️-->
+		      </ul>
+		    </div><!-- /.navbar-collapse -->
+		  </div><!-- /.container-fluid -->
+		</nav>
+		<!-- 导航栏 结束 ⬆️-->
+	
+		<div class="jumbotron">
+  			<p>错误：[[${msg}]], <a href="javascript:history.go(-1)">返回</a></p>
+		</div>
+	</body>
+</html>

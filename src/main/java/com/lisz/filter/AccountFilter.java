@@ -14,7 +14,12 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.stereotype.Component;
+
+import com.lisz.entity.Account;
+import com.lisz.entity.Permission;
 
 /**
  * 用户权限处理
@@ -33,6 +38,8 @@ public class AccountFilter implements Filter {
 		IGNORED_URI.add("/images/");
 		IGNORED_URI.add("/account/login");
 		IGNORED_URI.add("/account/validateAccount"); //登录验证不能拦截啊
+		IGNORED_URI.add("/static");
+		IGNORED_URI.add("/errorPage");
 	}
 
 	@Override
@@ -47,7 +54,31 @@ public class AccountFilter implements Filter {
 			response.sendRedirect("/account/login");
 			return;
 		}
+		
+		Account account = (Account)obj;
+		/*if (!canIgnore(uri) && !hasAuth(account, uri)) {
+			request.setAttribute("msg", "您无权访问当前页面" + uri);
+			System.out.println("filter:" + uri);
+			
+			request.getRequestDispatcher("/errorPage").forward(request, response);//server端跳转
+			//response.sendRedirect("/errorPage");
+			/*System.out.println("returning...");
+			return;
+		}*/
+		
 		chain.doFilter(request, response); //只有这一句的话直接通过，相当于没有filter
+	}
+
+	private boolean hasAuth(Account account, String uri) {
+		for (Permission permission : account.getPermissions()) {
+			System.out.println(permission.getUri());
+			System.out.println(uri);
+			System.out.println("======");
+			if (uri.startsWith(permission.getUri())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private boolean canIgnore(String uri) {

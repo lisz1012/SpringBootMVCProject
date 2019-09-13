@@ -14,4 +14,6 @@ public interface AccountMapper extends MyBatisBaseDao<Account, Integer, AccountE
 	Account findById(Integer id);
 
 	void addRolesForAccount(int[] roleIds, int accountId);
+
+	Account findByUsernameAndPassword(String username, String password);
 }

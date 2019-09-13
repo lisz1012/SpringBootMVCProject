@@ -21,10 +21,11 @@ public class AccountService {
 
 	public Account findByUsernameAndPassword(String username, String password) {
 		password = AES256Utils.Encrypt(password);
-		AccountExample example = new AccountExample();
+		/*AccountExample example = new AccountExample();
 		example.createCriteria().andUsernameEqualTo(username).andPasswordEqualTo(password);
 		List<Account> list = mapper.selectByExample(example);
-		return list.isEmpty() ? null : list.get(0);
+		return list.isEmpty() ? null : list.get(0);*/
+		return mapper.findByUsernameAndPassword(username, password);
 	}
 
 	public List<Account> findAll() {
