@@ -35,6 +35,7 @@ public class AccountFilter implements Filter {
 		IGNORED_URI.add("/js/");
 		IGNORED_URI.add("/images/");
 		IGNORED_URI.add("/account/login");
+		IGNORED_URI.add("/account/logout");
 		IGNORED_URI.add("/account/validateAccount"); //登录验证不能拦截啊
 		IGNORED_URI.add("/static");
 		IGNORED_URI.add("/errorPage");
