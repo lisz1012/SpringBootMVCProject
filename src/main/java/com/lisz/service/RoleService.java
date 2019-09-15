@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lisz.controller.ResponseStatus;
-import com.lisz.entity.Permission;
 import com.lisz.entity.Role;
 import com.lisz.mapper.RoleMapper;
 

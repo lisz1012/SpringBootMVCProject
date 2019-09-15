@@ -9,7 +9,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.lisz.controller.ResponseStatus;
 import com.lisz.entity.Account;
-import com.lisz.mapper.AccountExample;
 import com.lisz.mapper.AccountMapper;
 import com.lisz.utils.AES256Utils;
 
