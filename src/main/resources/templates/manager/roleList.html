@@ -107,8 +107,10 @@
 					<td th:if="${session.account.role} == 'admin'">
 						<a class="btn btn-danger" th:href="@{'javascript:deleteById(' + ${role.id} + ');'}">删除</a> 
 						<th:block th:each="permission : ${session.account.permissions}">
-							<th:block th:if="permission.u">
-								<a class="btn btn-info" th:href="@{'/manager/rolePermissions/' + ${role.id}}">修改</a> 
+							<th:block th:if="${permission.uri} eq '/manager/rolePermissions'">
+								<th:block th:if="permission.u">
+									<a class="btn btn-info" th:href="@{'/manager/rolePermissions/' + ${role.id}}">修改</a> 
+								</th:block>
 							</th:block>
 						</th:block>
 					</td>
