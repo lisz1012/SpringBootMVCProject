@@ -38,6 +38,7 @@ public class AccountFilter implements Filter {
 		IGNORED_URI.add("/account/validateAccount"); //登录验证不能拦截啊
 		IGNORED_URI.add("/static");
 		IGNORED_URI.add("/errorPage");
+		IGNORED_URI.add("/upload");
 	}
 
 	@Override
