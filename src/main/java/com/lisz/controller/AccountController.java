@@ -121,7 +121,7 @@ public class AccountController {
 			return responseStatus;
 		}
 		try {
-			filename.transferTo(new File(PROFILE_URL_PREFIX + profileUrl));//这里太棒了，一句话copy到指定的目录
+			filename.transferTo(new File(PROFILE_URL_PREFIX + profileUrl));//这里太棒了，一句话copy到指定的目录。将来会有改动，指向FastDFS的某个地址
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
 			return new ResponseStatus(500, "Uploading failed", "Updloading failed");
