@@ -76,7 +76,7 @@ public class AccountController {
 	}
 	
 	@RequestMapping("delete")
-	@ResponseBody // 不需要页面，直接返回JSON数据
+	@ResponseBody // 不需要页面，直接返回JSON数据,前后端分离之后都要这么做
 	public ResponseStatus delete(@RequestParam Integer id) {
 		Account account = accountService.findById(id);
 		if (!account.getRole().equals("admin")) {
