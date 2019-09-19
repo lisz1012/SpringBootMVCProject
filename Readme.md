@@ -40,3 +40,5 @@ less /proc/sys/fs/file-nr 是当前句柄数，句柄相当于内存里的指针
 
 mime.type文件里有很多类型头和类型，比如:video/mp4   mp4浏览器遇到这个类型头且支持这个类型的显示或者播放的话，就会显示或播放在浏览器里；否则弹出下载框让用户下载。从服务器端发送类型到浏览器，浏览器决定自己的行为。
 default_type是默认的类型或行为：application/octet-stream弹出下载框。在服务器端，@ResponseBody的API会在返回对象的时候加一个头信息：application/json
+
+Nginx会作为数据收集器，所以会有日志相关的配置，跟大数据相关些
