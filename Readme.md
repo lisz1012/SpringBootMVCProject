@@ -37,3 +37,5 @@ menu表以后要全部读出来做成缓存，村道系统内存，所以就不�
 nginx.conf里面worker_processes表示有多少进程；events下面的worker_connections表示每个进程最多支持的连接数，不大于服务器内核每个进程能够打开的最多的文件句柄数：less /proc/sys/fs/file-max.除此之外还要考虑物理内存
 修改单一进程的句柄个数：ulimit -SHn 65535 
 less /proc/sys/fs/file-nr 是当前句柄数，句柄相当于内存里的指针
+
+mime.type文件里有很多类型头和类型，比如:video/mp4   mp4浏览器遇到这个类型头且支持这个类型的显示或者播放的话，就会显示或播放在浏览器里
