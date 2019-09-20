@@ -46,4 +46,5 @@ sendfile off 相当于control + c。app以字节码的方式加载文件，然�
 sendfile on 相当于control + x  由app发送一个指令给内核，内核去读文件，由内核直接推给网卡，只有一次复制操作 --- 异步网络IO
 sendfile on业户出问题，有时候要有意关掉，比如网上图片加载一半出不来了，就是因为file传输太快，没来得及去解析，接受的时候出问题了，文件来的特快，接收端解析的程序没跟上，这时候就关掉sendfile。以低性能对低性能
 后面拿Nginx开发插件儿，这里面能玩儿的东西太多了
-keepalive_timeout尝试连接多少秒后超时
+tcp_nopush linux内核网络相关的，优化tcp网络连接的一些属性，打开会对优化网络传输，跟TCP缓存相关，tcp不是一个字节一个字节往外发数据。微批处理也叫流处理，也叫实时处理
+keepalive_timeout尝试连接多少秒后超时，返回一个错误页面
