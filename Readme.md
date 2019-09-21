@@ -48,3 +48,13 @@ sendfile on业户出问题，有时候要有意关掉，比如网上图片加载
 后面拿Nginx开发插件儿，这里面能玩儿的东西太多了
 tcp_nopush linux内核网络相关的，优化tcp网络连接的一些属性，打开会对优化网络传输，跟TCP缓存相关，tcp不是一个字节一个字节往外发数据。微批处理也叫流处理，也叫实时处理
 keepalive_timeout尝试连接多少秒后超时，返回一个错误页面
+gzip是网络压缩，多年前网络不好的时候产生的。server给client发html的时候，html里面空格特别多，压缩可以大幅节省贷款，但是两端需要压缩和解压操作，都需要内存和CPU和浏览器的支持。对于固定页面可以事先准备一些压缩好的包。
+	不过5G要来了，所以没那么大的必要了。不太希望客户端做太多计算
+Server 一个Nginx对应一个server，开n个Nginx就是有N个虚拟主机，但他们的域名和端口号不能相同。一台主机的性能跑一个网站有时候有点浪费。虚拟主机有基于ip的，一个主机可以绑定多个ip。有基于servername的，
+	用不同的主机名虚拟出server来，有基于端口的，前面都重复port不同也能行
+	location 虚拟目录：表示域名后面什么都不加就是在nginx家目录下的html目录里面找页面文件，如果/后面没写文件名，则默认返回html目录下的index.html或者index.htm，找到第一个就不找第二个了
+	location / {
+		root html;
+		index index.html index.htm
+	}
+	listen
