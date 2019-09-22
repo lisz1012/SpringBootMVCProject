@@ -42,6 +42,7 @@ mime.type文件里有很多类型头和类型，比如:video/mp4   mp4浏览器�
 default_type是默认的类型或行为：application/octet-stream弹出下载框。在服务器端，@ResponseBody的API会在返回对象的时候加一个头信息：application/json
 
 Nginx会作为数据收集器，所以会有日志相关的配置，跟大数据相关些。
+各种配置参考：http://tengine.taobao.org/nginx_docs/cn/docs/
 sendfile off 相当于control + c。app以字节码的方式加载文件，然后以字节码的方式复制给内核，内核再发给网卡（NIC）
 sendfile on 相当于control + x  由app发送一个指令给内核，内核去读文件，由内核直接推给网卡，只有一次复制操作 --- 异步网络IO
 sendfile on业户出问题，有时候要有意关掉，比如网上图片加载一半出不来了，就是因为file传输太快，没来得及去解析，接受的时候出问题了，文件来的特快，接收端解析的程序没跟上，这时候就关掉sendfile。以低性能对低性能
@@ -52,8 +53,8 @@ gzip是网络压缩，多年前网络不好的时候产生的。server给client�
 	不过5G要来了，所以没那么大的必要了。不太希望客户端做太多计算
 Server 一个Nginx对应一个server，开n个Nginx就是有N个虚拟主机，但他们的域名和端口号不能相同。一台主机的性能跑一个网站有时候有点浪费。虚拟主机有基于ip的，一个主机可以绑定多个ip。有基于servername的，
 	用不同的主机名虚拟出server来，有基于端口的，前面都重复port不同也能行
-	location 虚拟目录：表示域名后面什么都不加就是在nginx家目录下的html目录里面找页面文件，如果/后面没写文件名，则默认返回html目录下的index.html或者index.htm，找到第一个就不找第二个了
-	location / {
+	location 虚拟目录：表示域名后面什么都不加就是在nginx家目录下的html目录里面找页面文件，如果/后面没写文件名，则默认返回html目录下的index.html或者index.htm，找到第一个就不找第二个了location，root，index都是关键字
+	location / {        <------ /两侧少一个空格都不行
 		root html;
 		index index.html index.htm
 	}
