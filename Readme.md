@@ -66,4 +66,30 @@ Server 一个Nginx对应一个server，开n个Nginx就是有N个虚拟主机，�
 这样有个小问题：1. 代理的负载会很高 2. IO瓶颈，proxy的IO负载大，IO密集的时候，代理服务器这一块儿也要做负载均衡，就是response的方向上，server和proxy之间也需要load balance。在nginx之上加一层lvs，使得response直接给
 用户。这样的话只有用户发的请求才打到反向代理服务器上，降低了IO。用户上传文件的情况除外，但一般我们会把用户上传的模块独立出来，所以也不会对反向代理造成压力。反向的代理更倾向于在服务端做一些业务逻辑或者性能提升。反向代理还可以做
 软防火墙，分析URL是否合法，频率是否过高（自己写的爬虫程序会遇到反向代理制造的麻烦^_^）物理的路由器提供这些功能就没有那么灵活了，不好扩展
-location{}的里面些proxy_pass相当于redirect，客户端跳转。 先匹配/baidu ，再匹配/，看他下面有没有baidu这么个目录。就是说先匹配最精确的.注意里面那个网址最后的/还真不能少，然后分号;结束
+location{}的里面些proxy_pass相当于服务器端跳转。匹配的时候， 先匹配/baidu ，再匹配/，看他下面有没有baidu这么个目录。就是说先匹配最精确的.注意里面那个网址最后的/还真不能少（坑），然后分号;结束
+被代理的网址或者服务器返回302重定向的时候，nginx会转给客户端，客户端此时再发一个新的request，直接到被代理的服务器，不走nginx
+IP访问控制：我的网站并不是对所有人开放的。注册完会员之后才能访问的。
+location ~(.*)\.avi$ {
+	auth_basic "closed site";
+	auth_basic_user_file users;
+}
+
+auth_basic这一项的值可以随便写，auth_basic_user_file的值是一个相对路径，相对于本配置文件，user和密码存在哪里，生成的时候要先安装apache，再通过密码生成命令`htpasswd -c -d /usr/local/users lisz1012` 生成密码
+然后把文件/usr/local/users拷贝到auth_basic_user_file users所指定的路径：users那里
+location {
+	deny IP1;
+	allow IP2;
+	...
+}
+同在老爷爷教的那些apache配置
+
+查看当前服务器状态：
+location /basic_status {
+	stub_status on;
+}
+在浏览器里输入：http://192.168.1.101/basic_status
+就会返回：
+Active connections: 1 
+server accepts handled requests request_time
+ 2 2 2 538
+Reading: 0 Writing: 1 Waiting: 0 
