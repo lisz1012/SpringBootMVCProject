@@ -45,7 +45,7 @@ Nginx会作为数据收集器，所以会有日志相关的配置，跟大数据
 各种配置参考：http://tengine.taobao.org/nginx_docs/cn/docs/
 sendfile off 相当于control + c。app以字节码的方式加载文件，然后以字节码的方式复制给内核，内核再发给网卡（NIC）
 sendfile on 相当于control + x  由app发送一个指令给内核，内核去读文件，由内核直接推给网卡，只有一次复制操作 --- 异步网络IO
-sendfile on业户出问题，有时候要有意关掉，比如网上图片加载一半出不来了，就是因为file传输太快，没来得及去解析，接受的时候出问题了，文件来的特快，接收端解析的程序没跟上，这时候就关掉sendfile。以低性能对低性能
+sendfile on也会出问题，有时候要有意关掉，比如网上图片加载一半出不来了，就是因为file传输太快，没来得及去解析，接受的时候出问题了，文件来的特快，接收端解析的程序没跟上，这时候就关掉sendfile。以低性能对低性能
 后面拿Nginx开发插件儿，这里面能玩儿的东西太多了
 tcp_nopush linux内核网络相关的，优化tcp网络连接的一些属性，打开会对优化网络传输，跟TCP缓存相关，tcp不是一个字节一个字节往外发数据。微批处理也叫流处理，也叫实时处理
 keepalive_timeout尝试连接多少秒后超时，返回一个错误页面
@@ -74,7 +74,8 @@ location ~(.*)\.avi$ {
 	auth_basic_user_file users;
 }
 
-auth_basic这一项的值可以随便写，auth_basic_user_file的值是一个相对路径，相对于本配置文件，user和密码存在哪里，生成的时候要先安装apache，再通过密码生成命令`htpasswd -c -d /usr/local/users lisz1012` 生成密码
+~表示要用正则表达式了。auth_basic这一项的值可以随便写，auth_basic_user_file的值是一个相对路径，相对于本配置文件，user和密码存在哪里，生成的时候要先安装apache，
+再通过密码生成命令`htpasswd -c -d /usr/local/users lisz1012` 生成密码
 然后把文件/usr/local/users拷贝到auth_basic_user_file users所指定的路径：users那里
 location {
 	deny IP1;
@@ -92,4 +93,17 @@ location /basic_status {
 Active connections: 1 
 server accepts handled requests request_time
  2 2 2 538
+ 
+ 
 Reading: 0 Writing: 1 Waiting: 0 
+
+负载均衡：用 upstream关键字配置 （https://blog.csdn.net/xyang81/article/details/51702900）
+upstream tomcats {
+    server 192.168.1.101:8080;
+    server 192.168.1.102:8080;
+}
+
+location / {
+	proxy_pass http://tomcats;
+}
+其实是通过服务器端跳转做负载均
