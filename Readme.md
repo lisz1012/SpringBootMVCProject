@@ -107,3 +107,10 @@ location / {
 	proxy_pass http://tomcats;
 }
 其实是通过服务器端跳转做负载均
+当一个node掉线之后，如果他再上线，此时并不会通知nginx：这台机器恢复在线了
+ip_hash;一般不用，会造成网段的访问量倾斜:每个访问的客户端只被分配给特定的服务器服务
+upstream tomcats {
+	ip_hash;
+    server 192.168.1.101:8080;
+    server 192.168.1.102:8080;
+}
