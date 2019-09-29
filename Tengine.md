@@ -654,7 +654,7 @@ memcached-tool 192.168.1.101:11211
 结果的意义详见：
 https://blog.csdn.net/my_bai/article/details/78223955
 这里自己配置session共享的时候踩了个坑：kryo-4.0.0.jar和kryo-5.0.0-RC4.jar都放进了tomcat的lib目录结果刷新页面的时候报错：找不到方法，而且页面不显示任何东西
-
+这里自己配置session共享的时候又踩了个坑：下面Manager标签中的memcachedNodes所指向的必须是同一台机器才能达到Session共享的效果，而不能是各配各的
 #### Nginx配置
 
 ```
@@ -677,7 +677,7 @@ upstream tomcat{
 
 ```
 <Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager" 
-	memcachedNodes="n1:192.168.43.151:11211" 
+	memcachedNodes="n1:192.168.1.101:11211" 
     sticky="false" 
     lockingMode="auto"
     sessionBackupAsync="false"
