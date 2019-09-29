@@ -634,7 +634,10 @@ check_http_expect_alive http_2xx http_3xx;
 - 安装memcached
 
 可以用yum方式安装 `yum –y install memcached`
-
+Mac安装：
+`brew install libevent`
+`brew install memcached`
+libevent和多线程相关
 ##### 启动memcached
 
 ```
