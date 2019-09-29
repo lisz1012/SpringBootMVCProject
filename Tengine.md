@@ -649,6 +649,8 @@ memcached-tool 192.168.2.51:11211
 	-u:服务器启动是以哪个用户名作为管理用户
 
 ```
+也可以用telnet IP PORT 进入memcached终端，然后用stats命令得到详细结果:
+```telnet 192.168.1.103 11211``` 
 
 #### Nginx配置
 

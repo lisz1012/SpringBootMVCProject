@@ -97,6 +97,16 @@ server accepts handled requests request_time
  
 Reading: 0 Writing: 1 Waiting: 0 
 
+更加详细的服务器状态
+location /status {
+	check_status;
+}
+然后在upstream中加上：
+interval=3000 rise=2 fall=5 timeout=1000 type=http;
+check_http_send "HEAD / HTTP/1.0\r\n\r\n";
+check_http_expect_alive http_2xx http_3xx;
+但是2.3.x之后要加编译参数编译才可以用此功能
+
 负载均衡：用 upstream关键字配置 （https://blog.csdn.net/xyang81/article/details/51702900）
 upstream tomcats {
     server 192.168.1.101:8080;
@@ -114,3 +124,8 @@ upstream tomcats {
     server 192.168.1.101:8080;
     server 192.168.1.102:8080;
 }
+http_proxy 本地磁盘缓存。把后段服务器的结果存到nginx磁盘作为缓存，缺点是不是在内存中，内存中更快
+但是可以用linux内核的指令将文件映射到内存
+
+Session共享
+PS:jsp里面打印session的ID要这么写：<%=session.getId()%> 不能打分号，略坑，jsp有点忘了
