@@ -671,7 +671,7 @@ upstream tomcat{
 
 #### Tomcat配置
 
-到tomcat的lib下，jar包见附件
+到tomcat的lib下，jar包见附件, jar包和配置各台机器都要做
 
 每个tomcat里面的context.xml中加入
 
