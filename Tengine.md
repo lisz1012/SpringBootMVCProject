@@ -638,8 +638,8 @@ check_http_expect_alive http_2xx http_3xx;
 ##### 启动memcached
 
 ```
-memcached -d -m 128 -u root -l 192.168.43.151 -p 11211 -c 256 -P /tmp/memcached.pid
-memcached-tool 192.168.2.51:11211
+memcached -d -m 128 -u root -l 192.168.1.101 -p 11211 -c 256 -P /tmp/memcached.pid
+memcached-tool 192.168.1.101:11211
 参数解释：
 	-d:后台启动服务
 	-m:缓存大小
@@ -650,7 +650,9 @@ memcached-tool 192.168.2.51:11211
 
 ```
 也可以用telnet IP PORT 进入memcached终端，然后用stats命令得到详细结果:
-```telnet 192.168.1.103 11211``` 
+```telnet 192.168.1.101 11211``` 
+结果的意义详见：
+https://blog.csdn.net/my_bai/article/details/78223955
 
 #### Nginx配置
 
