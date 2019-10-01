@@ -658,7 +658,8 @@ memcached-tool 192.168.1.101:11211
 https://blog.csdn.net/my_bai/article/details/78223955
 这里自己配置session共享的时候踩了个坑：kryo-4.0.0.jar和kryo-5.0.0-RC4.jar都放进了tomcat的lib目录结果刷新页面的时候报错：找不到方法，而且页面不显示任何东西. 
 这里自己配置session共享的时候又踩了个坑：下面Manager标签中的memcachedNodes所指向的必须是同一台机器才能达到Session共享的效果，而不能是各配各的.
-一明哥翻车是因为授时问题导致服务器时间不一致
+一明哥翻车是因为授时问题导致服务器时间不一致. 用date命令发现两台机器服务器时间对不上的话，肯定会出现共享session失效的问题。Tomcat默认的session失效时间是30min, 基本相差30min一上就会有问题。
+因为较早的服务器会更新session 时间，此时较晚的发现已过期，整个session就会被重置。更新一下授时服务即可：```service ntpd status```
 
 #### Nginx配置
 
