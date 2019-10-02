@@ -34,6 +34,9 @@ service ntpd status
               autoindex on;
        
         }
+
+#### SpringBoot项目扔到服务器尚能运行的唯一条件就是有JDK
+
 ## 动静分离
 
 ```
