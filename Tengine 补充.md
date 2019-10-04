@@ -35,7 +35,7 @@ service ntpd status
        
         }
 
-#### SpringBoot项目扔到服务器尚能运行的唯一条件就是有JDK，因为整个tomcat都被包含在jar包里了
+#### SpringBoot项目扔到服务器尚能运行的唯一条件就是有JDK，因为整个tomcat都被包含在jar包里了。
 
 ## 动静分离
 
