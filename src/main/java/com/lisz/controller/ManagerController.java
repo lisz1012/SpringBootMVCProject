@@ -44,33 +44,33 @@ public class ManagerController {
 	public String accountList(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "5") int pageSize, Model model) {
 		PageInfo<Account> page = accountService.findByPage(pageNum, pageSize);
 		model.addAttribute("page", page);
-		return "/manager/accountList";
+		return "manager/accountList";
 	}
 	
 	@GetMapping("roleList")
 	public String roleList(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "5") int pageSize, Model model) {
 		PageInfo<Role> page = roleService.findByPage(pageNum, pageSize);
 		model.addAttribute("page", page);
-		return "/manager/roleList";
+		return "manager/roleList";
 	}
 	
 	@GetMapping("permissionList")
 	public String permissionList(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "5") int pageSize, Model model) {
 		PageInfo<Permission> page = permissionService.findByPage(pageNum, pageSize);
 		model.addAttribute("page", page);
-		return "/manager/permissionList";
+		return "manager/permissionList";
 	}
 	
 	@GetMapping("permissionModify")
 	public String modify(@RequestParam int id, Model model) {
 		Permission permission = permissionService.findById(id);
 		model.addAttribute("permission", permission);
-		return "/manager/permissionModify";
+		return "manager/permissionModify";
 	}
 	
 	@GetMapping("permissionAdd")
 	public String permissionAdd() {
-		return "/manager/permissionModify"; //复用permissionModify.html
+		return "manager/permissionModify"; //复用permissionModify.html
 	}
 	
 	@GetMapping("rolePermissions/{id}")
@@ -82,12 +82,12 @@ public class ManagerController {
 		System.out.println("Role: " + ToStringBuilder.reflectionToString(role, ToStringStyle.MULTI_LINE_STYLE));
 		model.addAttribute("nonRolePermissions", nonRolePermissions);
 		model.addAttribute("role", role);
-		return "/manager/rolePermissions";
+		return "manager/rolePermissions";
 	}
 	
 	@GetMapping("roleAdd")
 	public String roleAdd() {
-		return "/manager/roleAdd";
+		return "manager/roleAdd";
 	}
 	
 	@GetMapping("accountRoles/{id}")
@@ -100,6 +100,6 @@ public class ManagerController {
 		System.out.println("Account: " + ToStringBuilder.reflectionToString(account, ToStringStyle.MULTI_LINE_STYLE));
 		model.addAttribute("nonAccountRoles", nonAccountRoles);
 		model.addAttribute("account", account);
-		return "/manager/accountRoles";
+		return "manager/accountRoles";
 	}
 }

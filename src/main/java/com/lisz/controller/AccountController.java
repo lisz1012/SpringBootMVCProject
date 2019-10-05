@@ -72,7 +72,8 @@ public class AccountController {
 	public String list (@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "5") int pageSize, Model model) {
 		PageInfo<Account> page = accountService.findByPage(pageNum, pageSize);
 		model.addAttribute("page", page);
-		return "/account/list"; // “/” 加不加都可以
+		//return "/account/list"; // “/” 在本地加不加都可以，但在部署到别的机器上的时候一定不能加最前面的“/”
+		return "account/list";
 	}
 	
 	@RequestMapping("delete")
@@ -103,7 +104,7 @@ public class AccountController {
 	
 	@GetMapping("profile")
 	public String getProfile() {
-		return "/account/profile";
+		return "account/profile";
 	}
 	
 	@PostMapping("uploadProfile")
