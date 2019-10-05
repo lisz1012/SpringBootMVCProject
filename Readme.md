@@ -8,7 +8,7 @@ bootstrap有默认头像的图片。
 数据库里可以只有Username password，这些的查询频率最高，其他的数据可以放到es里（冷数据备份）
 account_role, role_permission这种连接表都是手动处理，不用mybatis-generator-gui生成
 
-MyBatis的坑：关联的各个表里面不能有相同的列名，否则就要起别名避免冲突, 所以SQL中要起别名，而且在resultMap的column那里也要改，
+#### MyBatis的坑：关联的各个表里面不能有相同的列名，否则就要起别名避免冲突, 所以SQL中要起别名，而且在resultMap的column那里也要改，
 比如id改aid，rid，pid，name改成role_name, permission_name
 
 前后端分离之后一律只返回JSON，没有什么model.addAttribute什么的了
@@ -129,3 +129,8 @@ http_proxy 本地磁盘缓存。把后段服务器的结果存到nginx磁盘作�
 
 Session共享
 PS:jsp里面打印session的ID要这么写：<%=session.getId()%> 不能打分号，略坑，jsp有点忘了
+
+#### 结合OA项目做nginx前后端分离
+1. 改application-prod.properties中的数据库url链接，使它指向本机的IP（而不再是localhost， application-dev.properties的数据库的IP还指向本机，这就体现出多配置文件的好出来了）
+2. 用maven install命令把jar包build好
+3. 把build好的jar包传到一台server 上去，例如某台机器的/var/data/jar目录 
