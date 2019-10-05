@@ -138,3 +138,7 @@ PS:jsp里面打印session的ID要这么写：<%=session.getId()%> 不能打分�
 #### MySQL 8+ 设置远程登录：
 mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'root';
 mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+#### Controller 方法的返回值会出问题
+Controller 方法的返回值中最前面的“/” 在本地加不加都可以，但在部署到别的机器上的时候一定不能加最前面的“/”
+否则会报错
