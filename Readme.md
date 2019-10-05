@@ -134,3 +134,7 @@ PS:jsp里面打印session的ID要这么写：<%=session.getId()%> 不能打分�
 1. 改application-prod.properties中的数据库url链接，使它指向本机的IP（而不再是localhost， application-dev.properties的数据库的IP还指向本机，这就体现出多配置文件的好出来了）
 2. 用maven install命令把jar包build好
 3. 把build好的jar包传到一台server 上去，例如某台机器的/var/data/jar目录 
+
+#### MySQL 8+ 设置远程登录：
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'root';
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
