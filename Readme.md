@@ -150,4 +150,5 @@ location ~ .*\.(css|js|png|gif|jpg|jpeg|bmp|swf|html|htm|ico)$ {
 	root /Users/shuzheng/Documents/OA/static;
 }
 ```
-用来让nginx拦截静态文件的请求，配合前面的upstream的配置，就可以实现动静分离。但是还要做一步就是把所有的静态文件都集中放到nginx服务器上
+用来让nginx拦截静态文件的请求，配合前面的upstream的配置，就可以实现动静分离。但是还要做一步就是把所有的static目录下的静态文件都集中放到nginx服务器上（controller返回的页面此时会有问题，因为他们在template目录）.
+动静分离可以极大地减小tomcat服务器的压力（不仅仅是省空间），一旦撑不住，先想这个法子减小压力。
