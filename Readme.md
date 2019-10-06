@@ -130,7 +130,7 @@ http_proxy 本地磁盘缓存。把后段服务器的结果存到nginx磁盘作�
 Session共享
 PS:jsp里面打印session的ID要这么写：<%=session.getId()%> 不能打分号，略坑，jsp有点忘了
 
-#### 结合OA项目做nginx前后端分离
+### 结合OA项目做nginx前后端分离
 1. 改application-prod.properties中的数据库url链接，使它指向本机的IP（而不再是localhost， application-dev.properties的数据库的IP还指向本机，这就体现出多配置文件的好出来了）
 2. 用maven install命令把jar包build好
 3. 把build好的jar包传到一台server 上去，例如某台机器的/var/data/jar目录 
@@ -138,7 +138,16 @@ PS:jsp里面打印session的ID要这么写：<%=session.getId()%> 不能打分�
 #### MySQL 8+ 设置远程登录：
 mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'root';
 mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+https://blog.csdn.net/sgrrmswtvt/article/details/82344183
 
 #### Controller 方法的返回值会出问题
 Controller 方法的返回值中最前面的“/” 在本地加不加都可以，但在部署到别的机器上的时候一定不能加最前面的“/”
 否则会报错
+
+#### 在nginx的location 中配置：
+```
+location ~ .*\.(css|js|png|gif|jpg|jpeg|bmp|swf|html|htm|ico)$ {
+	root /Users/shuzheng/Documents/OA/static;
+}
+```
+用来让nginx拦截静态文件的请求，配合前面的upstream的配置，就可以实现动静分离。但是还要做一步就是把所有的静态文件都集中放到nginx服务器上
