@@ -164,4 +164,34 @@ SSL解决传输中的数据加密。浏览器只添加一个功能：解密serve
 向着IP发送数据。host文件篡改是常见的劫持手段（遭遇过。。。），网关直接把假的IP返回给浏览器，则伪造的网站就被访问了。CA就是帮助认证是不是要访问的网站，还是个钓鱼网站。CA做什么呢？1.收集企业信息，其中包含主机名域名公钥
 2. 对以上企业信息，使用CA的私钥再次加密成证书，同时让浏览器持有CA的公钥（浏览器厂商一般都会让浏览器内置CA的公钥）。3.浏览器拿CA的公钥解密，之后就拿到了企业信息域名和企业的公钥，再拿着企业的公钥解密数据就可以了。中间的拦截者
 即使用CA的公钥解密证书，且用企业公钥解密了数据，也无法加密回去继续发送，因为他没有CA的私钥，无法伪造证书。CA可以防劫持，防篡改。安全浏览器最重要的就是CA证书是可被信任的，对于浏览器的信任很重要，证书是由CA机构下发给他的。
-CA的私钥完全不能丢，可以投保险，一旦丢了可以索取赔偿。网站要在CA机构认证是要花钱的，CA机构要浏览器信任他也是要付给浏览器钱的
+CA的私钥完全不能丢，可以投保险，一旦丢了可以索取赔偿。网站要在CA机构认证是要花钱的，CA机构要浏览器信任他也是要付给浏览器钱的。公钥这样就保证了不会被篡改，传输数据的时候，开两个端口：80和443，前者普通传输，后者传输被CA加密的
+证书。浏览器要求要有CA公钥。CA会帮我们网站加密证书（签名，只打包公钥，域名和公司信息，不加密数据。一个证书可以被公司旗下多个域名使用），数据有服务器的公钥保证安全，服务器的公钥想不被篡改，是由CA的私钥加密保证安全的，只要CA的
+私钥不丢就没问题。数据也不能被篡改，因为中间的这个拦截者没有server的私钥。
+
+#### 虚拟主机
+```
+server {
+    listen 80;
+    server_name taobao.com;
+    location / {
+            root /Users/shuzheng/Documents/html/taobao.com;
+            autoindex on;
+    }
+}
+
+server {
+    listen 80;
+    server_name qq.com;
+    location / {
+            root /Users/shuzheng/Documents/html/qq.com;
+            autoindex on;
+    }
+}
+```
+然后再在/etc/hosts中配置:
+```
+192.168.1.102   taobao.com
+192.168.1.102   qq.com
+```
+这样的话访问taobao.com或者qq.com就会访问到192.168.1.102，然后找到/Users/shuzheng/Documents/html/taobao.com或者/Users/shuzheng/Documents/html/qq.com下的index.html 相当于本地的DNS返回一个192.168.1.102
+所以请求打到192.168.1.102，然后再看到taobao.com，找到主机名taobao.com，然后找到/对应的目录/Users/shuzheng/Documents/html/taobao.com下的index.html返回
