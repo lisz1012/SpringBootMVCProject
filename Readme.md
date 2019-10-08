@@ -195,3 +195,10 @@ server {
 ```
 这样的话访问taobao.com或者qq.com就会访问到192.168.1.102，然后找到/Users/shuzheng/Documents/html/taobao.com或者/Users/shuzheng/Documents/html/qq.com下的index.html 相当于本地的DNS返回一个192.168.1.102
 所以请求打到192.168.1.102，然后再看到taobao.com，找到主机名taobao.com，然后找到/对应的目录/Users/shuzheng/Documents/html/taobao.com下的index.html返回
+
+#### OpenSSL自签名
+在控制台生成屏显示一个私钥：
+``` openssl genrsa```
+key是私钥，明文，自己生成的，不能丢；csr是公钥，由私钥生成的；crt是证书 = 公钥 + 签名
+由私钥生成公钥：
+```openssl req -new -key ~/Documents/html/server.key -out ~/Documents/html/server.csr```
