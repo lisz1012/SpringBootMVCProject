@@ -198,7 +198,34 @@ server {
 
 #### OpenSSL自签名
 在控制台生成屏显示一个私钥：
-``` openssl genrsa```
+``` openssl genrsa``` 或者加参数 ```openssl genrsa -des3 -out ~/Documents/html/server.key 1024```
 key是私钥，明文，自己生成的，不能丢；csr是公钥，由私钥生成的；crt是证书 = 公钥 + 签名
 由私钥生成公钥：
 ```openssl req -new -key ~/Documents/html/server.key -out ~/Documents/html/server.csr```
+中间要输入密码的话要记住密码，签名或者nginx启动的时候会用到 111111
+显示csr里面的内容：
+```openssl req -text -in ~/Documents/html/server.csr```
+进行签名生成证书：
+```openssl x509 -req -days 365 -in ~/Documents/html/server.csr -signkey ~/Documents/html/server.key -out ~/Documents/html/server.crt```
+使用证书：
+打开nginx.conf文件关于443端口的的注释并修改server_name, ssl_certificate, ssl_certificate_key：
+```
+server {
+    listen       443 ssl;
+    server_name  192.168.1.102;
+
+    ssl_certificate      /usr/local/tengine/server.crt;
+    ssl_certificate_key  /usr/local/tengine/server.key;
+
+#    ssl_session_cache    shared:SSL:1m;
+#    ssl_session_timeout  5m;
+
+#    ssl_ciphers  HIGH:!aNULL:!MD5;
+#    ssl_prefer_server_ciphers  on;
+
+#    location / {
+#        root   html;
+#        index  index.html index.htm;
+#    }
+}
+```
