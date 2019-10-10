@@ -240,3 +240,8 @@ ssl协议需要4次握手。多个虚拟主机的话，还需要配置多个443�
 3.在生成一个CA的私钥，叫CA_Private_Key
 4.点击Certificate，新建，点击上面的“Extensions”, 选择CA
 5.再回到subject，填写CA的信息，最后选择CA_Private_Key作为私钥
+6.点击Certificate signing requests，新建，新建将要被CA签名的证书。选择Source，在“Template for the new certificate”中选择“HTTPS_server”  
+(CA签名先跳过)
+
+### FastDFS
+FastDFS 是C语言写的，性能极高
