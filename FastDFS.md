@@ -188,10 +188,12 @@ Client上传的时候可以选择放到哪个组里，比如可以根据文件�
 
 PS：下载文件时支持文件偏移量就能支持断点续传，这也需要客户端的支持，断点续传就是基于文件的偏移量来做的。一个域名不只能解析到一个IP（只有一个IP淘宝是不是早就宕机了？），上传的时候入口第一级是lvs，which is 4层负载，
 只完成握手不交换数据，数据包会往后传。发到nginx或者tomcat上。FastDFS主要是存小文件的，文件数量可能也比较多  
-好多知识点和配置其实不需要记住，大概有个印象，做项目的时候可以想得起来或者反向去搜索就可以了，知道某些类库，协议，系统，中间件的优缺点。打开知识面然后做项目，把时间放在做项目敲代码上
+好多知识点和配置其实不需要记住，大概有个印象，做项目的时候可以想得起来或者反向去搜索就可以了，知道某些类库，协议，系统，中间件的优缺点。打开知识面然后做项目，把时间放在做项目敲代码上.
+
  
 
 ## 单机安装
+注：对于本地磁盘或者IO比较高的应用都不建议装在Docker等虚拟化的玩意儿里面。FastDFS不建议装在虚拟化的虚拟机里，因为它比较占用资源  
 
 准备linux服务器或虚拟机
 
@@ -229,11 +231,12 @@ shell脚本为make.sh
 
 ```./make.sh install```
 
+install就是一顿复制，所以比较快
 有固定的默认安装位置。在/usr/lib64和/usr/include/fastcommon两个目录中。
 
 #### 创建软连接
 
-因为 FastDFS 主程序设置的 lib 目录是/usr/local/lib，所以需要创建软链接
+因为 FastDFS 主程序设置的 lib 目录是/usr/local/lib，所以需要创建软链接(快捷方式)
 
 ```
 ln -s /usr/lib64/libfastcommon.so /usr/local/lib/libfastcommon.so
@@ -271,12 +274,13 @@ tar -zxf FastDFS_v5.08.tar.gz -C /usr/local/fastdfs
 /usr/include/fastdfs - 包含的一些插件组所在位置
 
 ```
+/etc/fdfs下有3个文件，可以看出有三个角色：client.conf.sample  storage.conf.sample  tracker.conf.sample
 
 ### 服务配置
 
 #### 程序脚本
 
-在/etc/init.d/目录中，脚本文件是 **fdfs-storaged**和**fdfs-trackerd**
+在/etc/init.d/目录中，脚本文件是 **fdfs-storaged**和**fdfs-trackerd** 因为实在init.d下，所以可以用service命令来启动
 
 #### 配置文件
 
