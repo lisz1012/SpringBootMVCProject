@@ -247,7 +247,7 @@ ln -s /usr/lib64/libfdfsclient.so /usr/local/lib/libfdfsclient.so
 
 ln -s /usr/lib64/libfdfsclient.so /usr/lib/libfdfsclient.so
 ```
-
+以上命令只有一个可以成功，但是不影响最后tracker的启动
 
 
 ### FastDFS主程序安装
@@ -323,6 +323,8 @@ mkdir -p /var/data/fastdfs-tracker
 ```
 /etc/init.d/fdfs_trackerd start
 ```
+或者  
+```service fdfs_trackerd start```
 
 启动成功后，配置文件中base_path指向的目录中出现FastDFS服务相关数据目录（data目录、logs目录）
 
