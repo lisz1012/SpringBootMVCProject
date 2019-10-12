@@ -339,6 +339,8 @@ ps -ef | grep fdfs
 ```
 /etc/init.d/fdfs_trackerd stop
 ```
+或者  
+```service fdfs_trackerd stop```
 
 #### 重启服务
 
@@ -358,6 +360,7 @@ cp storage.conf.sample storage.conf
 mkdir -p /var/data/fastdfs-storage/base
 mkdir -p /var/data/fastdfs-storage/store
 ```
+storage.conf里面有group_name,不同的group存的东西不一样，同一个group各个storage所存的数据都一样，好处是1.高可用2.可以用策略做负载均衡；最小的机器的空间决定了storage节点的可用存储空间
 
 base_path=/home/yuqing/fastdfs -> base_path=/var/data/fastdfs-storage/base（自定义目录）
 
