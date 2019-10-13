@@ -366,10 +366,10 @@ base_path=/home/yuqing/fastdfs -> base_path=/var/data/fastdfs-storage/base（自
 
 store_path0=/home/yuqing/fastdfs -> store_path0=/var/data/fastdfs-storage/store（自定义目录）
 
-tracker_server=192.168.150.11:22122 -> tracker_server=tracker服务IP:22122
+tracker_server=192.168.150.11:22122 -> tracker_server=tracker服务器IP:22122
 
 - base_path - 基础路径。用于保存storage server基础数据内容和日志内容的目录。
-- store_path0 - 存储路径。是用于保存FastDFS中存储文件的目录，就是要创建256*256个子目录的位置。base_path和store_path0可以使用同一个目录。
+- store_path0 - 存储路径。是用于保存FastDFS中存储文件的目录，就是要创建256*256个子目录的位置。base_path和store_path0可以使用同一个目录。store_path1=/home/yuqing/fastdfs2可以指向另一个磁盘的目录
 - tracker_server - 跟踪服务器位置。就是跟踪服务器的ip和端口。
 
 #### 启动服务
@@ -455,7 +455,14 @@ mkdir -p /fastdfs/client
 [root@node03 data]# /usr/bin/fdfs_upload_file /etc/fdfs/client.conf /root/install.log
 group1/M00/00/00/wKiWDV0xfqWAFe1OAAAib-i5DLU637.log
 ```
-
+注：可能会遇到如下错误
+```
+[2019-10-12 21:34:48] ERROR - file: tracker_proto.c, line: 48, server: 192.168.1.110:22122, response status 28 != 0
+tracker_query_storage fail, error no: 28, error info: No space left on device
+```
+此时修改tracker.conf的
+```reserved_storage_space = 0.5%```
+即从10%下调至0.5%，然后重启tracker和storage，然后再执行上面的上传命令
 
 
 上传结束后，返回group1/M00/00/00/xxxxxxxxxx.xxx，检查storage服务结点中的$store_path0/data/00/00/目录中是否有上传的文件（一般情况上传的文件按顺序保存在$store_path0/data/00/00/目录中，不能完全保证）。
