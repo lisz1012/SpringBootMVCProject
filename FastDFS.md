@@ -470,7 +470,12 @@ tracker_query_storage fail, error no: 28, error info: No space left on device
 
 
 上传文件结果：group1/M00/00/00/wKiWDV0xfqWAFe1OAAAib-i5DLU637.log
-
+通过文件名wKiWDV0xfqWAFe1OAAAib-i5DLU637.txt能逆向地推出第一次上传到的那台服务器的IP和上传的时间，同时还带着一个校验码，就是文件的哈希值，表示文件有没有被破坏
+（不只是这些元数据信息，上传人，所有者，文件名都没有）
+第一台机器只有在传完了的时候才会响应tracker，其他机器会跟第一台机器有一个异步拷贝文件的过程，此时如果tracker指示client访问其他机器下载文件，文件状态是不可用的，
+tracker会检查storage上的文件是否可用，不可用有两种情况：1.同步中2.该storage宕机。 宕机的话换另一台，同步中的话可以通过文件名算出上传文件第一个到达的机器的IP，
+然后到上传到的第一台机器上去下载。复制操作时单方向的，从源节点复制到其他节点，其他几点之间没有复制操作。文件名 = base64（第一个storage IP+创建时间+文件大小+文件crc32+一个随机数）  
+生产中一个group两个server就够，因为是内部服务器，主要是备份用。base64是个可逆的算法
 
 
 
@@ -488,6 +493,7 @@ tracker_query_storage fail, error no: 28, error info: No space left on device
 /usr/bin/fdfs_delete_file /etc/fdfs/client.conf group1/M00/00/00/wKiWDV0xfqWAFe1OAAAi
 b-i5DLU637.log
 ```
+其中“group1/M00/00/00/wKiWDV0xfqWAFe1OAAAi”是file_id
 
 
 
