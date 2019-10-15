@@ -493,8 +493,8 @@ tracker会检查storage上的文件是否可用，不可用有两种情况：1.�
 /usr/bin/fdfs_delete_file /etc/fdfs/client.conf group1/M00/00/00/wKiWDV0xfqWAFe1OAAAi
 b-i5DLU637.log
 ```
-其中“group1/M00/00/00/wKiWDV0xfqWAFe1OAAAi”是file_id
-
+其中“group1/M00/00/00/wKiWDV0xfqWAFe1OAAAi”是file_id  
+访问FastDFS的客户端可以是Java开发的程序，也可以是Nginx
 
 
 ### Nginx组件
