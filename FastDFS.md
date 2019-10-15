@@ -449,7 +449,7 @@ mkdir -p /fastdfs/client
 
 #### 上传文件
 
-/usr/local/bin/fdfs_upload_file /etc/fdfs/client.conf  /要上传的文件
+/usr/bin/fdfs_upload_file /etc/fdfs/client.conf  /要上传的文件
 
 ```
 [root@node03 data]# /usr/bin/fdfs_upload_file /etc/fdfs/client.conf /root/install.log
