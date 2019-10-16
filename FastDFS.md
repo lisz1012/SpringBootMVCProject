@@ -533,6 +533,11 @@ CORE_INCS="$CORE_INCS /usr/include/fastdfs /usr/include/fastcommon/"
 --add-module=/root/fastdfs-nginx-module/src/
 ```
 
+Mac的话还要确保openssl和pcre已经安装，且编译的时候要加进去
+```
+./configure --prefix=/usr/local/tengine --add-module=/Users/shuzheng/Downloads/fastdfs-nginx-module-master/src --with-openssl=/Users/shuzheng/softwares/openssl-1.0.2t --with-pcre=/Users/shuzheng/softwares/pcre-8.00
+```
+with后面跟的是源码路径  
 ```
 make && make install
 ```
