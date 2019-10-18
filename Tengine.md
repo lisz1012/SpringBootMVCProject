@@ -81,7 +81,7 @@ nginx是异步的，多个连接（万级别）可以对应一个进程
 系统依赖组件 ``` gcc openssl-devel pcre-devel zlib-devel```
 
 安装：``yum install gcc openssl-devel pcre-devel zlib-devel ``
-(这里网上很多资料，各种说法和版本，很难挨个调试)
+(这里网上很多资料，各种说法和版本，很难挨个调试,C 语言写的都比较麻烦)
 
 
 #### Tengine下载和文档
