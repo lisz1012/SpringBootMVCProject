@@ -49,6 +49,16 @@
 ```/usr/local/fastdfs-nginx-module/src/common.c:1245: error: ‘FDFSHTTPParams’ has no member named ‘support_multi_range’```
 - 6. 进入nginx源码目录：/usr/local/nginx-1.16.1  
 - 7. 执行：  
-```./configure --prefix=/usr/local/nginx --pid-path=/var/local/nginx/nginx.pid --lock-path=/var/lock/nginx/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --http-client-body-temp-path=/var/temp/nginx/client --http-proxy-temp-path=/var/temp/nginx/proxy --http-fastcgi-temp-path=/var/temp/nginx/fastcgi --http-uwsgi-temp-path=/var/temp/nginx/uwsgi --http-scgi-temp-path=/var/temp/nginx/scgi --add-module=/usr/local/fastdfs/fastdfs-nginx-module/src```
+```./configure --prefix=/usr/local/nginx --pid-path=/var/local/nginx/nginx.pid --lock-path=/var/lock/nginx/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --http-client-body-temp-path=/var/temp/nginx/client --http-proxy-temp-path=/var/temp/nginx/proxy --http-fastcgi-temp-path=/var/temp/nginx/fastcgi --http-uwsgi-temp-path=/var/temp/nginx/uwsgi --http-scgi-temp-path=/var/temp/nginx/scgi --add-module=/usr/local/fastdfs/fastdfs-nginx-module/src```  
+参数中的：/var/temp/nginx/client等目录要事先建立好
+- 8. 编译安装，命令：  
+```make && make install```
+- 9. 启动nginx：
+```/usr/local/nginx/sbin/nginx```
 
-https://zhuanlan.zhihu.com/p/29157952
+### 参考文献
+https://zhuanlan.zhihu.com/p/29157952 （注：其中第3步，修改文件不准确，参见下面的连接）  
+https://github.com/happyfish100/fastdfs-nginx-module/issues/31  
+https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/（第5步中避免错误的方法）  
+https://www.cnblogs.com/eaglezb/p/6073661.html（nginx在Linux CentOS上的安装）  
+https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/ （FastDFS安装）
