@@ -28,9 +28,9 @@
 - 1. 下载 fastdfs-nginx-module：https://github.com/happyfish100/fastdfs-nginx-module  
 - 2. 将下载好的fastdfs-nginx-module目录放在/usr/local/fastdfs下
 - 3. 修改/usr/local/fastdfs/fastdfs-nginx-module/src/config文件，修改如下：
-	 ```ngx_module_incs="/usr/include/fastdfs /usr/include/fastcommon/"
+	 ```ngx_module_incs="/usr/include/fastdfs /usr/include/fastcommon/"```
 	 ... ... 
-		CORE_INCS="$CORE_INCS /usr/include/fastdfs /usr/include/fastcommon/"```
+	 ```CORE_INCS="$CORE_INCS /usr/include/fastdfs /usr/include/fastcommon/"```
 - 4. 复制 fastdfs-nginx-module 源码中的配置文件到/etc/fdfs 目录， 并修改，命令：
      进入fastdfs-nginx-module/src目录下，复制mod_fastdfs.conf文件到 /etc/fdfs目录，进入/etc/fdfs目录，修改mod_fastdfs.conf配置文件
 	```
