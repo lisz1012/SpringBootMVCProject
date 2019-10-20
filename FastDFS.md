@@ -572,7 +572,7 @@ store_path0=/var/data/fastdfs-storage/store
 而其中的M00是FastDFS保存数据时使用的虚拟目录，需要将这个虚拟目录定位到真实数据目录上。
 
 ```
-ln -s /var/data/fastdfs-storage/store/data/  /var/data/fastdfs-storage/store/data/M00
+ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/M00
 ```
 
 ####  修改nginx配置文件

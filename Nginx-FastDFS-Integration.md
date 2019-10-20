@@ -55,7 +55,21 @@
 ```make```  
 make完了之后要检查一下输出，有没有出现```objs/addon/src/ngx_http_fastdfs_module.o```  
 ```make install```
-- 9. 启动nginx：
+
+- 9. 拷贝http服务需要的配置
+复制FastDFS安装包中的两个配置文件（http.conf和mime.types）到/etc/fdfs目录中
+
+- 10. 创建网络访问存储服务的软连接
+
+在上传文件到FastDFS后，FastDFS会返回group1/M00/00/00/xxxxxxxxxx.xxx。其中group1是卷名，在mod_fastdfs.conf配置文件中已配置了url_have_group_name，以保证URL解析正确。
+
+而其中的M00是FastDFS保存数据时使用的虚拟目录，需要将这个虚拟目录定位到真实数据目录上。
+
+```
+ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/M00
+```
+
+- 11. 启动nginx：
 ```/usr/local/nginx/sbin/nginx```
 
 ### 参考文献
