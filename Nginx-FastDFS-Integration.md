@@ -40,8 +40,8 @@
 	vim mod_fastdfs.conf
 	```
 修改如下三处：
-```tracker_server=192.168.1.120:22122``` # tracker服务IP和端口
-```url_have_group_name=true``` # 访问链接前缀加上组名
-```store_path0=/var/data/fastdfs-storage/data``` # 文件存储路径	
+```tracker_server=192.168.1.120:22122``` # tracker服务IP和端口  
+```url_have_group_name=true``` # 访问链接前缀加上组名  
+```store_path0=/var/data/fastdfs-storage/data``` # 文件存储路径	  
 
 https://zhuanlan.zhihu.com/p/29157952
