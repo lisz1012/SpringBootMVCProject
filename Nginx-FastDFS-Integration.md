@@ -52,7 +52,9 @@
 ```./configure --prefix=/usr/local/nginx --pid-path=/var/local/nginx/nginx.pid --lock-path=/var/lock/nginx/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --http-client-body-temp-path=/var/temp/nginx/client --http-proxy-temp-path=/var/temp/nginx/proxy --http-fastcgi-temp-path=/var/temp/nginx/fastcgi --http-uwsgi-temp-path=/var/temp/nginx/uwsgi --http-scgi-temp-path=/var/temp/nginx/scgi --add-module=/usr/local/fastdfs/fastdfs-nginx-module/src```  
 参数中的：/var/temp/nginx/client等目录要事先建立好
 - 8. 编译安装，命令：  
-```make && make install```
+```make```  
+make完了之后要检查一下输出，有没有出现```objs/addon/src/ngx_http_fastdfs_module.o```  
+```make install```
 - 9. 启动nginx：
 ```/usr/local/nginx/sbin/nginx```
 
