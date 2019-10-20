@@ -59,6 +59,6 @@
 ### 参考文献
 https://zhuanlan.zhihu.com/p/29157952 （注：其中第3步，修改文件不准确，参见下面的连接）  
 https://github.com/happyfish100/fastdfs-nginx-module/issues/31  
-https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/（第5步中避免错误的方法）  
+https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/ （第5步中避免错误的方法）  
 https://www.cnblogs.com/eaglezb/p/6073661.html（nginx在Linux CentOS上的安装）  
 https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/ （FastDFS安装）
