@@ -247,7 +247,7 @@ ln -s /usr/lib64/libfdfsclient.so /usr/local/lib/libfdfsclient.so
 
 ln -s /usr/lib64/libfdfsclient.so /usr/lib/libfdfsclient.so
 ```
-以上命令只有一个可以成功，但是不影响最后tracker的启动
+以上命令可能有的运行不成功，但是不影响最后tracker的启动
 
 
 ### FastDFS主程序安装
@@ -522,6 +522,8 @@ vi /usr/local/fastdfs/fastdfs-nginx-module/src/config
 ```
 
 ```
+ngx_module_incs="/usr/include/fastdfs /usr/include/fastcommon/"
+... ...
 CORE_INCS="$CORE_INCS /usr/include/fastdfs /usr/include/fastcommon/"
 
 ```
