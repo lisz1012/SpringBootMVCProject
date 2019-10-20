@@ -4,8 +4,8 @@
 - 2. FastDFS 作文件存储，其存储功能类似hadoop的HDFS，但是不承担分布式计算.FastDFS在各种DFS中也算是用的比较多比较稳定的了（关键是他是国人写的，余庆）
 
 ### 准备工作
-- 1. 先安装Nginx（参见：https://www.cnblogs.com/eaglezb/p/6073661.html
-- 2. 再按照FastDFS.md（https://github.com/lisz1012/SpringBootMVCProject/blob/master/FastDFS.md）中的方法安装好FastDFS  
+- 1. 先安装Nginx（参见：https://www.cnblogs.com/eaglezb/p/6073661.html)
+- 2. 再按照FastDFS.md（https://github.com/lisz1012/SpringBootMVCProject/blob/master/FastDFS.md） 中的方法安装好FastDFS  
      这里列出本次安装了各个文件和路径的配置：
      tracker IP: 192.168.1.120 Port:22122 (默认)  
      tracker.conf:  
@@ -42,6 +42,13 @@
 修改如下三处：  
 ```tracker_server=192.168.1.120:22122``` # tracker服务IP和端口  
 ```url_have_group_name=true``` # 访问链接前缀加上组名  
-```store_path0=/var/data/fastdfs-storage/data``` # 文件存储路径	  
+```store_path0=/var/data/fastdfs-storage/data``` # 文件存储路径
+- 5. 执行：  
+```sed -i 's#(pContext->range_count > 1 && !g_http_params.support_multi_range))#(pContext->range_count > 1))#g' /usr/local/fastdfs/fastdfs-nginx-module/src/common.c | grep '(pContext->range_count > 1))'```
+这是为了解决待会儿make是的错误：  
+```/usr/local/fastdfs-nginx-module/src/common.c:1245: error: ‘FDFSHTTPParams’ has no member named ‘support_multi_range’```
+- 6. 进入nginx源码目录：/usr/local/nginx-1.16.1  
+- 7. 执行：  
+```./configure --prefix=/usr/local/nginx --pid-path=/var/local/nginx/nginx.pid --lock-path=/var/lock/nginx/nginx.lock --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-http_gzip_static_module --http-client-body-temp-path=/var/temp/nginx/client --http-proxy-temp-path=/var/temp/nginx/proxy --http-fastcgi-temp-path=/var/temp/nginx/fastcgi --http-uwsgi-temp-path=/var/temp/nginx/uwsgi --http-scgi-temp-path=/var/temp/nginx/scgi --add-module=/usr/local/fastdfs/fastdfs-nginx-module/src```
 
 https://zhuanlan.zhihu.com/p/29157952
