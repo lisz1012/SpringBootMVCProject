@@ -18,7 +18,7 @@
 	nginx安装路径：
 	```/usr/local/nginx```  
 	nginx源码解压路径：  
-	```/usr/local/nginx-1.16.1``` 
+	```/usr/local/nginx-1.16.1```   
 	FastDFS安装路径：  
 	```/usr/local/fastdfs```  
 	
@@ -63,7 +63,7 @@ make完了之后要检查一下输出，有没有出现```objs/addon/src/ngx_htt
 
 在上传文件到FastDFS后，FastDFS会返回group1/M00/00/00/xxxxxxxxxx.xxx。其中group1是卷名，在mod_fastdfs.conf配置文件中已配置了url_have_group_name，以保证URL解析正确。
 
-而其中的M00是FastDFS保存数据时使用的虚拟目录，需要将这个虚拟目录定位到真实数据目录上。
+而其中的M00是FastDFS保存数据时使用的虚拟目录，需要将这个虚拟目录定位到真实数据目录上。  
 
 ```
 ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/M00
@@ -72,6 +72,8 @@ ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/
 - 11. 启动nginx：
 ```/usr/local/nginx/sbin/nginx```
 
+- 12. 验证有没有配置完成：  
+浏览器打开 ```http://192.168.1.120/group1/M00/00/00/wKgBeF2sknWAHXSnAAIJcmKUQ1U895.jpg```
 ### 参考文献
 https://zhuanlan.zhihu.com/p/29157952 （注：其中第3步，修改文件不准确，参见下面的连接）  
 https://github.com/happyfish100/fastdfs-nginx-module/issues/31 (见xunchong99 commented on Aug 20, 2018这一层)  
