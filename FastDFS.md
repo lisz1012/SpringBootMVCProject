@@ -592,8 +592,11 @@ ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/
 ```
 add_header Content-Disposition "attachment;filename=$arg_attname";
 ```
+这样会使得下载的文件名被命名为参数"attname"的值，比如：  
+```http://192.168.1.120/group1/M00/00/00/xxxxxxxxxxxxxxxx.jpg?attname=aaa```  
+就会被下载且保存为aaa.jpeg  
 
-
+注：一半以上的公司没有自己的文件服务器，仍然用ftp管理，了解这部分知识是个优势。
 
 ## JavaApi
 
