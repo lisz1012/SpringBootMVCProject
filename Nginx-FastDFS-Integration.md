@@ -15,7 +15,7 @@
      ```store_path0=/var/data/fastdfs-storage/data```  
 	client.conf:  
 	```base_path=/usr/local/fastdfs/client```  
-	nginx安装路径：
+	nginx安装路径：  
 	```/usr/local/nginx```  
 	nginx源码解压路径：  
 	```/usr/local/nginx-1.16.1```   
