@@ -701,3 +701,7 @@ uploadFile  = fc.uploadImageAndCrtThumbImage(filename.getInputStream(), filename
 			
 		return new ResponseEntity<>(bs,headers,HttpStatus.OK);
 		}
+
+		
+##### 注
+以上文件系统配置可能一年也用不上，但知道从哪里查，也能很快上手
