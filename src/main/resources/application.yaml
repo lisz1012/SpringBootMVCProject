@@ -9,4 +9,12 @@ mybatis:
   type-aliases-package: com.lisz.entity
   mapper-locations:
   - classpath:mybatis/mapper/*.xml
+fdfs:
+  connect-timeout: 600
+  tracker-list:
+  - 192.168.1.120:22122
+  so-timeout: 1500
+  thumb-image:             #缩略图生成参数
+    width: 150
+    height: 150
   

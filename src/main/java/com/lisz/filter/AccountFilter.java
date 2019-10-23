@@ -49,8 +49,11 @@ public class AccountFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse)resp;
 		Object obj = request.getSession().getAttribute("account");
 		String uri = request.getRequestURI();  //"/index" 是个uri 8080后面的"/index"是一个URI
+		System.out.println("URI: " + uri);
+		System.out.println("Obj: " + obj);
 		if (obj == null && !canIgnore(uri)) {
 			// 跳转登录页面
+			System.out.println("Redirecting ... ... ");
 			response.sendRedirect("/account/login");
 			return;
 		}

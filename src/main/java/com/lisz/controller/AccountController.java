@@ -2,9 +2,12 @@ package com.lisz.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +19,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.PageInfo;
+import com.github.tobato.fastdfs.domain.fdfs.MetaData;
+import com.github.tobato.fastdfs.domain.fdfs.StorePath;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.lisz.entity.Account;
 import com.lisz.entity.SysConfig;
 import com.lisz.service.AccountService;
@@ -29,6 +35,9 @@ import com.lisz.service.AccountService;
 @RequestMapping("/account")
 public class AccountController {
 	private static final String PROFILE_URL_PREFIX = "/Users/shuzheng/Documents/upload/";
+	
+	@Autowired
+	private FastFileStorageClient fc;
 	
 	@Autowired
 	private SysConfig sysConfig;
@@ -53,10 +62,12 @@ public class AccountController {
 	public String validate(@RequestParam String username, @RequestParam String password, HttpServletRequest request) { //不写@RequestParam也可以的
 		Account account = accountService.findByUsernameAndPassword(username, password);
 		if (account == null) { // 简单的前端业务逻辑写在Controller中就可以了
+			System.out.println("ERROR");
 			return "error";
 		} else {
 			// 登录成功就要把用户对象写到session里，在不同的controller或者页面都能使用当前的Account对象
 			request.getSession().setAttribute("account", account);
+			System.out.println("SUCCESS");
 			return "success";
 		}
 	}
@@ -117,18 +128,31 @@ public class AccountController {
 		
 		String profileUrl = filename.getOriginalFilename(); //URL prefix is: "/Users/shuzheng/Documents/upload/", so when read, add this before the filename
 		account.setProfileUrl(profileUrl);
-		ResponseStatus responseStatus = accountService.update(account);
-		if (responseStatus != null) {
-			return responseStatus;
-		}
+		
 		try {
-			filename.transferTo(new File(PROFILE_URL_PREFIX + profileUrl));//这里太棒了，一句话copy到指定的目录。将来会有改动，指向FastDFS的某个地址
+			//filename.transferTo(new File(PROFILE_URL_PREFIX + profileUrl));//这里太棒了，一句话copy到指定的目录。将来会有改动，指向FastDFS的某个地址
+			Set<MetaData> metaDataSet = new HashSet<MetaData>();
+	        metaDataSet.add(new MetaData("Author", "Shuzheng"));
+	        metaDataSet.add(new MetaData("CreateDate", "2019-10-22"));
+	        
+	        StorePath uploadFile = fc.uploadFile(filename.getInputStream(), filename.getSize(), FilenameUtils.getExtension(filename.getOriginalFilename()), metaDataSet);
+	        System.out.println("uploadFile.getPath(): " + uploadFile.getPath());	
+	        System.out.println("uploadFile.getFullPath(): " + uploadFile.getFullPath());	
+	        
+			account.setLocation(uploadFile.getPath());
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
 			return new ResponseStatus(500, "Uploading failed", "Updloading failed");
 		}
+		
+		ResponseStatus responseStatus = accountService.update(account);
+		if (responseStatus != null) {
+			return responseStatus;
+		}
+		
 		//更新session使新的头像生效
 		request.getSession().setAttribute("account", account);
+		
 		
 		return new ResponseStatus(200, "OK", "Uploading succeeded");
 	}
