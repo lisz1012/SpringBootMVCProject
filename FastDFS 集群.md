@@ -6,12 +6,12 @@
 
 VMware修改mac
 
-- 修改 ip地址
+- 修改 ip地址: ```vim /etc/sysconfig/network-scripts/ifcfg-ens33```  
 - rm -f /etc/udev/rules.d/70-persistent-net.rules
 
-- reboot
+- reboot  
 
-
+磁盘IO要求高的话不要用docker，docker是在计算量大且算力有富余的时候才用
 
 ## Tracker集群搭建
 

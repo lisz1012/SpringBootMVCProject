@@ -585,7 +585,9 @@ ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/
     http://192.168.150.11/group1/M00/00/00/wKiWC10xxc6AfHCKAAAib-i5DLU543_big.log
 ```
 
-
+#### 启动nginx
+```/usr/local/nginx/sbin/nginx```  
+注意：只有FastDFS的tracker和storage以及nginx都启动了，才可以应浏览器直接访问文件或者图片  
 
 #### 文件名
 
@@ -705,3 +707,11 @@ uploadFile  = fc.uploadImageAndCrtThumbImage(filename.getInputStream(), filename
 		
 ##### 注
 以上文件系统配置可能一年也用不上，但知道从哪里查，也能很快上手
+
+##### FastDFS和HDFS使用场景的区别
+
+FastDFS就是面向网站的，本来是给PHP用的，200x就有了；HDFS 2010或2011才有。FastDFS是面向网站上用户上传上来的文件和系统需要提供给用户访问的这些文件的，提高访问速度，和之前的服务器解耦。HDFS也有这功能。FastDFS能做的事，
+HDFS有一部分能做，但是有一部分需要一些编程：比如去重和token，访问认证防盗链机制；HDFS能做的事FastDFS是做不了的，比如说计算能力，比如大文件的分片，切片的offet等，这些是面向计算的。HDFS可以支持spark等来做计算，不只是文
+本文件，图片什么的都可以参与计算。所以FastDFS是轻量级的，因为他没计算功能，所以他更快，而且HDFS是Java写的，而FastDFS是C语言写的。不需要计算，用FastDFS否则用HDFS。还有一点是：FastDFS存大文件的时候，由于它里面这个副本
+的机制，不像HDFS切片了，副本的大小是固定的，所以往FastDFS里面传大文件的话会有数据复制的问题，因为storage server是真正存储数据的节点，一个storage server会完整的把数据复制到另一个同group的节点上，这一点和HDFS不一样，
+HDFS有一个Pipeline的概念。节点越多，FastDFS就要广播数据到所有storage节点，速度就很慢了。Pipeline也在netty利用到，HDFS底层用到了netty。
