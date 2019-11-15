@@ -11,7 +11,7 @@ VMware修改mac
 
 - reboot  
 
-磁盘IO要求高的话不要用docker，docker是在计算量大且算力有富余的时候才用
+磁盘/网络IO要求高的话不要用docker，docker是在计算量大内存消耗多且算力有富余的时候才用。docker会把很多角色装在同一台机器上
 
 ## Tracker集群搭建
 
