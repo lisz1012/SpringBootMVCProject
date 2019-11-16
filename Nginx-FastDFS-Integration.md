@@ -104,4 +104,6 @@ https://www.icode9.com/content-4-372453.html
 https://blog.csdn.net/qq_37495786/article/details/84330699  
 https://blog.csdn.net/qq_29767317/article/details/78579800  
 https://blog.csdn.net/qq_22638399/article/details/81060535  
-http://www.manongzj.com/blog/5-hvhiaybxhkdvret.html
+http://www.manongzj.com/blog/5-hvhiaybxhkdvret.html  
+虚拟机硬盘扩容：  
+https://www.cnblogs.com/students/p/8967016.html
