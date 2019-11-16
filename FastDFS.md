@@ -549,7 +549,11 @@ make && make install
 ##### 拷贝配置文件
 
 ```
-cp /root/fastdfs-nginx-module/src/mod_fastdfs.conf /etc/fdfs/
+cp /root/fastdfs-nginx-module/src/mod_fastdfs.conf /etc/fdfs/  
+
+cp /usr/local/fastdfs/FastDFS/conf/http.conf /etc/fdfs  
+
+cp /usr/local/fastdfs/FastDFS/conf/mime.types /etc/fdfs
 ```
 
 ##### 修改配置文件 mod_fastdfs.conf
