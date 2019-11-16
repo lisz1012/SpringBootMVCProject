@@ -43,6 +43,16 @@
 ```tracker_server=192.168.1.120:22122``` # tracker服务IP和端口  
 ```url_have_group_name=true``` # 访问链接前缀加上组名  
 ```store_path0=/var/data/fastdfs-storage/data``` # 文件存储路径
+
+另外需要拷贝配置文件：  
+
+
+```
+cp /usr/local/fastdfs/FastDFS/conf/http.conf /etc/fdfs  
+
+cp /usr/local/fastdfs/FastDFS/conf/mime.types /etc/fdfs
+```
+
 - 5. 执行：  
 ```sed -i 's#(pContext->range_count > 1 && !g_http_params.support_multi_range))#(pContext->range_count > 1))#g' /usr/local/fastdfs/fastdfs-nginx-module/src/common.c | grep '(pContext->range_count > 1))'```
 这是为了解决待会儿make是的错误：  
@@ -88,4 +98,10 @@ https://github.com/happyfish100/fastdfs-nginx-module/issues/31 (见xunchong99 co
 https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/ （第5步中避免错误的方法）  
 https://www.cnblogs.com/eaglezb/p/6073661.html（nginx在Linux CentOS上的安装）  
 https://owelinux.github.io/2018/09/03/article28-linux-fastdfs-4/ （FastDFS安装）  
-https://blog.csdn.net/name_is_wl/article/details/52979208 （ubuntu下安装）
+https://blog.csdn.net/name_is_wl/article/details/52979208 （ubuntu下安装）  
+找不到http.conf文件的话会使得浏览器刷新nginx首页的时候永远等待：：  
+https://www.icode9.com/content-4-372453.html   
+https://blog.csdn.net/qq_37495786/article/details/84330699  
+https://blog.csdn.net/qq_29767317/article/details/78579800  
+https://blog.csdn.net/qq_22638399/article/details/81060535  
+http://www.manongzj.com/blog/5-hvhiaybxhkdvret.html
