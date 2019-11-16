@@ -68,6 +68,14 @@ make完了之后要检查一下输出，有没有出现```objs/addon/src/ngx_htt
 ```
 ln -s /var/data/fastdfs-storage/data/data/  /var/data/fastdfs-storage/data/data/M00
 ```
+####  修改nginx配置文件
+
+```
+    location ~ /group([0-9])/M00 {
+        ngx_fastdfs_module;
+    }
+    
+```
 
 - 11. 启动nginx：
 ```/usr/local/nginx/sbin/nginx```
