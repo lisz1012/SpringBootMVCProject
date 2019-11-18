@@ -79,6 +79,12 @@ fdfsMonitor
 
 `/usr/bin/fdfs_monitor /etc/fdfs/storage.conf`
 
+所有的group的各个Storage机器应该是ACTIVE才对。一旦有WAIT_SYNC的，有终极解决办法就是进入所有的 tracker的```/var/data/fastdfs-tracker```，和所有的storage的
+```/var/data/fastdfs-storage/base
+/var/data/fastdfs-storage/data
+```
+执行`rm -rf ./*`清理所有元数据之后重启tracker和storage
+
 ## 测试FastDfs集群
 
 测试文件上传
