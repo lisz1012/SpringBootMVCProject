@@ -6,7 +6,8 @@
 
 VMware修改mac
 
-- 修改 ip地址: ```vim /etc/sysconfig/network-scripts/ifcfg-ens33```  
+- 修改 ip地址:   
+```vim /etc/sysconfig/network-scripts/ifcfg-ens33```  
 - rm -f /etc/udev/rules.d/70-persistent-net.rules
 
 - reboot  
