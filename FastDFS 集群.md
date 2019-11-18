@@ -12,6 +12,9 @@ VMware修改mac
 
 - reboot  
 
+或者在图形界面里修改IP 网关 掩码和DNS，然后再：
+```service network restart```
+
 磁盘/网络IO要求高的话不要用docker，docker是在计算量大内存消耗多且算力有富余的时候才用。docker会把很多角色装在同一台机器上
 
 ## Tracker集群搭建
