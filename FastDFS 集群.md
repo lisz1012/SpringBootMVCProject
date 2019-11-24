@@ -1,5 +1,7 @@
 # FastDFS 集群
 
+这里是通过nginx的一个模块访问了FastDFS  
+
 ![1564986976390](C:\Users\Administrator\Desktop\tmp\fastdfs图\1564986976390.png)
 
 ## 克隆虚拟机
