@@ -21,7 +21,9 @@ VMware修改mac
 
 ## Tracker集群搭建
 
-克隆出来之前已经装好的两台虚拟机做Tracker节点
+克隆出来之前已经装好的两台虚拟机做Tracker节点, nginx需要keepalived做高可用，而tracker server不需要。因为有客户端的存在，它上面看可以存一个Tracker Server List，其中有一组服务器，客户端可以去尝试不同的Servers，
+这个客户端实际上就是nginx的那个插件，里面存了一组tracker server，访问第一个的时候发现它宕机了，可以去试试第二个。这是基于客户端的负载均衡，后面的spring cloud里的feign和ribbon也是基于客户端的负载均衡。但为什么最前面
+的nginx需要keepalived？因为他的客户端是浏览器或者其他应用，我们不可能将所有服务器的地址传递给他们。打网游的时候一台服务器满了可以选另一台，这也是基于客户端的
 
 tarcker 节点 ip 131、132
 
