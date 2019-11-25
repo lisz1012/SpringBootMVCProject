@@ -338,7 +338,12 @@ http {
             proxy_cache_purge http-cache $1$is_args$args;
         }
 ```
-
+PS: tracker server这里要删掉FastDFS这个模块：
+```
+location ~ /group([0-9])/M00 {
+	ngx_fastdfs_module;
+}
+```
 ##### purge命令清除静态缓存
 
 http://域名+purge+静态资源相对路径    来清除静态资源缓存
