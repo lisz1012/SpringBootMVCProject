@@ -160,7 +160,18 @@ store_path0=/var/data/fastdfs-storage/data
 
 http://192.168.1.124/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
 http://192.168.1.124/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg
-以上两个url一个是group1，一个是group2，都能访问到图片，就是因为mod_fastdfs.conf所配置的这个模块起作用了，会到tracker那里询问文件在哪个机器上
+以上两个url一个是group1，一个是group2，都能访问到图片，就是因为mod_fastdfs.conf所配置的这个模块起作用了，会到tracker那里询问文件在哪个机器上。当所有storage server都配置正确且启动了nginx之后，
+```
+http://192.168.1.122/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.122/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.123/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.123/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.124/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.124/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.125/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.125/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+```
+就全都能访问到图片了^_^
 
 #### 检查Nginx配置文件
 
