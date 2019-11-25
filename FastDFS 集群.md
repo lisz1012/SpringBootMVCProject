@@ -344,6 +344,8 @@ location ~ /group([0-9])/M00 {
 	ngx_fastdfs_module;
 }
 ```
+HDFS中pipeline的概念：当一个大文件要上传到HDFS上的时候，可以每4k传一下，然后client传给server1之后，server1紧接着传给server2.。。最后serverN原路返回结果。这就像个流水线一样。这样可以最大限度的利用内网的带宽，少走外网  
+
 ##### purge命令清除静态缓存
 
 http://域名+purge+静态资源相对路径    来清除静态资源缓存
