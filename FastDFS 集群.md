@@ -171,7 +171,7 @@ http://192.168.1.124/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg
 http://192.168.1.125/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
 http://192.168.1.125/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
 ```
-就全都能访问到图片了^_^
+就全都能访问到图片了^_^. storage server上的nginx作为一个客户端问tracker server文件在哪儿
 
 #### 检查Nginx配置文件
 
@@ -338,6 +338,12 @@ http {
             proxy_cache_purge http-cache $1$is_args$args;
         }
 
+
+PS: tracker server这里要删掉FastDFS这个模块：
+```
+location ~ /group([0-9])/M00 {
+	ngx_fastdfs_module;
+}
 ```
 
 ##### purge命令清除静态缓存
