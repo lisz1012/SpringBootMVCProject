@@ -144,7 +144,7 @@ group_count = 2
 group_name=group1
 storage_server_port=23000
 store_path_count=1
-store_path0=/var/data/fastdfs-storage/store
+store_path0=/var/data/fastdfs-storage/data
 #store_path1=/home/yuqing/fastdfs1
 
 # group settings for group #2
@@ -154,9 +154,13 @@ store_path0=/var/data/fastdfs-storage/store
 group_name=group2
 storage_server_port=23000
 store_path_count=1
-store_path0=/var/data/fastdfs-storage/store
+store_path0=/var/data/fastdfs-storage/data
 
 ```
+
+http://192.168.1.124/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
+http://192.168.1.124/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg
+以上两个url一个是group1，一个是group2，都能访问到图片，就是因为mod_fastdfs.conf所配置的这个模块起作用了，会到tracker那里询问文件在哪个机器上
 
 #### 检查Nginx配置文件
 
