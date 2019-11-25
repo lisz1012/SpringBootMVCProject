@@ -337,7 +337,7 @@ http {
             deny all;
             proxy_cache_purge http-cache $1$is_args$args;
         }
-
+```
 
 ##### purge命令清除静态缓存
 
