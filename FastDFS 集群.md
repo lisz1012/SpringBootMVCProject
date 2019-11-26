@@ -544,7 +544,9 @@ chmod +x /etc/keepalived/nginx_check.sh
 service keepalived start
 ```
 
-
+注意，做实验的时候要停止eth4或eth5等，而不要停止虚拟出来的网卡eth4:2 or eth5:2，命令：
+```ifconfig eth4 192.168.1.120 down``` 或者 ```ifconfig eth5 192.168.1.121 down```
+若nginx和keepalived被设置为开机启动，且此时master上线，```ifconfig eth4 192.168.1.120 up``` 则会抢回主的地位
 
 ### 下载文件
 
