@@ -171,7 +171,10 @@ http://192.168.1.124/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg
 http://192.168.1.125/group1/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
 http://192.168.1.125/group2/M00/00/00/wKgBfF3bSaWAKKSdABAV0YEYpQo681.jpg  
 ```
-就全都能访问到图片了^_^. storage server上的nginx作为一个客户端问tracker server文件在哪儿
+就全都能访问到图片了^_^. storage server上的nginx作为一个客户端问tracker server文件在哪儿。但是这样的话，一旦文件不在本地，就会跨机器找文件传文件，产生网络IO。所应该在前面负载均衡的时候就分清楚，group1的请求就给group1，
+保证不会给group2，造成内网的网络IO。  
+
+一主一备的缺点：如果主是由于高并发承受不住而宕机，则备顶上来也没用。双主也有问题，一台宕机也是全完蛋
 
 #### 检查Nginx配置文件
 
@@ -467,63 +470,33 @@ ts2
 ! Configuration File for keepalived
 
 global_defs {
-  # notification_email {
-   #  acassen@firewall.loc
-   #  failover@firewall.loc
-   #  sysadmin@firewall.loc
- #  }
-#   notification_email_from Alexandre.Cassen@firewall.loc
- #  smtp_server 192.168.200.1
-  # smtp_connect_timeout 30
-   router_id ts2
+   ## keepalived 自带的邮件提醒需要开启 sendmail 服务。建议用独立的监控或第三方 SMTP
+   router_id TS2  ## 标识本节点的字条串，通常为 hostname
 }
-
-
+##  keepalived 会定时执行脚本并对脚本执行的结果进行分析，动态调整 vrrp_instance 的优先级。如果脚本执行结果为 0，并且 weight 配置的值大于 0，则优先级相应的增>加。如果脚本执行结果非 0，并且 weight配置的值小于 0，则优先级相应的减少。其他情况，维持原本配置的优先级，即配置文件中 priority 对应的值。
 vrrp_script chk_nginx {
     script "/etc/keepalived/nginx_check.sh"  ## 检测 nginx 状态的脚本路径
     interval 2  ## 检测时间间隔
     weight -20  ## 如果条件成立，权重-20
 }
-
-
-
+## 定义虚拟路由，VI_1 为虚拟路由的标示符，自己定义名称
 vrrp_instance VI_1 {
-    state BACKUP
-    interface eth0
-    virtual_router_id 51
-    priority 90
-    advert_int 1
+    state BACKUP  ## 主节点为 MASTER，对应的备份节点为 BACKUP
+    interface eth5  ## 绑定虚拟 IP 的网络接口，与本机 IP 地址所在的网络接口相同，我的是 eth1
+    virtual_router_id 51  ## 虚拟路由的 ID 号，两个节点设置必须一样，可选 IP 最后一段使用,  相同的 VRID 为一个组，他将决定多播的 MAC 地址
+    mcast_src_ip 192.168.1.121  ## 本机 IP 地址
+    priority 70  ## 节点优先级，值范围 0-254，MASTER 要比BACKUP 高
+    nopreempt ## 优先级高的设置 nopreempt 解决异常恢复后再次抢占的问题
+    advert_int 1  ## 组播信息发送间隔，两个节点设置必须一样，默认 1s
+    ## 设置验证信息，两个节点必须一致
 
-
-}
-
-
-vrrp_script chk_nginx {
-    script "/etc/keepalived/nginx_check.sh"  ## 检测 nginx 状态的脚本路径
-   router_id ts2
-}
-
-
-
-vrrp_instance VI_1 {
-    state BACKUP
-    interface eth0
-    virtual_router_id 51
-    priority 90
-    advert_int 1
-
-
-    mcast_src_ip 192.168.150.132
+    ## 将 track_script 块加入instance 配置块
     track_script {
-    chk_nginx
+        chk_nginx  ## 执行 Nginx 监控的服务
     }
-
-    authentication {
-        auth_type PASS
-        auth_pass 1111
-    }
+    ## 虚拟 IP 池, 两个节点设置必须一样
     virtual_ipaddress {
-        192.168.150.138/24   dev  eth0  label  eth0:2
+        192.168.1.138/24   dev  eth5  label  eth5:2
     }
 }
 
