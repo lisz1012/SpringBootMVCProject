@@ -352,7 +352,9 @@ HDFS中pipeline的概念：当一个大文件要上传到HDFS上的时候，可�
 ##### purge命令清除静态缓存
 
 http://域名orIP + purge + 静态资源相对路径    来清除静态资源缓存
-
+以上的缓存配置会使得keepalived主节点上的/var/data/cache/nginx/proxy_cache 目录下会有原来访问过的后面storage server的缓存文件，执行 ```http://域名or主节点IP or VIP + purge + 静态资源相对路径```之后会清理掉缓存
+文件，然后再次用tree命令查看/var/data/cache/nginx/proxy_cache下的结构发现缓存文件已经不存在了。这样做的好处就是不用登录后台就可以清理缓存，但要配置一下那个/usr/local/nginx/conf/nginx.conf location的allow白名单：
+192.168.1.0/24;
 
 
 ### 添加Nginx模块,保留原有模块
