@@ -397,7 +397,7 @@ mkdir -p /data/zookeeper
 
 PS: zookeeper只有一种数据类型就是二进制类型，树状存储，每个节点都可以存数据，最大1M，所以它不是个适合存大量数据的中间件
 
-创建Myid文件，并写入服务器编号
+创建myid文件，并写入服务器编号：下面server .x 中的 x
 
 ![1565092323114](C:\Users\Administrator\Desktop\tmp\dubbo图\1565092323114.png)
 
