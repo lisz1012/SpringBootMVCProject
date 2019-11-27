@@ -374,9 +374,7 @@ http://dubbo.apache.org/zh-cn/docs/user/maturity.html
 **注意中间间隔是： 冒号**
 
 ```
-export PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin:/usr/local/zo
-
-okeeper/bin
+export PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin:/usr/local/zookeeper/bin
 ```
 
 source /etc/profile 重新加载配置
@@ -395,7 +393,9 @@ vi /usr/local/zookeeper/conf/zoo.cfg
 
 创建数据存放目录
 
-Mkdir /data/zookeeper
+mkdir -p /data/zookeeper
+
+PS: zookeeper只有一种数据类型就是二进制类型，树状存储，每个节点都可以存数据，最大1M，所以它不是个适合存大量数据的中间件
 
 创建Myid文件，并写入服务器编号
 
