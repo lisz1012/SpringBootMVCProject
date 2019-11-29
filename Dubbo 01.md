@@ -596,7 +596,7 @@ dubbo.registry.address=zookeeper://192.168.150.13:2181
 #### 自动注入
 
 ```java
-	@Reference(version = "1.0.0")
+	@Reference(version = "1.0.0") //必须指定版本号，跟服务端对应上
 	DemoService serv;
 	
 ```
@@ -611,7 +611,7 @@ public interface DemoService {
 }
 ```
 
-
+执行zkCli.sh,  ls之后可以查看到zookeeper上已经注册的providers和consumers
 
 
 
