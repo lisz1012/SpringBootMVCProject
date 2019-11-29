@@ -61,8 +61,8 @@ RPC远程过程调用 : Remote Procedure Call Protocol
 
 - RMI——Remote Method Invoke：调用远程的方法。“方法”一般是附属于某个对象上的，所以通常RMI指对在远程的计算机上的某个对象，进行其方法函数的调用。
 - RPC——Remote Procedure Call：远程过程调用。指的是对网络上另外一个计算机上的，某段特定的函数代码的调用。service的provider提供一个service的接口给客户端，比如AccountService，但是没有实现，在provider这一端会有实现类在spring容器中。client端还有个代理对象，实现了client端的那个接口
-然后handler.invoke里面调用之前建立socket连接，把AccountService的接口名方法名和参数传递到provider端，后者找到实现类去执行，然后把执行结果通过socket再返回给client，client就得到了调用结果，从而实现了RPC，具体就不调了，因为client这里根本没有实现类。也就是说客户端@Autowired AccountService
-的时候实现类是个代理对象，代理对象
+然后handler.invoke里面调用之前建立socket连接，把AccountService的接口名方法名和参数传递到provider端，后者找到实现类去执行，然后把执行结果通过socket再返回给client，client就得到了调用结果，最后关闭socket。从而实现了RPC，具体就不调了，因为client这里根本没有实现类。也就是说客户端
+@Autowired AccountService的时候实现类是个代理对象，代理对象
 监听login等方法的时候会回调到invoke方法。那client怎么知道provide在哪个IP上，提供什么接口和服务呢？这就需要中间有个“服务注册中心”。如果没有这个东西，每个client都要知道各个provider的列表，而且一旦服务有下线的，IP列表还要改，请求数据的时候，负载倾斜了也是个问题。解决这些问题，叫做服务治理。
 “服务注册中心”就是夹在clients和providers中间，有一个功能就是可以记录数据（具体实现不重要）：service的IP，接口名，当前负载状态（请求计数，为了负载均衡）。然后所有的Controller去“服务注册中心”找数据，然后知道了再去provider的信息之后再去跟service建立socket连接。这是一种设计模式：mediator
 “服务注册中心”还需要保证随着service的下限，删掉其IP地址，本质上是维护了一个类似map的列表，key就是接口名，value就是IP地址还有计数。有机器上线的税后注册进来，下限的时候剔除。这就要维持一个”心跳“（健康检查）的关系
@@ -141,6 +141,8 @@ Dubbo是阿里巴巴公司开源的一个高性能优秀的[服务框架](https:
 订阅服务的时候, 会将发布的服务所有信息,一次性下载到客户端.
 
 客户端也可以自定义, 修改部分服务配置信息. 如: 超时的时长, 调用的重试次数等.
+
+Zookeeper内置了发布订阅，Redis和Eurica也有类似的机制
 
 #### consumer
 
