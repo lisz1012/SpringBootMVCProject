@@ -59,7 +59,7 @@ RPC远程过程调用 : Remote Procedure Call Protocol
 
 原来的RPC也有其他几种比如DCOM，CORBA，RMI（Java）等
 
-- RMI——Remote Method Invoke：调用远程的方法。“方法”一般是附属于某个对象上的，所以通常RMI指对在远程的计算机上的某个对象，进行其方法函数的调用。
+- RMI——Remote Method Invoke：调用远程的方法。“方法”一般是附属于某个对象上的，所以通常RMI指对在远程的计算机上的某个对象，进行其方法函数的调用。RMI只解决了远程调用，但配合的整套服务治理不如dubbo，所以dubbo火起来了
 - RPC——Remote Procedure Call：远程过程调用。指的是对网络上另外一个计算机上的，某段特定的函数代码的调用。service的provider提供一个service的接口给客户端，比如AccountService，但是没有实现，在provider这一端会有实现类在spring容器中。client端还有个代理对象，实现了client端的那个接口
 然后handler.invoke里面调用之前建立socket连接，把AccountService的接口名方法名和参数传递到provider端，后者找到实现类去执行，然后把执行结果通过socket再返回给client，client就得到了调用结果，最后关闭socket。从而实现了RPC，具体就不调了，因为client这里根本没有实现类。也就是说客户端
 @Autowired AccountService的时候实现类是个代理对象，代理对象
@@ -194,7 +194,7 @@ Zookeeper内置了发布订阅，Redis和Eurica也有类似的机制
 
 优点：
 
-采用NIO复用单一长连接，并使用线程池并发处理请求，减少握手和加大并发效率，性能较好（推荐使用） 
+采用NIO复用单一长连接，并使用线程池并发处理请求，减少握手和加大并发效率，底层是netty，性能较好（推荐使用） 
 
 缺点：
 
@@ -550,6 +550,8 @@ dubbo.protocol.host=192.168.101.106
 
 dubbo.registry.address=zookeeper://192.168.150.13:2181
 ```
+
+dubbo.protocol.host 和 dubbo.protocol.port 是服务提供者的主机IP和端口
 
 #### 服务接口
 
