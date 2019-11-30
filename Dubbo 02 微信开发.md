@@ -4,7 +4,23 @@
 
 https://github.com/apache/dubbo-admin
 
+下载下来之后import existing maven project引入，然后右键点击dubbo-admin这个父项目，maven build install，会在dubbo-admin-distribution子项目中target目录下生成一个dubbo-admin-0.1.jar文件，运行它：
 
+```java -jar ./dubbo-admin-0.1.jar --admin.registry.address=zookeeper://192.168.1.120:2181 --admin.config-center=zookeeper://192.168.1.120:2181 
+--admin.metadata-report.address=zookeeper://192.168.1.120:2181```
+
+这是因为dubbo-admin项目下的dubbo-admin-server/src/main/resources/application.properties里面的
+
+```
+
+# centers in dubbo2.7
+admin.registry.address=zookeeper://192.168.1.120:2181
+admin.config-center=zookeeper://192.168.1.120:2181
+admin.metadata-report.address=zookeeper://192.168.1.120:2181
+
+```
+
+并没有改成我们正确的zk集群的地址，所以要用参数覆盖（这里我已经手动改过来了）
 
 ## 原系统微服务改造
 
