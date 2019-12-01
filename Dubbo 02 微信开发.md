@@ -20,7 +20,11 @@ admin.metadata-report.address=zookeeper://192.168.1.120:2181
 
 ```
 
-并没有改成我们正确的zk集群的地址，所以要用参数覆盖（这里我已经手动改过来了）
+并没有改成我们正确的zk集群的地址，所以要用参数覆盖（这里我已经手动改过来了）   
+项目小的话用dubbo就够了。RPC框架就是调用服务的，而Spring Cloud有了一堆对服务治理增强的工具或者框架（dubbo也在往这方面走，不太成熟，还需时日才能追上Spring Cloud）  
+拆分服务的时候Consumer和Provider都拷贝了entity。Consumer只拷贝service接口，他还拷贝controllers；Provider拷贝mapper，utils，service接口，service实现类。拷贝的时候包名最好也一样  
+发现一bug，拆分项目的时候，前端的那个Consumer，明明在pom.xml文件中已经删除了mybatis相关的dependency，结果启动springboot的时候还是找dataSource的url，然后找不到（当然找不到了，前端的部分根本不连数据库，没这业务）报错
+这时候就要在整个springboot的App启动类的脑袋上面上的注解里加属性设置：@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})，以强制springboot不要去找数据库相关的配置。
 
 ## 原系统微服务改造
 
