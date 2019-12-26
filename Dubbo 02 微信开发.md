@@ -24,7 +24,11 @@ admin.metadata-report.address=zookeeper://192.168.1.120:2181
 项目小的话用dubbo就够了。RPC框架就是调用服务的，而Spring Cloud有了一堆对服务治理增强的工具或者框架（dubbo也在往这方面走，不太成熟，还需时日才能追上Spring Cloud）  
 拆分服务的时候Consumer和Provider都拷贝了entity。Consumer只拷贝service接口，他还拷贝controllers；Provider拷贝mapper，utils，service接口，service实现类。拷贝的时候包名最好也一样  
 发现一bug，拆分项目的时候，前端的那个Consumer，明明在pom.xml文件中已经删除了mybatis相关的dependency，结果启动springboot的时候还是找dataSource的url，然后找不到（当然找不到了，前端的部分根本不连数据库，没这业务）报错
-这时候就要在整个springboot的App启动类的脑袋上面上的注解里加属性设置：@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})，以强制springboot不要去找数据库相关的配置。
+这时候就要在整个springboot的App启动类的脑袋上面上的注解里加属性设置：@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})，以强制springboot不要去找数据库相关的配置。Dao的那一层跟Provider
+那个为服务在一起就可以了，也没必要把粒度分得太细了，那就太乱了。
+
+微服务带来了，扩展性，稳定性，高可用性，降低了耦合度.  
+微信的登陆仅仅就能拿到头像，昵称，地点，性别没有更多的信息了
 
 ## 原系统微服务改造
 
@@ -36,6 +40,12 @@ Application 入口程序添加
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 ```
 
+自己手机扫码进入https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index 可以设置Token。appID和appsecret也要跟application.properties中的一致
+在Ticket/TokenManagerListener (implements ServletContextListener)脑袋上面写注解：@WebListener 而且在启动类脑袋上面写@ServletComponentScan(basePackages = "com.lisz.controller.listener")
+以保证listner会被加载。启动之后会出现：https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=28_YUm4GceMOT7zX6Gw_NjOyRtvi5YRKDvR12uGPClJiE7aToVCCtWkThGQQZxtw95MBUjA8f5atqJ6hvr2-yhr1t9SU6kl0lMkKvKRd_MlAxkvJZ6OoeLNy7DgBAEi46h9WOrtdkDQnFomV3vtCLYhAGAPYL&type=jsapi
+我们就可以用这个token调用微信给我们提供的API接口了  
+
+发图的时候图片是传到了微信的服务器上
 
 
 ## 新增微信接口微服务
@@ -52,7 +62,7 @@ https://open.weixin.qq.com/
 
 公众号（公众平台）获取的scope只包括两种：snsapi_base 和snsapi_userinfo
 
-
+公众号和小程序只有展示不一样，该调用的API一个都不少
 
 ### 环境搭建
 
@@ -216,8 +226,32 @@ dns集群
     ]
 }
 ```
-
-
+view就是个网页url，click会把它里面的key传到后台
+自己做实验的时候没有实验认证条件，可以删掉上面JSON中小程序的部分：
+```
+{
+     "type":"miniprogram",
+     "name":"wxa",
+     "url":"http://mp.weixin.qq.com",
+     "appid":"wx286b93c14bbf93aa",
+     "pagepath":"pages/lunar/index"
+},
+```
+高版本的JDK9/10之后要pom文件里添加：
+```<!-- API, java.xml.bind module -->
+		<dependency>
+		    <groupId>jakarta.xml.bind</groupId>
+		    <artifactId>jakarta.xml.bind-api</artifactId>
+		    <version>2.3.2</version>
+		</dependency>
+		
+		<!-- Runtime, com.sun.xml.bind module -->
+		<dependency>
+		    <groupId>org.glassfish.jaxb</groupId>
+		    <artifactId>jaxb-runtime</artifactId>
+		    <version>2.3.2</version>
+		</dependency>
+```
 
 ### 消息回复
 
@@ -265,3 +299,6 @@ XMLTextMessage xmlTextMessage2 = new XMLTextMessage(eventMessage.getFromUserName
 
 ```
 
+redirect_uri域名与后台配置不一致，错误码：10003 解决办法：在https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index 下找到“网页授权获取用户基本信息”点击后面的“修改”，然后填入
+要限制访问的uri  
+用户名字里面有emoji的时候mysql无法用varchar存，得用utf8mb4
