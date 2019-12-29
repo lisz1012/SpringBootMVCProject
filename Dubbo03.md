@@ -6,7 +6,7 @@
 
 ## restful风格的API
 
-Representational State Transfer，资源表现层状态转换
+Representational State Transfer，资源表现层状态转换.REstful API用来告诉前端的同事如何调用后端API。其实就是定义http API接口的命名方式的，跟同事约定好就行了，不是个强制的语法
 
 ### 根路径
 
@@ -227,9 +227,13 @@ https://github.com/SpringForAll/spring-boot-starter-swagger
 <dependency>
     <groupId>com.spring4all</groupId>
     <artifactId>swagger-spring-boot-starter</artifactId>
-    <version>1.9.0.RELEASE</version>
+    <version>1.9.1.RELEASE</version>
 </dependency>
 ```
+
+还是第三方的简单！！然后就能写swagger注解了：在启动类的脑袋上添加@EnableSwagger2Doc. 然后启动项目，就可以去http://localhost:8080/v2/api-docs和http://localhost:8080/swagger-ui.html#/查看效果了  
+1. 引入依赖包 2。 启动类上加注解  
+https://github.com/SpringForAll/spring-boot-starter-swagger
 
 #### 启用注解
 

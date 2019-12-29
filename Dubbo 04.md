@@ -10,7 +10,16 @@
 
 ## Maven 聚合项目改造
 
-公用的接口、工具类、实体类等抽取出API项目独立维护更新
+公用的接口、工具类、实体类等抽取出API项目独立维护更新.maven本质上是一个工程构建和管理的工具，构建就是把项目从源码的状态编译成可执行的状态。
+
+新建一个Maven项目，next，然后选择quick start那个. GroupId的设置：尽量跟已有的项目一致，因为这样好拷贝东西。由于我们不需要给新项目打jar包，所以在pom文件里<package>标签里写"pom"而不是"jar".然后在项目上右键->
+Maven->New Maven Module Project, create simple，起好Module名字一路next然后finish。然后可以看到：在Project Explorer下面有一个新项目生成了，然后在我们刚刚右键点击的项目下面也有一个新的同名的项目（目录），
+它的pom文件很干净，这样骨架就搭好了，然后如法炮制所有的业务子模块。而我们现在想把公用的接口和Entity抽取出来，然大家都用，所以还要创建一个工程（API）装着它们,也是一个子Module。然后对于每个子项目（不是父项目里的目录）
+进行Run As -> Build Install, 这样会把该module了做成jar包放到本地的中央仓库里，形成一个依赖，在打印出来的日志里可以找到。项目间的互相引用可以通过<dependencies>标签来引入相应的groupId和artifactId，或者项目上
+右键->Maven->Add Dependency  
+然后就是把各个原来项目的代码拷贝到子module中来。然后就是管理依赖，因为里面有重复的，也有某些项目里独有的
+
+聚合项目就是把好多子项目聚合成一个大项目
 
 每次更新后需要install
 
