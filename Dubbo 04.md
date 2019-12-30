@@ -17,10 +17,52 @@ Maven->New Maven Module Project, create simple，起好Module名字一路next然
 它的pom文件很干净，这样骨架就搭好了，然后如法炮制所有的业务子模块。而我们现在想把公用的接口和Entity抽取出来，然大家都用，所以还要创建一个工程（API）装着它们,也是一个子Module。然后对于每个子项目（不是父项目里的目录）
 进行Run As -> Build Install, 这样会把该module了做成jar包放到本地的中央仓库里，形成一个依赖，在打印出来的日志里可以找到。项目间的互相引用可以通过<dependencies>标签来引入相应的groupId和artifactId，或者项目上
 右键->Maven->Add Dependency  
-然后就是把各个原来项目的代码拷贝到子module中来。然后就是管理依赖，因为里面有重复的，也有某些项目里独有的
+然后就是把各个原来项目的代码拷贝到子module中来。然后就是管理依赖，因为里面有重复的，也有某些项目里独有的. 共有的依赖放在父项目的pom文件里面，可以被继承，子项目的pom文件可以放个性化的依赖。在父项目的pom中有两个部分
+管理依赖：1. 对依赖版本的管理（<dependencyManagement>，只定义版本号，非要自定义版本号的时候会覆盖父项目的版本 不是所有的子项目都需要的依赖） 2. 对真正公用的依赖的管理(<dependencies>， 所有项目都要用的依赖)  
+对于springboot的项目，所有的项目和module都有一个spring-boot-starter，所以把它（爷爷）拷贝到父项目里的<project>标签里面  
+<properties>中定义了Dubbo和java的version，拷贝过来  
+子项目里的所有<dependencies>(包括本标签)先全部粘到父项目的pom的<denpendencyManagement>中。由于我们做的是Dubbo项目，所以Dubbo的依赖也是所有项目都需要的，所以把<dependencyManagement>中的dubbo相关依赖都
+移到<dependencies>中去. <denpendencyManagement>中剩下的<dependency>拷贝到需要他的项目的pom文件中，但是要去掉版本号，因为在父项目里面已经指定了. 依赖的管理的最佳实践是：在父项目里面定义一个，子项目里都继承。  
+然后就是copy代码，先拷贝主启动类。注意，pom文件在父子项目继承的时候，如果还有爷爷项目，而父项目没写版本号，则子项目也没有版本号，报错。解决方法是把父项目中的那个没有版本号的dependency删掉。拷贝代码的时候公用得类跳过，
+其他有报错的就是缺少依赖，那就从父项目的<denpendencyManagement>中拷贝过来然后去掉版本号. 公用代码copy到了API项目中之后build install 这个API项目一下，然后就可以在其他的用到他的项目里的pom文件的dependencies
+标签下引入他了：
+```
+<dependency>
+	<groupId>com.lisz</groupId>
+	<artifactId>API</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+</dependency>
+```  
+在Maven Dependencies里可以查看有没有引入，成功的话会多一个名叫API的dependency
+
 
 聚合项目就是把好多子项目聚合成一个大项目
 
+Dubbo可以做微服务治理，包括LB，容错，监控等。Dubbo有LB策略，在@Service或者@Reference的属性里配置不定调用到了那个service实例。默认是随机的
+所以有weight和loadbalance = "roundrobin"的配置.后者就是有多少个当前service的实例就把它们挨个轮询，策略还有"leastactive"和一致性哈希
+"consistenthash"(用不好的话还不如不用这个)。@Service里的配置在消费端的@Reference中也能配置，我们一般在服务端配置。两端可以都配置，但是消费端的配置会
+覆盖掉服务端的配置，所以本质上应该先有一份配置就在服务端。服务提供方自己最了解自己的架构性能。这也避免了没配置，结果来了个随机的loadbalance的情形。
+timeout(ms)属性是定义多长时间没有响应就算超时了，如果是幂等（不管多少次，只要输入一样，输出都相同）的话，可以配合retries属性一起配置来重复请求，重试的次数不
+包含最初的那次调用.重试的话就会按照负载均衡策略，不一定还会访问到当前这个机器或者实例
+每次请求过来都新开一个线程：
+   Port: 9999, Latency: 3395, Thread: DubboServerHandler-192.168.1.102:9999-thread-2
+   Port: 9999, Latency: 3193, Thread: DubboServerHandler-192.168.1.102:9999-thread-3
+   Port: 9999, Latency: 3039, Thread: DubboServerHandler-192.168.1.102:9999-thread-4
+   超时的话会在客户端抛出异常，但是服务端可能还在执行，但是客户端认为这次已经无效了。超时要小于浏览器的超时时间
+   execute属性可以限流：Provider处理请求时，统计方法维度的调用情况，如果并发数超过设置的最大值，则直接抛出异常。
+   org.apache.dubbo.rpc.RpcException: Failed to invoke method getPort in provider 
+   dubbo://192.168.1.102:9999/com.lisz.service.TestService?anyhost=false&application=Dubbo-OA-Provider&bean.name
+   =ServiceBean:com.lisz.service.TestService:1.0.0&bind.ip=192.168.1.102&bind.port=9999&deprecated=false&dubbo
+   =2.0.2&dynamic=true&executes=1&generic=false&interface=com.lisz.service.TestService&loadbalance=roundrobin&methods
+   =getPort&pid=10856&qos.enable=false&register=true&release=2.7.3&retries=3&revision=1.0.0&side=provider&timeout=3000&timestamp
+   =1577682606066&version=1.0.0, cause: The service using threads greater than <dubbo:service executes="1" /> limited.
+	at org.apache.dubbo.rpc.filter.ExecuteLimitFilter.invoke(ExecuteLimitFilter.java:56)
+	at org.apache.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:82)
+	最好不要在服务端设置execute限制，这样客户端直接报错，浏览器用户体验不好，应该在API网关（Kong kong，Zuul）或者hetries设置，整体并发量已经接近阈值了，就不
+	应该让请求达到service上。但是另一方面讲，如果前端网关，比如说限流为1000，则后面的两台服务器各500，如果后端在前端网关挂掉的时候没有限流，则可能挂掉；反之则可以
+	拒绝掉一些请求
+	
+	负载策略轮询用得最多，随机的话会有可能有流量倾斜，最小连接数性能稍微受影响。Dubbo中没有降级熔断，需要用springcloud的组件
 每次更新后需要install
 
 ## 粒度
