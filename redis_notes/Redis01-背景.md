@@ -48,6 +48,13 @@ B+属所有的叶子就是这些索引“4k”小格子，B+树的树干是在�
 的能力：https://db-engines.com/en 架构师可以把一家公司带到上市或者破产。Redis是KV内存存储的 No1: https://db-engines.com/en/ranking/key-value+store 年薪20-30w必须懂Redis，简历上要有。技术选型或者跟项目组同事讨论的
 时候，拿着https://db-engines.com/en/system/Redis和https://db-engines.com/en/system/MySQL之类的输出就可以了。Redis每秒1.5M此操作，latency小于1ms。关系型数据库也就是每秒几千   
 
+```
+Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets 
+with range queries, bitmaps, hyperloglogs, geospatial indexes with radius queries and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of 
+on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.
+```
+其中strings, hashes, lists, sets等五大类型指的都是value的类型
+
    随着互联网的发展，我们面临了一个新的问题。如何才能抵挡高并发，以及大数据导致的查找变慢呢？（注意，数据量变大，仅仅影响多数据查找，单数据查找并不会影响性能。我们的业务逻辑，通常是多条数据查找，所以才会有瓶颈）
 
    于是我们的k-v数据库产生了，这依赖于两个基础设施。冯诺依曼体系的硬件，以太网，和tcp/ip网络（不稳定，数据一致、双写等问题）。**参考附件：冯诺依曼体系图**
