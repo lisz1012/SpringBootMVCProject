@@ -58,7 +58,7 @@ on-disk persistence, and provides high availability via Redis Sentinel and autom
 其中strings, hashes, lists, sets等五大类型指的都是value的类型。对比memcached，后者的value没有类型的概念，用Json表示是复杂的数据结构。世界上有3种数据表示：1. k=a,k=1 2. k=[1,2,3] k=[a,x,f] 3. k={x=y} k=[{},{}].
 value有没有类型好像无所谓，而value类型的意义是：如果客户端想通过一个kv缓存系统取回value中的某一个元素，去的时候由于数据宽度一定，就好找数据了，memcached需要返回value所有数据到client端，这样如果很多请求的话网卡IO会成为瓶颈，
 而且client这边要有客户自己实现的代码来解码json；换成redis的话，类型其实不重要，**重要的是Redis Server中对每种类型都有自己的方法**，如lpop()等，这样不用返回所有数据，Redis Server的网卡承受得了，而且客户端的代码也比较轻盈。
-本质是解耦。借用大数据的词来说就是**“计算向数据移动”**，Memcached的JSON的解析过程是在client端。 
+本质是解耦。借用大数据的词来说就是“**计算向数据移动**”，Memcached的JSON的解析过程是在client端。 
 
    随着互联网的发展，我们面临了一个新的问题。如何才能抵挡高并发，以及大数据导致的查找变慢呢？（注意，数据量变大，仅仅影响多数据查找，单数据查找并不会影响性能。我们的业务逻辑，通常是多条数据查找，所以才会有瓶颈）
 
