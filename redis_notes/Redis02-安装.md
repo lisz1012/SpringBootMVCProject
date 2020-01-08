@@ -32,8 +32,8 @@ make
 make install PREDIX=/opt/redis
 ```
 如果缺失gcc的话要执行
-```yum install gcc
-   make distclean```
+```yum install gcc``` 和
+```make distclean```
 之后再make，在src生成可执行程序  
 make是Linux操作系统自带的编译命令，但他并不知道不同的源码包应该怎么编译，所以他必须找到一个文件叫Makefile。之前的nginx安装的时候，并没有Makefile，所以这里要先执行configure生成这个文件。直接执行make命令不加参数的话，是会去读
 Makefile这个文件的。Makefile是程序的厂商提供的，里面有编译和安装的过程，编译就是把源码做成可执行程序；安装就是copy. PREDIX=/opt/redis指定安装到哪个目录，安装生成的文件会copy到那里，不跟源码混在一起
