@@ -93,7 +93,7 @@ Redis是单进程、单线程、单实例的，但他一秒钟可以hold住很�
 最开始的内核，每来一个连接就启动一个线程阻塞在那里专门读(read)那个socket来的数据，多线程，但是cpu在一个时间便只执行一个线程，数据来了可能还无法立即读。
 看read命令可以安装
 ```yum install man man-pages```
-然后```man 2 man-pages``` 其中2是指2类的（共8类），2类的是指系统调用。系统调用是指内核给程序暴露的供调用的方法。执行后会知道read的用法：```ssize_t read(int fd, void *buf, size_t count);```
+然后```man 2 read``` 其中2是指2类的（共8类），2类的是指系统调用。系统调用是指内核给程序暴露的供调用的方法。执行后会知道read的用法：```ssize_t read(int fd, void *buf, size_t count);```
 fd是文件描述符，每个进程都是个文件，找一个进程，比如7688，执行```cd /proc/7688/fd```然后```ll```就可以看到程序里面的那些东西例如：
 ```
 [root@master fd]# ll
@@ -107,6 +107,27 @@ lrwx------. 1 root root 64 Jan  7 23:40 5 -> anon_inode:[eventpoll]
 lrwx------. 1 root root 64 Jan  7 23:40 6 -> /dev/pts/0
 lrwx------. 1 root root 64 Jan  7 23:40 7 -> socket:[33904]
 ```
-其中的0、1、2、3...就是文件描述符，0代表标准输入，1代表标准输出，2代表err流
-后来，系统内核发生了跃迁：
+执行```man 2 socket```可以发现```int socket(int domain, int type, int protocol);``` type有一项是SOCK_NONBLOCK 非阻塞的。 
+
+其中的0、1、2、3...就是文件描述符，0代表标准输入，1代表标准输出，2代表err流  
+
+### 系统内核的变迁
+#### 1. BIO
+每来一个连接启动一个线程，每个线程都阻塞在那里等着对方传过来的数据
+#### 2. NIO
+只用一个线程来监视所有连接的文件描述符（fd），这个线程里有个while死循环，遍历各个fd，轮询。一旦发现有数据，就处理数据，然后再去处理下一个文件描述符。轮询发生在用户空间，同步（遍历、取出、处理都由轮询的那个线程自己来处理）非阻塞，NIO。
+但现在的问题是：如果有1000个文件描述符，代表用户进程轮询要调用1000次kernel，成本很大：查询一次fd就得有一次系统调用，用户态和内核态切换一次，保护现场恢复现场等一大堆事情...连接数少还好，多了就麻烦了。
+#### 3. 多路复用的NIO
+要是不用触发1000次系统调用，只调一两次能不能行？这一点用户这边无能为力，所以只能是内核发展。把用户态轮询的事情扔到内核里完成：增加一个名叫select的系统调用，然后用户控件实际上是调用select:
+```
+int select(int nfds, fd_set *readfds, fd_set *writefds,
+                  fd_set *exceptfds, struct timeval *timeout);
+```
+1000个fd都要传给内核。select的效果：
+```
+select()  and pselect() allow a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of I/O operation
+       (e.g., input possible).  A file descriptor is considered ready if it is possible to perform the corresponding I/O operation (e.g., read(2)) without blocking.
+```
+内核去监控，直到有一个或多个fd有数据来了，就返回有数据的fd给用户态，然后再调用read，也就是说，read不会调没有数据的fd。对fd的选择处理更精确了，用户空间复杂度变低了。还是同步非阻塞的，只是减少了用户态和内核态的切换次数。
+
 
