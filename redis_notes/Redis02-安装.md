@@ -24,8 +24,7 @@ tar -xf redis-5.0.5.tar.gz
 不带参数v是为了不让verbose显示的内容回写到客户端来，规避网络IO
 
 ##### 2.3.安装
-Linux下的程序基本都是
-语言开发的。源码安装的套路就是上来先看解压后文件夹里的README.md文件
+Linux下的程序基本都是C语言开发的。源码安装的套路就是上来先看解压后文件夹里的README.md文件
 
 ```
 make
@@ -128,6 +127,33 @@ int select(int nfds, fd_set *readfds, fd_set *writefds,
 select()  and pselect() allow a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of I/O operation
        (e.g., input possible).  A file descriptor is considered ready if it is possible to perform the corresponding I/O operation (e.g., read(2)) without blocking.
 ```
-内核去监控，直到有一个或多个fd有数据来了，就返回有数据的fd给用户态，然后再调用read，也就是说，read不会调没有数据的fd。对fd的选择处理更精确了，用户空间复杂度变低了。还是同步非阻塞的，只是减少了用户态和内核态的切换次数。
+内核去监控，直到有一个或多个fd有数据来了，就返回有数据的fd给用户态，然后再调用read，也就是说，read不会调没有数据的fd。对fd的选择处理更精确了，用户空间复杂度变低了。还是同步非阻塞的，只是减少了用户态和内核态的切换次数。我们的程序跑在
+JVM（C语言写的）上。这里依靠了内核的进步，Linux内核现在还不能实现AIO，Windows可以。这里还有一个问题：在调用select的时候要传进来很多文件描述符，然后还得挑出谁能用再去调，有点复杂，下面再把这个复杂度降低一下，做成伪AIO。
+#### 4. 伪AIO
+首先说一下用户态和内核态，在用户态下，有1000个fd（内存里是一些0101），以他们为参数调用select传到内核态，做数据的拷贝，fd成了累赘了，而在传输的时候我们期望是“0拷贝”。这时可以用mmap内核调用来解决这个问题：
+```
+void *mmap(void *addr, size_t length, int prot, int flags,
+                  int fd, off_t offset);
+NAME
+     mmap, mmap64, munmap - map or unmap files or devices into memory                 
+```
+内存映射。曾经，内核有内核的内存地址空间；用户进程有用户进程的内存地址空间。他们都是虚拟的地址空间，在内存中无非就是两个区域，但是内核的内存区域用户进程是不能访问的，所以需要通过传参拷贝fd过去。现在两边搞一个共享的内存空间，通过mmap
+来实现，比如：用户的8号位置对应内核空间中的18号位置，内核空间中的19号位置对应用户进程空间中的9号位置等。内核和程序怎么用这个空间呢？用户空间有1000个文件描述符，就都写到共享空间里去，实际上是往共享空间的红黑树里面放，内核就可以看见这棵
+红黑树一共有多少个fd，然后用内核再拿着这些fd，通过IO中断看谁的数据到达了，然后就把该fd放在一个链表里（中断处理的钩子函数），上层的用户进程因为也能访问共享空间，所以就能从链表里取出来了数据的fd。这个并不是“0拷贝”，虽然有点类似，下面是
+“0拷贝”的说明：
+```
+ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 
+DESCRIPTION
+       sendfile()  copies data between one file descriptor and another.  Because this copying is done within the kernel, sendfile() is more efficient than the combination of read(2)
+       and write(2), which would require transferring data to and from user space.
+```
+sendfile发生在两个fd之间，直接在内核态中就通过内核的缓冲区把数据从一个fd给了另一个fd，不走用户态，省了来回切换的过程，更快。一个网卡连着内核，同时一个文件fd也连着内核，这就是两个IO，之前是通过read和write依次调用：文件数据先到内核的
+buffer缓冲区，再由read调用拷贝到用户进程的内存区，然后再write拷回来，再由网卡发出去，中间有拷贝的过程。  
 
+sendfile + mmap可以组建Kafka：网卡的数据进来，走内核然后进入JVM（Kafka是Scala写的），使用mmap，而mmap可以对files和devices进行挂载，挂载到文件，又因为mmap有内核共享空间，kafka通过mmap看到内存空间，往里写数据，其实内核也能看到
+数据，直接触发内核，这样就减少了用户态内核态的切换，减少数据拷贝，也约等于一个0拷贝，但不是两个fd之间的，而是内核空间和用户进程空间之间的。这就是为什么往里进数据的时候可以很快，而且可以存在文件上。而消费者还要拿着偏移量来把它读出来，这时
+走的是“0拷贝” sendfile，sendfile的输入来自文件的fd，输出给网卡上给消费者提供的端口的fd。面试的时候这么答，真的很难被拒绝^_^.  
+
+说回来Redis，Redis是单进程，他用了**epoll**，但是高并发他也不怕，因为内存是相当快的，IO相对来说很慢，由于有epoll，所以把数据会放到共享区，而用户进程可以直接通过mmap用，读出来处理。由于是单线程所以了一个效果：所有的数据到来是有顺序的
+其实数据处理是串行的，只有一个线程，挨个的处理一笔一笔的数据，不用额外再加锁
