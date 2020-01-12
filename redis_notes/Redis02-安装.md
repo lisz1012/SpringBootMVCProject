@@ -171,4 +171,4 @@ sendfile + mmap可以组建Kafka：网卡的数据进来，走内核然后进入
 
 Redis有很多的客户端socket连接进来，很多tomcat通过线程池连到Redis内核，这时Redis相当于用户进程，可以调用所谓的epoll，来寻找哪一个客户端来数据了，这里Redis处理数据的是一个单线程。注意，只是处理数据是单线程的，Redis还有其他的线程在做
 别的事情。单进程单线程的好处就是“顺序性”：每连接内的命令顺序，顺序到达串行处理。只要client端的操作能控制好先在Redis里面创建key=a再删除之，则在Redis里面的顺序是能保证相同的。要尽量地把相同的东西打到同一个节点上去（跟Kafka一样），一个
-topic的一个分区里放对于一个key的所有的操作
+topic的一个分区里放对于一个key的所有的操作.JDK的NIO虽然用了Selector类但是底层查看OS，有epoll就用epoll，否则用select nio
