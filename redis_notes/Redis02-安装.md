@@ -129,7 +129,7 @@ select()  and pselect() allow a program to monitor multiple file descriptors, wa
        (e.g., input possible).  A file descriptor is considered ready if it is possible to perform the corresponding I/O operation (e.g., read(2)) without blocking.
 ```
 内核去监控，直到有一个或多个fd有数据来了，就返回有数据的fd给用户态，然后再调用read，也就是说，read不会调没有数据的fd。对fd的选择处理更精确了，用户空间复杂度变低了。还是同步非阻塞的，只是减少了用户态和内核态的切换次数。我们的程序跑在
-JVM（C语言写的）上。多路复用就是把轮询的工作拿到了内核里。这里依靠了内核的进步，Linux内核现在还不能实现AIO，Windows可以。这里还有一个问题：在调用select的时候要传进来很多文件描述符，然后还得挑出谁能用再去调read，而且这些有数据的fd
+JVM（C语言写的）上。多路复用就是把轮询的工作拿到了内核里。这里依靠了内核的进步，Linux内核现在还不能实现AIO，Windows可以。这里还有一个问题：在调用select的时候要传进来很多文件描述符，然后用户还得挑出谁能用再去调read，而且这些有数据的fd
 也是每次都要调用内核的read，用户态和内核态来回切换，有点复杂，下面再把这个复杂度降低一下，做成伪AIO。
 #### 4. 伪AIO
 首先说一下用户态和内核态，在用户态下，有1000个fd（内存里是一些0101），以他们为参数调用select传到内核态，做数据的拷贝，fd成了累赘了，而在传输的时候我们期望是“0拷贝”。这时可以用mmap内核调用来解决这个问题：
