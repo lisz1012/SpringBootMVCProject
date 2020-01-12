@@ -31,7 +31,9 @@
 - 数据不够长的时候编码是embstr，之后会变为raw格式
 - strlen k1 查看v的长度
 - redis-cli --raw 进行进入，会识别编码（比如自动识别GBK）
-- getset k1 v 更新新值，返回旧值
+- getset k1 v 更新新值，返回旧值.先get后set等于在通信的时候发了两个包，就有两次IO请求，合成一个的话，在通信上只发了一个包，这就是作者比较细腻的一个地方。
+- mset k1 v1 k2 v2 k3 v3 ... key和value相间排列，可以设置多个值，也只是发送一个数据包。
+- msetnx 只有所有的key都不存在才创建。原子性操作，有一个失败了就全部失败
 - bitpos key bit [start] [end] 查看从start到end的字节，第一次bit出现的位置
 - bitcount key [start] [end] 查看start到end的时候，1出现的次数
 - bitop and andkey k1 k2 执行k1 k2 按位与操作
@@ -63,12 +65,15 @@ OK
 1) "\xe4\xb8\xad"
 2) "xd6\xd0"
 ```
-1）2）分别代表在utf-8和GBK下“中”字的编码表示. `redis-cli --raw`这时再get就可以看到原文了：
+1）2）分别代表在utf-8和GBK下“中”字的编码表示,\x表示是16进制. `redis-cli --raw`这时再get就可以看到原文了：
 ```
 [root@master ~]# redis-cli --raw
 127.0.0.1:6379> get k2
 中
 ```
+不带上 --raw的话，Redis只会识别ascii码，超过了就直接按照16进制显示，如果加了这个--raw选项，就会触发编码集的格式化，也就是说Redis发现了这几个十六进制符合当前编码集的编码规则，就从编码集中找到那个字符显示出来。总之Redis就是二进制
+安全的，跟hbase一样，向hbase写数据时先做序列化，转化成字节数组，hbase不会破坏编码的。在set的时候如果set k1 5此时直接判断，就转成了int，之后再incr就不用类型判断了，所以这个encoding可以提速，如果incr作用在了embstr上，就直接报错。
+二进制安全：各个用户之间沟通好编码和解码，Redis哪不是没有数据类型的。
 ### 2.list
 
 - lpush、lpop、rpush、rpop 和栈一样
