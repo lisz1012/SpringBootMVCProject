@@ -57,9 +57,18 @@ OK
 127.0.0.1:6379> OBJECT encoding k3
 "int"
 ```
-疑问：`set k2 中` 然后 `strlen k2`为什么输出`(integer) 3`?这是因为在ssh shell的编码是UTF-8，如果换成GBK，则输出2，因为GBK不顾虑其他的字符集，压缩空间
-
-
+疑问：`set k2 中` 然后 `strlen k2`为什么输出`(integer) 3`?这是因为在ssh shell的编码是UTF-8，如果换成GBK，则输出2，因为GBK不顾虑其他的字符集，压缩空间.在utf-8和GBK下分别存入“中”字，然后再拿出来：
+```
+127.0.0.1:6379> mget k2 k3
+1) "\xe4\xb8\xad"
+2) "xd6\xd0"
+```
+1）2）分别代表在utf-8和GBK下“中”字的编码表示. `redis-cli --raw`这时再get就可以看到原文了：
+```
+[root@master ~]# redis-cli --raw
+127.0.0.1:6379> get k2
+中
+```
 ### 2.list
 
 - lpush、lpop、rpush、rpop 和栈一样
