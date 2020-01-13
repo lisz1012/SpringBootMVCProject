@@ -160,12 +160,13 @@ hash是一种简单的Document，所以可以用Mongo，也可以用键值对来
 - hget key field 获得一个key field的值
 - hmset key field value field value 设置多个field的值
 - hmget key field fied 获取多个field的值
-- hkeys key 查看所有的key
-- hvals key 查看所有的field
+- hkeys key key下面查看所有的fields
+- hvals key 查看所有的fields的value
 - hincrby key field num 增加num值
+- hgetall key 拿到key下面所有的键值对
 
 ### 4.set
-对比list，list有序（插入的时间顺序）可重复，set无序不可重复
+对比list，list有序（插入的时间顺序）可重复，set无序不可重复。集合操作用的很多。
 
 - sadd key v1 v2 v3... 插入v1，v2，v3...
 - smember key 列出所有的value
@@ -177,8 +178,14 @@ hash是一种简单的Document，所以可以用Mongo，也可以用键值对来
 - sdiff k1 k2 求差集并返回
 - sdiffstore dest k1 k2 求差集存储dest
 - srandmember k1 随机返回一个成员
-- srandmember k1 num 随机返回num个元素，num为正数，取出一个去重结果集，如果为负数，那么取出不去重结果集
+- srandmember k1 num 随机返回num个元素，num为正数，取出一个去重结果集,数量不能超过已有集合；如果为负数，那么取出不去重结果集，一定会满足你要的数量。可以解决抢红包、抽奖：奖品有10个，用户可能大于或者小于10个。用户中奖又分为是否重复
+  还可以解决“家庭争斗”，假设一个微博我有很多粉丝，我准备了3件礼物，想让粉丝们中这三件礼物，这样用Redis可以让set装所有粉丝，接下来就是抽3（一个人只能中一个礼物） 或者 -3（一个人可以拿多个礼物）的问题了。还有个场景：工行抽奖的人少但是
+  礼物多而且每个人要多抽几张，领导要抽尽量大的奖，这样就不能用Redis了，Redis可以实现公平的，此时就得手写程序，附加暗箱规则。现在就考虑公平规则：人数小于礼物数。此时如果必须把礼物全发出去，则把最后那个负的参数放大为礼物数；每人一个礼物
+  的话，或者把礼物放进Redis set，然后再srandmember，总之就是把多的放进Redis。还可以解决“家庭斗争”问题：生了个孩子，我想管他叫“张三”，我老婆想管他叫“李四”，我爸想管他叫“。。。”。。。咱就把一堆名字放进Redis set，然后给一个-100
+  最后统计那个名字出现的最多就选它了！还有一个抽奖环节：公司年会。一二三等奖抽奖，一个人不能拿两个奖。这样可以先把所有人都放进Redis set，然后srandmember key 10 取10个，放入一个三等奖set，再拿着原set跟他做差集sdiffstore，刨去这
+  些三等奖得主，再继续srandmember 取5个，放入一个二等奖set...也可以用SPOP key命令，每次随机抽一个。其实这个才更符合年会抽奖的过程。
 - smembers key 拿出key下的所有元素，但不要轻易用，这样会消耗网卡的吞吐量，应该单拿出来放到一台机器上  
+- spop 随机抽取一个
 注：带store的直接在Redis服务器就存储了，不用来回传输数据，节省IO，这是作者细心的地方
 
 ### 5.zset
