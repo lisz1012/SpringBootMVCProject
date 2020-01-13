@@ -189,6 +189,9 @@ hash是一种简单的Document，所以可以用Mongo，也可以用键值对来
 注：带store的直接在Redis服务器就存储了，不用来回传输数据，节省IO，这是作者细心的地方
 
 ### 5.zset
+有序集, 数据去重了且排序了。苹果、香蕉、鸭梨想怎么排序？按照地点排序？含糖量（隐含）排序？价格？喜欢的人数？吃货热度？sorted_set在使用的时候有这么几个维度：1.元素。2.score，不给出分值谁都不知道该怎么排序。分值相同的时候，他是按照
+字典顺序排列的 3. 正负向索引。 所以可以给出元素，然后返回score和索引；或者给出score，返回元素；或者给出排名或者索引，返回元素且带着score. 内存中存储成为一个链表，默认的是左小右大的物理摆放方式(且不会随着命令而变化)，按照score像
+拉链一样排列好了  
 
 - zadd k score mem score mem 插入数据后增加权重
 
@@ -204,9 +207,16 @@ hash是一种简单的Document，所以可以用Mongo，也可以用键值对来
 
 - zrange k 0 -1 withscores 携带分数取出
 
-- zincrby k incrscore v 增加一个值的分值
+- zincrby k incrscore v 增加一个值的分值,Redis会根据这个分值实时维护这个顺序。这一点很重要，比如歌曲排行榜，按照点击量倒序排列，一开始score都是0，某个人对某一首歌播放了一次就可以用zincrby key increment member，increment = 1
+  就像今天看见的1800-2040 GDP top 20国家排行榜的变化，实时变化。这里可以不用数据库，那样会触发事务，太麻烦了。由于Redis是单进程单线程，所有人的的操作是串行的，排着队进到这一个进程一个线程里，所以线程安全性就有保证了。而且查询的时候，
+  因为sorted_set自动的会排序，所以可与快速地取回范围内的数据。zset既然是个集合，他也有机和操作：并集或者交集。但是对zset取交集或者并集的时候，就牵扯到相同value如何处理score的问题。这里有weights和aggregate参数，见下面。
 
 - zunionstore k keynum k1 k2..[aggregate max] 多个key的并集[最大值]
+- zinterstore k keynum k1 k2..[aggregate max] 多个key的交集[最大值] 这两个命令默认的AGGREGATE方式是SUM相同元素的score相加
+
+现在有个问题：sorted_set的排序成本是多少？排序是怎么实现的？CRUD的速度如何？  
+这里面用到了一个数据结构：**SkipList**
+
 
   
 内存寻址时间单位是ns级的（而且计算向数据移动），而socket是ms级的，差了10万倍，除非有10万个连接同时到达，可能会造成秒级的响应。  
