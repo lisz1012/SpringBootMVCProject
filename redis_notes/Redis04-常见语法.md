@@ -154,6 +154,7 @@ bitmap矩阵：
 
 ### 3.hash
 value的类型是一个hash，类似java的HashMap，而Redis自身又是个键值对，等于是两层嵌套的map.hash的应用场景有详情页及其被收藏、浏览、加入购物车的次数、微博关注、点赞，这些数据既要查询又要计算，而且还可能取回同一个对象的一批数据
+hash是一种简单的Document，所以可以用Mongo，也可以用键值对来存储，Redis只是做不了更复杂的，不能再嵌套结构了
 
 - hset key field value 设置一个key field的值
 - hget key field 获得一个key field的值
@@ -164,6 +165,7 @@ value的类型是一个hash，类似java的HashMap，而Redis自身又是个键�
 - hincrby key field num 增加num值
 
 ### 4.set
+对比list，list有序（插入的时间顺序）可重复，set无序不可重复
 
 - sadd key v1 v2 v3... 插入v1，v2，v3...
 - smember key 列出所有的value
@@ -176,6 +178,8 @@ value的类型是一个hash，类似java的HashMap，而Redis自身又是个键�
 - sdiffstore dest k1 k2 求差集存储dest
 - srandmember k1 随机返回一个成员
 - srandmember k1 num 随机返回num个元素，num为正数，取出一个去重结果集，如果为负数，那么取出不去重结果集
+- smembers key 拿出key下的所有元素，但不要轻易用，这样会消耗网卡的吞吐量，应该单拿出来放到一台机器上  
+注：带store的直接在Redis服务器就存储了，不用来回传输数据，节省IO，这是作者细心的地方
 
 ### 5.zset
 
