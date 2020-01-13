@@ -215,7 +215,7 @@ hash是一种简单的Document，所以可以用Mongo，也可以用键值对来
 - zinterstore k keynum k1 k2..[aggregate max] 多个key的交集[最大值] 这两个命令默认的AGGREGATE方式是SUM相同元素的score相加
 
 现在有个问题：sorted_set的排序成本是多少？排序是怎么实现的？CRUD的速度如何？  
-这里面用到了一个数据结构：**SkipList**
+这里面用到了一个数据结构：**SkipList** ----- 跳表（类平衡树）CRUD各个操作的平均值最优，平均值比红黑树稳定
 
 
   
