@@ -153,8 +153,9 @@ bitmap矩阵：
 - 更多详见`help @list`
 
 ### 3.hash
+value的类型是一个hash，类似java的HashMap，而Redis自身又是个键值对，等于是两层嵌套的map.hash的应用场景有详情页及其被收藏、浏览、加入购物车的次数、微博关注、点赞，这些数据既要查询又要计算，而且还可能取回同一个对象的一批数据
 
-- hset key filed value 设置一个key field的值
+- hset key field value 设置一个key field的值
 - hget key field 获得一个key field的值
 - hmset key field value field value 设置多个field的值
 - hmget key field fied 获取多个field的值
