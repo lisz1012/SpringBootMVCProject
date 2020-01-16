@@ -134,7 +134,8 @@ discard 放弃事务
 ```
 redis-server /etc/redis/6379.conf --loadmodule /opt/redis/redisbloom.so 
 ```
-/etc/redis/6379.conf 可以不加, --loadmodule 后面要写绝对路径
+/etc/redis/6379.conf 可以不加, --loadmodule 后面要写绝对路径.`redis-cli -p 6379`之后再敲"BF"就会出现一些新命令了。  
+布隆过滤器解决缓存穿透的问题，比如：有些数据是缓存和数据库都没有的，这时用户查找这些数据的垃圾请求过来，相当于让数据库和服务器做很多没有意义的事情
 
 
 ```
