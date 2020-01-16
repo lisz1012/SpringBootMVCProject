@@ -2,7 +2,7 @@
 
 ## 客户端command line登录使用Redis
 `redis-cli` 命令启动客户端，前提是已经运行redis了 （/opt/redis5/bin/redis-server）直接回车，如果有多个Redis进程的话，默认会连到6379那个端口上启动的 Redis 上.`redis-cli -h`查看帮助
-参数中可以用-n参数指定db，数据库。类似MySQL会建立数据库，数据隔离。Redis准备了默认16个库：0-15.以下要讲的类型都是value的类型
+参数中可以用-n参数指定db，数据库。类似MySQL会建立数据库，数据隔离。Redis准备了默认16个库：0-15.以下要讲的类型都是value的类型.`redis-cli -p 6380`连接指定端口的Redis
 
 
 ### 1.string (字符串或者byte数组的操作、数值的、位图的)

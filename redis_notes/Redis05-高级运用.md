@@ -34,8 +34,10 @@ subscribe channel
 只有消费端监听以后，别人再推送消息才能看到。直播间里的聊天可以用这个做。在使用微信、QQ、腾讯课堂的时候有这么个现象：除了进入聊天室能够看到新的消息，往上滑动的时候还能拿到之前的消息。所有的数据放到哪里存呢？关系型数据库还是Redis呢？放到
 数据库的话，数据全亮可以保证，但是多人查的时候成本高。作为微信客户端来说，有实时性的需求，就是实时知道大家在聊什么；还有一个需求就是看一些历史的聊天。而历史的聊天又分为X天之内的和更老的数据。全量数据是在数据库里。可以拿Redis做缓存，
 目的是解决数据的读请求（也有写请求，对于数据一致性要求不高的，比如浏览数购买数收藏数等，少个十个八个的也无所谓了，不要非得因为要达到一致性而灭了Redis的特征，Redis要求的就是快）。做带过期时间的缓存，过期的存进数据库，Redis只存最近一个月
-的数据实时聊天的东西可以用pubsub来实现；三天之内的数据可以用Redis的zset数据类型，可以使用zset命令`ZREMRANGEBYSCORE key min max`留下大的天数，剔除小的天数所以max应该是三天前，正向的就可以了，Redis由小到大排列的，把时间long作为
-记录的score，把消息作为元素就可以了放进zset的时候就已经排好序了 
+的数据,实时聊天的东西可以用pubsub来实现；三天之内的数据可以用Redis的zset数据类型，可以使用zset命令`ZREMRANGEBYSCORE key min max`留下大的天数，剔除小的天数所以max应该是三天前，正向的就可以了，Redis由小到大排列的，把时间long作为
+记录的score，把消息作为元素就可以了放进zset的时候就已经排好序了. 具体来讲，一种设计方案是client先往pubsub发送数据，再往Redis的zset放数据，然后再往Kafka放数据，Kafka怼在数据库那边，慢慢的累积写入数据库。微信所有人聊天，对于内存
+是可以承受的，但是如果流量直接给数据库，肯定就压趴下了。另一种设计是：再起一个Redis进程，也订阅这个聊天频道，一旦收到消息，就把它写入zset；再来一个Redis进程，也订阅这个频道，一旦收到消息再转给Kafka，在写入数据库。Redis的计算并不多，
+只是个内存存储层，消息到了广播出去。这样就避免了client在两次调用Redis之间宕机的问题。第三种方案：使用Redis事务避免client在两次调用Redis之间宕机的问题。Redis事务没有回滚
 
 
 ##### 三、事务（transactions）
@@ -45,11 +47,76 @@ multi 开启事务
 ...
 exec 执行事务
 ```
-
+先收集命令，然后一次性发给Redis，Redis按顺序一次性执行所有的命令。如果出现错误的话会撤销。要么成功要么失败，但不是百分之百的，先有这么个概念。这里回顾上一节课的知识：Redis是单进程的，多个客户端连上来，一个客户端的事务不会阻碍别的客户端
+即便两个客户端想操作同一个数据，首先他们得开启事物，而在Redis那边，所有的指令都是排着队串行过来的。假设client1先发送指令，他就先发送一个开启事务的标记：MULTI，当client1还没发过来指令的时候，client2也发了一个开启事务的标记MULTI，则
+client2发的MULTI会排在client1的MULTI的后面，以后即便是client2比client1手速快，一气儿发了好几条过来，在Redis看来各条命令如下：
 ```
-watch 如果数据被更改，那就不执行事务
+client1: MULTI
+client2: MULTI
+client2: del k1
+client1: get k1
+client2: EXEC
+client1: EXEC
+```
+其实就是看最后两个EXEC哪个先执行。每个客户端过来的命令单独放在一个缓冲区。现在是EXEC先到达了，那执行的顺序就是：
+```
+client2: MULTI
+client2: del k1
+client2: EXEC
+client1: MULTI
+client1: get k1
+client1: EXEC
+```
+client1拿不到了。而如果最后client1的EXEC先到达，像下面这样：
+```
+client1: MULTI
+client2: MULTI
+client2: del k1
+client1: get k1
+client1: EXEC
+client2: EXEC
+```
+则最终执行顺序成了：
+```
+client1: MULTI
+client1: get k1
+client1: EXEC
+client2: MULTI
+client2: del k1
+client2: EXEC
+```
+client1先读到，client2再删除。谁的EXEC先到达Redis就先执行谁的事务
+```
+watch 如果数据被更改，那就不执行事务，一般在发MULTI之前就发送，如果EXEC的时候发现当初wantch的key已经更改了，各条指令是不执行的，直接就把事务给撤销了，这没办法，Redis服务端就只能帮你到这个程度，客户端需要自己捕获这件事情，自行修复处理
 unwatch 取消监视
 ```
+client1:
+```
+127.0.0.1:6379> set k1 a
+OK
+127.0.0.1:6379> WATCH k1
+OK
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379> set k1 aa
+QUEUED
+127.0.0.1:6379> EXEC
+
+127.0.0.1:6379> get k1
+aaa
+```
+原因是client2在client1之前EXEC: 
+```
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379> set k1 aaa
+QUEUED
+127.0.0.1:6379> EXEC
+OK
+127.0.0.1:6379> get k1
+aaa
+```
+
 
 ```
 discard 放弃事务
@@ -57,16 +124,17 @@ discard 放弃事务
 
 ##### 四、布隆过滤器（redisbloom）
 
-在redis.io/modules选择redisbloom的github，克隆下来
+在redis.io/modules选择redisbloom的github：https://github.com/RedisBloom/RedisBloom，克隆下来: 右键Download ZIP，copy Link，然后再在linux中：wget https://github.com/RedisBloom/RedisBloom/archive/master.zip
+如果需要的话`yum install unzip`, 然后unzip 刚下好的文件
 
-解压，make编译，将redisbloom.so这个链接库复制到/opt/redis
+解压，make编译，将编译后生成的redisbloom.so这个链接库复制到/opt/redis （其实放在哪里都行，习惯放在这里）
 
 执行
 
 ```
-redis-server --loadmodule /opt/redis/redisbloom.so 
+redis-server /etc/redis/6379.conf --loadmodule /opt/redis/redisbloom.so 
 ```
-
+/etc/redis/6379.conf 可以不加, --loadmodule 后面要写绝对路径
 
 
 ```
