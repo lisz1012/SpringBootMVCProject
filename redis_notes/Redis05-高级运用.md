@@ -144,6 +144,11 @@ redis-server /etc/redis/6379.conf --loadmodule /opt/redis/redisbloom.so
 在架构师的角度考虑，可以把bloom算法和bitmap放在客户端，服务端只有原生的Redis；也可以把bloom算法放在client端，bitmap放在服务端；还可以像这样集成布隆过滤器。这就取决于我们需要的性能和成本了。如果所有东西都压在Redis且它是一个memory
 内存级的，Redis对CPU的损耗并不大，这样可以让客户端更轻量一些，也更符合“微服务”的概念：所有的东西都迁出去，也更符合未来Service Mesh的设计理念  
 
+简单来说：  
+
+布隆过滤器说某个元素在，可能会被误判。  
+布隆过滤器说某个元素不在，那么一定不在。  
+
 小作业，爱做不做：高布隆过滤器和cukcoo，counting bloom 
 
 
