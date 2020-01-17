@@ -142,7 +142,7 @@ redis-server /etc/redis/6379.conf --loadmodule /opt/redis/redisbloom.so
 但是布隆过滤器认为他有，就会放过来到数据库。所以布隆过滤器是个概率的，不可能100%阻挡恶意请求可以降低到<1%。bitmap里面剩下的0越多越好使  
 1. 你有啥？（自己要往里添加：`BF.ADD key value`）2. 标记bitmap3.请求的可能被误标记4.一定概率会大量减少放行：穿透5.而且成本低，因为是二进制位。  
 在架构师的角度考虑，可以把bloom算法和bitmap放在客户端，服务端只有原生的Redis；也可以把bloom算法放在client端，bitmap放在服务端；还可以像这样集成布隆过滤器。这就取决于我们需要的性能和成本了。如果所有东西都压在Redis且它是一个memory
-内存级的，Redis对CPU的损耗并不大，这样可以让客户端更轻量一些，也更符合“微服务”的概念：所有的东西都迁出去，也更符合未来Service Mesh的设计理念  
+内存级的，Redis对CPU的损耗并不大，这样可以让客户端更轻量一些，也更符合“微服务”的概念：所有的东西都迁出去，也更符合未来Service Mesh的设计理念.如果穿透了，而数据库里却没有，则加一个key-value对，value是error或者null以便下次直接返回  
 
 简单来说：  
 
@@ -157,7 +157,7 @@ redis-server /etc/redis/6379.conf --loadmodule /opt/redis/redisbloom.so
 1.bloom filter
 它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都远远超过一般的算法，缺点是有一定的误识别率和删除困难。
 运用:网页黑名单、垃圾邮件、爬虫网址判重
-Java想要使用BloomFilter可以考虑使用google的guava
+Java想要使用BloomFilter可以考虑使用google的guava（这个在resolve dependency conflict方面又是一个大坑）
 
 2.counting bloom
 这个计数器，使用4位bit来表示一个计数（这个数字可以自己指定长度的），所以我们可以进行计数。
