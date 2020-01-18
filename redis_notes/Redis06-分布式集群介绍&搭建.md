@@ -2,6 +2,53 @@
 
 ### 介绍
 
+存储层的技术（Redis，MySQL、Oracle等）都有两个东西：
+1.快照（副本，每天的cron拷出数据来存好，今天的数据有致命错误，可以拿昨天的数据做一个回滚。对Redis说就是隔一定时间就把内存dump到硬盘或别的主机，对于Redis来说是RDB，Redis镜像）Redis的RDB有时点性：比如8点的时候生成一个文件，但不可能
+  8点的时候瞬间就写到磁盘，会有几分钟的延迟，这时磁盘中的数据是8点时的状态。两种实现的方法：1. 先阻塞，Redis整个进程不对外提供服务，写完文件再继续。但这样肯定不行，服务不可用了 2. 非阻塞，同时数据落地。但这样会造成已经落地的数据再没
+  全部copy完之前又在内存中被修改，这样数据就不严格的是某个时刻的快照了。怎么办呢？这里要补一个Linux OS知识：Linux管道`ls -al | grep more`, 管道就是衔接前边命令的输出作为后边命令的输入, 管道会触发创建子进程：当前bash是一个进程，
+  “|”的左边和右边各是一个进程，一共就有了3个进程:
+  ```
+  [root@master ~]# echo $$
+  5872
+  [root@master ~]# echo $$ | more
+  5872
+  [root@master ~]# echo $BASHPID
+  5872
+  [root@master ~]# echo $BASHPID | more
+  5962
+  [root@master ~]# echo $BASHPID | more
+  5967
+  [root@master ~]# echo $BASHPID | more
+  5969
+  [root@master ~]# echo $BASHPID | more
+  5972
+  ```
+  这里$$取当前进程ID，优先级高于管道，所以`echo $$`的时候先把自己换成5872，然后再开辟两个进程，传递给more；而$BASHPID的优先级是低于管道的，先开辟了两个子进程，然后左边的echo $BASHPID替换的就是子进程的ID号，所以输出会不一样。
+  讲这个是为了抛出Linux父子进程的概念。这就带来一个问题：父进程的数据子进程可不可以看得到？不能：
+  ```
+  [root@master ~]# echo $$
+  5872
+  [root@master ~]# num=1
+  [root@master ~]# /bin/bash (这里开启了一个新的bash进程)
+  [root@master ~]# echo $$
+  6153
+  [root@master ~]# echo $num
+
+  [root@master ~]#
+  ```
+  常规思想进程数据隔离,打破数据隔离可以用export命令：
+  ```
+  [root@master ~]# echo $num
+  1
+  [root@master ~]# export num
+  [root@master ~]# /bin/bash
+  [root@master ~]# echo $num
+  1
+  ```
+  进阶思想：父进程可以让子进程看到数据
+2.日志：增删改的时候记录如日志文件，一旦数据没有了，可以通过日志中已经执行过的增删改命令恢复。在Redis里是AOF   
+
+
 ##### 1.单机、单实例的持久化方式
 
   在我们之前的课程中，我搭建了一个单机，单进程，缓存redis。我们使用rdb,aof持久化，用来确保数据的安全。
