@@ -45,7 +45,51 @@
   [root@master ~]# echo $num
   1
   ```
-  进阶思想：父进程可以让子进程看到数据
+  进阶思想：父进程可以让子进程看到数据,但是自己成的修改不会影响到父进程：
+  写个bash：
+  ```
+  #/bin/bash
+  echo $$
+  echo $num
+  num=999
+  echo num:$num
+
+  sleep 20
+
+  echo num:$num
+  ```
+  然后执行，在子进程sleep期间，在父进程中更改num的值，则不会影响子进程num的值：
+  ```
+  [root@master ~]# vim test
+  [root@master ~]# chmod 0755 test
+  [root@master ~]# ./test &
+  [1] 6682
+  [root@master ~]# 6682
+  1
+  num:999
+
+  [root@master ~]# echo $num
+  1
+  [root@master ~]# num:999
+
+  [1]+  Done                    ./test
+  [root@master ~]#
+  ```
+  同样，父进程也改不了子进程中num的值：
+  ```
+  [root@master ~]# ./test &
+  [1] 6753
+  [root@master ~]# 6753
+  1
+  num:999
+
+  [root@master ~]# echo $num
+  1
+  [root@master ~]# num=88
+  [root@master ~]# num:999
+
+  [1]+  Done                    ./test
+  ```
 2.日志：增删改的时候记录如日志文件，一旦数据没有了，可以通过日志中已经执行过的增删改命令恢复。在Redis里是AOF   
 
 
