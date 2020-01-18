@@ -189,8 +189,8 @@ BF.EXISTS k1 V    判断是否存在
 ##### Redis作为数据库和缓存的区别
 
 缓存数据其实“不重要”，先要有数据库，加个缓存并不是全量数据，而且缓存应该随着访问变化，要缓存是减轻后端的访问压力，缓存里应该放的是前面请求的、热数据。Redis作为缓存，要求是里面的数据怎么能随着业务而变化：只保留热数据，因为内存大小
-是有限的，也是个瓶颈。 这就引出了key的有效期，有效期可以由：1。业务逻辑推动 2. 业务运转，随着访问的变化应该淘汰掉冷数据。 内存有多大呢？看/etc/redis/6379.conf, maxclients表示最大有多少个socket连接可以往Redis传命令。而
-`maxmemory <bytes>`可以设置内存的大小，一般给1-10G，因为太大的话做半持久化存储成本高、做数据迁移成本高.`maxmemory-policy noeviction`控制maxmemory满了应该踢掉谁选项有如下几种：
+是有限的，也是个瓶颈。 这就引出了key的有效期，有效期可以由：1。业务逻辑推动（带有效期的） 2. 业务运转，随着访问的变化应该淘汰掉冷数据。 内存有多大呢？看/etc/redis/6379.conf, maxclients表示最大有多少个socket连接可以往Redis
+传命令。而`maxmemory <bytes>`可以设置内存的大小，一般给1-10G，因为太大的话做半持久化存储成本高、做数据迁移成本高.`maxmemory-policy noeviction`控制maxmemory满了应该踢掉谁选项有如下几种：
 ```
 # volatile-lru -> Evict using approximated LRU among the keys with an expire set.
 # allkeys-lru -> Evict any key using approximated LRU.
@@ -201,7 +201,14 @@ BF.EXISTS k1 V    判断是否存在
 # volatile-ttl -> Remove the key with the nearest expire time (minor TTL)
 # noeviction -> Don't evict anything, just return an error on write operations.
 ```
+allkeys但是作用于所有的key，volatile是马上要过期的。lru指的是多久没碰的，越久没碰的越优先删除；lfu是指使用频率最低的，使用次数最少的优先删除；ttl是指剔除李过期时间（如果有的话）最近的。作为缓存的话`noeviction`是不能使用的；
+但是作为数据库的话，一定要使用他的。所以作为缓存的话，最好是lru或者lfu，因为random的太随意，而ttl成本高。大量的设置过期的话，就用volatile的，否则选择allkeys，因为设置了过期时间的并不多，所以释放的量不是很大。有效期是系统
+业务逻辑给定的。ttl=10s，被访问之后不会被延长，而且除了在最初`set k1 ex 50`的时候设置过期时间之外，还可以用`EXPIRE k1 50`设置某个k1在50秒之后过期. 一旦ttl倒计时之中，重新set了一下这个key：`set k2 bbb`，这样则会使得
+这个key的过期时间为-1，永久存在。发生了不带ex参数的写操作，会剔除过期时间；发生了带ex参数的写，可以重置过期时间。`EXPIREAT key timestamp`命令, 可以设置在什么时候过期，定死时间。刚刚说的这些keys就是volatile集合里的那些
+key  
 
+过期判定原理：已经过期的key被访问的时候，比对过期时间，一看过期了，则返回nil然后清除key，这是被动的方式，但过期的key永远不被访问的话就永远在内存中；主动清除：每秒十次 1.测试随机的20个keys进行相关过期检测。2. 删除所有已经过期的keys。
+3.如果有多于25%的keys过期，重复步奏1.
 
 
 
