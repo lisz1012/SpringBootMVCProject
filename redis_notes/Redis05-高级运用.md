@@ -201,7 +201,7 @@ BF.EXISTS k1 V    判断是否存在
 # volatile-ttl -> Remove the key with the nearest expire time (minor TTL)
 # noeviction -> Don't evict anything, just return an error on write operations.
 ```
-allkeys但是作用于所有的key，volatile是马上要过期的。lru指的是多久没碰的，越久没碰的越优先删除；lfu是指使用频率最低的，使用次数最少的优先删除；ttl是指剔除李过期时间（如果有的话）最近的。作为缓存的话`noeviction`是不能使用的；
+allkeys但是作用于所有的key，volatile是马上要过期的。lru指的是多久没碰的，越久没碰的越优先删除；lfu是指使用频率最低的，使用次数最少的优先删除；ttl是指剔除离过期时间（如果有的话）最近的。作为缓存的话`noeviction`是不能使用的；
 但是作为数据库的话，一定要使用他的。所以作为缓存的话，最好是lru或者lfu，因为random的太随意，而ttl成本高。大量的设置过期的话，就用volatile的，否则选择allkeys，因为设置了过期时间的并不多，所以释放的量不是很大。有效期是系统
 业务逻辑给定的。ttl=10s，被访问之后不会被延长，而且除了在最初`set k1 ex 50`的时候设置过期时间之外，还可以用`EXPIRE k1 50`设置某个k1在50秒之后过期. 一旦ttl倒计时之中，重新set了一下这个key：`set k2 bbb`，这样则会使得
 这个key的过期时间为-1，永久存在。发生了不带ex参数的写操作，会剔除过期时间；发生了带ex参数的写，可以重置过期时间。`EXPIREAT key timestamp`命令, 可以设置在什么时候过期，定死时间。刚刚说的这些keys就是volatile集合里的那些
