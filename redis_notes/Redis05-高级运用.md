@@ -143,6 +143,9 @@ redis-server /etc/redis/6379.conf --loadmodule /opt/redis/redisbloom.so
 1. 你有啥？（自己要往里添加：`BF.ADD key value`）2. 标记bitmap3.请求的可能被误标记4.一定概率会大量减少放行：穿透5.而且成本低，因为是二进制位。  
 在架构师的角度考虑，可以把bloom算法和bitmap放在客户端，服务端只有原生的Redis；也可以把bloom算法放在client端，bitmap放在服务端；还可以像这样集成布隆过滤器。这就取决于我们需要的性能和成本了。如果所有东西都压在Redis且它是一个memory
 内存级的，Redis对CPU的损耗并不大，这样可以让客户端更轻量一些，也更符合“微服务”的概念：所有的东西都迁出去，也更符合未来Service Mesh的设计理念.如果穿透了，而数据库里却没有，则加一个key-value对，value是error或者null以便下次直接返回  
+下次再查的时候，先命中这个key，就不走布隆过滤器，直接返回了。  
+
+数据库一旦增加了元素，必须完成元素对bloom的添加，这样别人通过bloom才能请求到这个数据（这里面会有很多坑，双写了）
 
 简单来说：  
 
@@ -181,6 +184,22 @@ Redis Bloom的使用：
 ```
 BF.ADD k1 V   添加数据值
 BF.EXISTS k1 V    判断是否存在
+```
+
+##### Redis作为数据库和缓存的区别
+
+缓存数据其实“不重要”，先要有数据库，加个缓存并不是全量数据，而且缓存应该随着访问变化，要缓存是减轻后端的访问压力，缓存里应该放的是前面请求的、热数据。Redis作为缓存，要求是里面的数据怎么能随着业务而变化：只保留热数据，因为内存大小
+是有限的，也是个瓶颈。 这就引出了key的有效期，有效期可以由：1。业务逻辑推动 2. 业务运转，随着访问的变化应该淘汰掉冷数据。 内存有多大呢？看/etc/redis/6379.conf, maxclients表示最大有多少个socket连接可以往Redis传命令。而
+`maxmemory <bytes>`可以设置内存的大小，一般给1-10G，因为太大的话做半持久化存储成本高、做数据迁移成本高.`maxmemory-policy noeviction`控制maxmemory满了应该踢掉谁选项有如下几种：
+```
+# volatile-lru -> Evict using approximated LRU among the keys with an expire set.
+# allkeys-lru -> Evict any key using approximated LRU.
+# volatile-lfu -> Evict using approximated LFU among the keys with an expire set.
+# allkeys-lfu -> Evict any key using approximated LFU.
+# volatile-random -> Remove a random key among the ones with an expire set.
+# allkeys-random -> Remove a random key, any key.
+# volatile-ttl -> Remove the key with the nearest expire time (minor TTL)
+# noeviction -> Don't evict anything, just return an error on write operations.
 ```
 
 
