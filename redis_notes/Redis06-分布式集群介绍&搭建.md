@@ -248,8 +248,73 @@ c
 11664:M 18 Jan 2020 23:40:12.344 * Residual parent diff successfully flushed to the rewritten AOF (0.00 MB)
 11664:M 18 Jan 2020 23:40:12.344 * Background AOF rewrite finished successfully
 ```
-
-
+11. Control + C结束Redis server的进程，并删除`/var/lib/redis/6379`下的所有文件
+12. `vim /etc/redis/6379.conf`改配置为：`aof-use-rdb-preamble yes` 开启混合体
+13. 执行`redis-server /etc/redis/6379.conf`再次启动redis-server
+14. 查看`/var/lib/redis/6379/appendonly.aof`,发现他是空的
+15. 再开启redis交互界面：`redis-cli --raw`
+16. 执行：
+	```
+	127.0.0.1:6379> set k1 a
+	OK
+	127.0.0.1:6379> set k1 b
+	OK
+	```
+17. 查看`/var/lib/redis/6379/appendonly.aof`得到：
+	```
+*2
+$6
+SELECT
+$1
+0
+*3
+$3
+set
+$2
+k1
+$1
+a
+*3
+$3
+set
+$2
+k1
+$1
+b
+	```
+不是混合体，因为还没有到时间触发重写，下面手动触发
+18. Redis交互界面执行`127.0.0.1:6379> BGREWRITEAOF`，再回去查看`/var/lib/redis/6379/appendonly.aof`，发现aof文件变脸了，得到了当前对RDB的一个存储，以"REDIS"开头，不计算命令是否抵消了,直接存成rdb快照。
+19. 继续
+```
+	127.0.0.1:6379> set k1 w
+	OK
+	127.0.0.1:6379> set k1 m
+	OK 
+```
+20. 查看`/var/lib/redis/6379/appendonly.aof`得到：
+```
+redis-bitsÀ ú^EctimeÂ^R^P$^ú^Hused-memÂèJ
+^@ú^Laof-preambleÀ^Aþ^@û^A^@^@^Bk1^Amÿþ^N`÷ÇHNL*2^M
+$6^M
+SELECT^M
+$1^M
+0^M
+*3^M
+$3^M
+set^M
+$2^M
+k1^M
+$1^M
+w^M
+*3^M
+$3^M
+set^M
+$2^M
+k1^M
+$1^M
+m^M
+```
+后面的两条记录已明文的方式追加到下面：全量时点数据 + 增量日志，这样恢复速度快
 
 默认会以一个appendonly.aof追加进硬盘。
 
