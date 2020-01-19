@@ -137,7 +137,107 @@ save 60 10000
 只有一个子线程写完了，后面的才能写。固态硬盘PC-E或者服务器硬盘快速接口的话几秒钟就可以写完了，如果只有3-4G maxmemory，写很长时间的话RDB就没有意义了
 
 ### aof（append-only file）持久化
-Redis的写操作记录到文件中。
+
+Redis的写操作记录到文件中。这样的第一个好处是丢失数据相对少，第二个是Redis中RDB和AOF同时开启，如果开启了AOF，只会用AOF做恢复（落数据的时候两边都会做）。4.0之后AOF包含RDB全量，增加记录新的写操作。这样恢复的时候，先把RDB数据load到
+内存，然后将它的时间点之后新增的数据再重新执行一遍，这样恢复速度快一些。AOF是bin log，重新执行命令所以慢，所以要克服这一点，得结合RDB时点数据。  
+
+假设Redis运行了1年且开启了AOF，请问10年头的时候Redis挂了，1. AOF多大？2. 恢复要多久？
+1. 回答：10T也是有可能的，恢复的时候不会溢出，有限的内存可以做无限的操作，操作虽然多，但是挂机的时候maxmemory总是一定的那些内存，溢出的东西不可能写到文件里去。
+2. 回答：恢复时间要看写操作的数量，有可能Redis日志就没有多大，比如几k，这样就很快。如果是 10T的日志，恢复也得5年左右  
+
+弊端：体量无限变大、恢复慢。日志如果能保住，还是可以用的  
+解决：设计一个方案让日志再不丢失数据的前提下足够小，所以在hdfs中用fsimage + edits.log，比如现在是9:30，fsimage是9:00的，edits.log就是9:00 - 9:30的增量的日志。Redis在4.0以前：重写。把能抵消掉的操作删除，合并重复的命令（对于
+     同一个key），最终也是一个纯指令的日志文件；4.0以后：充血的时候，先将老的数据RDB到AOF文件中，再将增量的一指令的方式append到AOF，所以AOF是一个混合体，利用了RDB的块，也利用了日志的全量两个优点  
+     
+原点：Redis是内存数据库，再增删改发生的时候，写操作会触发IO，会拖慢Redis内存处理数据快的特征。这是有三个写IO的级别可以调：
+1. NO `appendfsync no` 所有对于硬件和磁盘的IO操作都是要调用内核的，java这个进程想调用文件描述符fd8，内核会在内核中会给fd8开辟一个buffer，java要先写内容到这个buffer，等buffer满了之后，内核会从这个缓冲区中向磁盘中刷写，但是内核
+   向磁盘刷写这个事儿我们一般不知道。NO的意思是：Redis取代jvm，来了若干笔写操作，内核的文件描述符的buffer什么时候满了等他自己刷写到磁盘。有一点隐患就是可能会丢失一个buffer大小的数据，一个buffer的数据还没刷进磁盘去，就down了
+2. AWAYS `appendfsync always` 机理类似上面的，但是buffer 里一旦有写操作的内容就立刻flush刷进磁盘，数据最可靠的选择，顶多刷数据的时候失败，比如服务器断电，顶多丢一条写数据的操作记录。但速度最慢。
+3. 每秒 `appendfsync everysec` 每秒（或者buffer满了）调一次。最多丢失差一点点到一个buffer的数据，但是这种概率太小，很有可能一秒钟之内buffer满了3-4次，所以可能丢的操作记录很少，折中了前两者
+
+配置文件中开启AOF：`appendonly yes`打开。配置文件里还有`appendfilename "appendonly.aof"` -- 文件名，这个文件会被放在上边的RDB设置的那个dir下. `no-appendfsync-on-rewrite no`抛出子进程进行bgsave/rewrite的时候，不会调
+buffer刷新这个事，无论什么级别。因为他会认为自己的子进程会对着磁盘发生一个疯狂的写操作，这时候就不来争抢这个IO了，当然这个时候就容易丢数据，所以要不要开启是要看数据的敏感性的。丢失的这部分数据其实可以再下一次的RDB时点数据更改中被捕获，
+`aof-load-truncated yes`检查...（稍后讲） `aof-use-rdb-preamble yes`开启后即上面所说的：4.0之后的Redis可以利用RDB和AOF日志各自的优势。这种设置下，AOF文件以"REDIS"开头
+
+实操:  
+1. 修改/etc/redis/6379.conf: `daemonize yes` --> `daemonize no`,不要让她在后台运行
+2. 注掉`#logfile /var/log/redis_6379.log`不要把各种信息记到log里面，而是打印在屏幕上。
+3. `aof-use-rdb-preamble no`可以设置为关闭或者打开，根据测试的内容而定。
+4. 删除 `/var/lib/redis/6379/dump.rdb`,让Redis启动的时候是个空的，没得加载。
+5. 用命令启动（不是以service的方式）：`redis-server /etc/redis/6379.conf` 此时在`/var/lib/redis/6379/`下面出现了文件：
+   `-rw-r--r--. 1 root root 0 Jan 18 22:35 appendonly.aof`, 而且是空的，因为什么都没有发生。
+6. 另起一个客户端登录6379这个Redis：`redis-cli --raw`
+7. 执行`set k1 hello`
+8. 查看`/var/lib/redis/6379/appendonly.aof`,发现如下内容：
+   ```
+   *2             //*后面的数字代表的是后面有几个元素组成，2代表了 select和0这两个元素，表示选择了0号库，2 * 2 = 4 所以读取下面4行
+   $6			  //$表示后面的命令或参数有几个字节组成	
+   SELECT		  
+   $1
+   0
+   *3
+   $3
+   set
+   $2
+   k1
+   $5
+   hello
+   ```
+   这是老式的AOF文件，最前面没有REDIS标识，因为虽然用的是5.0，但是并没有开启`aof-use-rdb-preamble yes`
+9. 执行`bgsave`做dump. Redis前台会出现：
+```
+11664:M 18 Jan 2020 23:04:36.298 * Background saving started by pid 12105
+12105:C 18 Jan 2020 23:04:36.303 * DB saved on disk
+12105:C 18 Jan 2020 23:04:36.304 * RDB: 0 MB of memory used by copy-on-write
+11664:M 18 Jan 2020 23:04:36.374 * Background saving terminated with success
+```
+而`/var/lib/redis/6379`下会多一个dump.rdb文件, 强行打开之后发现它是以"REDIS"开头的。执行`redis-check-rdb ./dump.rdb`命令可以看这个文件。
+
+10. 下面反复设置k1验证重写功能
+```
+127.0.0.1:6379> set k1 a
+OK
+127.0.0.1:6379> set k1 b
+OK
+127.0.0.1:6379> set k1 c
+OK
+```
+再去看`/var/lib/redis/6379/appendonly.aof`,发现：
+```
+*3
+$3
+set
+$2
+k1
+$1
+a
+*3
+$3
+set
+$2
+k1
+$1
+b
+*3
+$3
+set
+$2
+k1
+$1
+c
+```
+其实是有一些不必要的记录，因为k1最终的状态只是c，不必要保留中间状态的记录。此时可以在Redis交互界面命令行下执行`BGREWRITEAOF`,则这三条操作的记录便精简成了：
+```
+*3
+$3
+SET
+$2
+k1
+$1
+c
+```
+
+
 默认会以一个appendonly.aof追加进硬盘。
 
 redis.conf默认配置:
