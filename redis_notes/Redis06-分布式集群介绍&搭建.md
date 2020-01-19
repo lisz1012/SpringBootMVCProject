@@ -316,6 +316,27 @@ m^M
 ```
 后面的两条记录已明文的方式追加到下面：全量时点数据 + 增量日志，这样恢复速度快
 
+21. 执行`BGSAVE` 更新或创建 dump.rdb，执行 `BGREWRITEAOF` 更新 appendonly.aof。然后发现两文件记录的是一样的东西，都是时点数据的dump。  
+
+注：这里如果出现了`flushall`误操作，想能够恢复数据的话，千万不能执行`BGREWRITEAOF`否则会把误操作之后的结果数据保存，并清除增量操作的历史，而误操作就在增量操作里面, 不执行`BGREWRITEAOF`的话把flushall相关的记录删掉，将来重启的时候
+还能恢复:
+```
+127.0.0.1:6379> keys *
+k1
+127.0.0.1:6379> FLUSHALL
+OK
+127.0.0.1:6379> keys *     //这之前删除了appendonly.aof 中 flushall相关的记录
+k1
+```
+结论：无论是混合模式还是独立模式，只要执行了BGREWRITEAOF，误操作的影响就永远造成了，数据救不回来了.
+
+自动触发rewrite的配置，以下两个条件全满足才触发rewrite：
+```
+auto-aof-rewrite-percentage 100          //超出上一次rewrite之后的AOF文件的百分比达到多少才触发rewrite，0表示永远不触发
+auto-aof-rewrite-min-size 64mb           //AOF文件最小是多大才能被重写，重写之后可能就变成32M了，历史数据就被抵消掉了（4.0以前的旧版本），或者做成了rdb
+```
+
+
 默认会以一个appendonly.aof追加进硬盘。
 
 redis.conf默认配置:
@@ -324,7 +345,7 @@ appendfdync always
 #每次有数据修改都会写入AOF
 appendfsync everysec
 #每秒同步一次，策略为AOF的缺省策略
-```
+
 
 ##### 2.单节点、单实例面临的问题：
 
