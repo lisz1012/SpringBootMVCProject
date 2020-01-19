@@ -117,7 +117,7 @@
 
   在我们之前的课程中，我搭建了一个单机，单进程，缓存redis。我们使用rdb,aof持久化，用来确保数据的安全。
 
-```
+
 rdb（relation-ship database）持久化：
 默认redis会以一个rdb快照的形式，将一段时间内的数据持久化到硬盘，保存成一个dumpr.rdb二进制文件。
 工作原理：当redis需要持久化时，redis会fork一个子进程，子进程将数据写到磁盘上临时一个RDB文件中。当子进程完成写临时文件后，将原来的RDB替换掉，这样的好处就是可以copy-on-write。
@@ -236,6 +236,19 @@ k1
 $1
 c
 ```
+同时Redis前台打印：
+```
+11664:M 18 Jan 2020 23:40:12.145 * Background append only file rewriting started by pid 12389
+11664:M 18 Jan 2020 23:40:12.316 * AOF rewrite child asks to stop sending diffs.
+12389:C 18 Jan 2020 23:40:12.316 * Parent agreed to stop sending diffs. Finalizing AOF...
+12389:C 18 Jan 2020 23:40:12.316 * Concatenating 0.00 MB of AOF diff received from parent.
+12389:C 18 Jan 2020 23:40:12.316 * SYNC append only file rewrite performed
+12389:C 18 Jan 2020 23:40:12.316 * AOF rewrite: 0 MB of memory used by copy-on-write
+11664:M 18 Jan 2020 23:40:12.344 * Background AOF rewrite terminated with success
+11664:M 18 Jan 2020 23:40:12.344 * Residual parent diff successfully flushed to the rewritten AOF (0.00 MB)
+11664:M 18 Jan 2020 23:40:12.344 * Background AOF rewrite finished successfully
+```
+
 
 
 默认会以一个appendonly.aof追加进硬盘。
