@@ -60,7 +60,7 @@
 
   echo num:$num
   ```
-  然后执行，在子进程sleep期间，在父进程中更改num的值，则不会影响子进程num的值：
+  然后执行，子进程修改num的值。在子进程sleep期间，在父进程中查看num的值，发现子进程的修改不会影响父进程num的值：
   ```
   [root@master ~]# vim test
   [root@master ~]# chmod 0755 test
