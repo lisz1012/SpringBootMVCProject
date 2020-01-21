@@ -570,9 +570,48 @@ REPLICAOF 127.0.0.1 6380
 ```
 
 查看配置文件：~/test/6379.conf, 配置replicaof <masterip> <masterport>可以指定追随谁，masterauth <master-password>可以提前设置好密码。 replica-serve-stale-data yes 设置的是，从机再次上线的时候，同步数据会等一段时间，
-在这期间从机的老数据是否对外暴露？yes就是老的数据可以查，no的意思就是必须同步完了才能对外提供数据
+在这期间从机的老数据是否对外暴露？yes就是老的数据可以查，no的意思就是必须同步完了才能对外提供数据。`replica-read-only` yes 指的是从机只能读还是支持读写操作。`repl-diskless-sync no`这个设置是指是否直接从主Redis传到从Redis
+还是现在主的机器上数据落地，然后再通过网络IO传给从机。如果硬盘IO明显比网络IO慢，则开启. `repl-backlog-size 1mb`设置得越大越有可能只做一个partial resynchronization（增量复制）。在Rdis内部还有个小的消息队列，这个队列的大小
+就由这个repl-backlog-size给出，里面记录了从机下线这会儿来的数据，他要是没满，则只触发增量copy，否则触发全量copy，要落地AOF或者RDB
 
+```
+min-replicas-to-write 3  #最小有几个副本写成功才算写成功了，有点偏向强一致性了。把取舍的权力交给用户
+min-replicas-max-lag 10  #10秒内至少有3个写成功
+```
+我们到现在一直是需要人工维护主机故障的问题，所以我们还需要HA，见下面的哨兵。
 
+#### 哨兵
+
+这里的哨兵就是上面所说的进行监控的机器，可以是单点，也可以是多点。哨兵也有自己的配置文件:
+```
+port 26379  #哨兵进程端口号
+sentinel monitor mymaster 127.0.0.1 6379 2   #被监控的逻辑名称叫mymaster，一套哨兵可以监控多套主从复制集群，最后是投票的权重值:将这个主服务器判断为失效至少需要 2 个 Sentinel 同意.
+```
+参考http://redis.cn/topics/sentinel.html  
+
+由于`/opt/redis/bin`下面已经有`redis-sentinel`了，但是默认是指向redis-server的链接。作为哨兵启动的时候要：
+```
+redis-server ./26379.conf --sentinel
+```
+告诉Redis，作为哨兵，而不存储数据, 启动之后会打印：
+```
+11740:X 21 Jan 2020 01:43:10.432 # Sentinel ID is 80778eb29eb217741deafa7f2fd68c706b495fcb
+11740:X 21 Jan 2020 01:43:10.432 # +monitor master mymaster 127.0.0.1 6379 quorum 2
+11740:X 21 Jan 2020 01:43:10.451 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11740:X 21 Jan 2020 01:43:10.454 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
+```
+哨兵立马就通过主知道了有哪些从.现在再启动一个哨兵：
+```
+redis-server ./26380.conf --sentinel
+```
+发现两个哨兵都打印：
+```
+11820:X 21 Jan 2020 01:46:57.526 # +monitor master mymaster 127.0.0.1 6379 quorum 2
+11820:X 21 Jan 2020 01:46:57.527 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:46:57.532 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:46:58.970 * +sentinel sentinel 80778eb29eb217741deafa7f2fd68c706b495fcb 127.0.0.1 26379 @ mymaster 127.0.0.1 6379
+```
+即原来的那个哨兵发现了这个新哨兵，而且配置文件里只写了监控谁，没告诉他从和其他的哨兵，他是怎么知道的？这是因为上面的监控理论，必须两两组建成势力才可以
 ##### 3.使用追加方式
 
 开启时候，使用appendonly yes这个配置，进行追加的方式进行写入集群。
