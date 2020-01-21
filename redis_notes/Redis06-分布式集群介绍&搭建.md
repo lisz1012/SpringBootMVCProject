@@ -376,8 +376,8 @@ appendfsync everysec
 1.数据一致性
 
 一变多，主备之间，分量数据不能保证一致，如果保证一致，所有节点阻塞，直到数据全部一致，那么就会丢失可用性。如果我们保证数据的强一致性，那么，我们将会破坏可用性（数据在同步，不能保持可用，一台机器因为某种原因失败，则整个写操作都失败。
-而一变多本来就是增强可用性的）。要么容忍数据丢失一部分，把同步阻塞写，改成异步，主节点写了就给client返回。解决丢数据，可以在主备之间加一个Kafka，且他不可能是单机的，不丢数据而且响应速度足够快，而且数据可以持久化。这样保证了最终一致性。
-最终一致性有可能client来了之后取到不一致的数据（Redis和Zookeeper都是最终一致性的）强调：强一致性
+而一变多本来就是增强可用性的）。要么容忍数据丢失一部分，把同步阻塞写，改成异步，主节点写完了就给client返回（Redis就是这种方案，要得就是快！Redis武功，唯快不破！）。解决丢数据，可以在主备之间加一个Kafka，且他不可能是单机的，不丢
+数据而且响应速度足够快，而且数据可以持久化。这样保证了最终一致性。最终一致性有可能client来了之后取到不一致的数据（Redis和Zookeeper都是最终一致性的）强调：强一致性
 
 2.数据完整性
 
@@ -415,6 +415,29 @@ eureka中有的机器可能看到一个服务里面有50台机器可用，有的
 
 我们的监控设备一定是奇数台，进行过半选举，如果过半都选举故障，那么，将会跳到另一台节点。
 
+做实验：建立`~/test`目录， redis5.0.7/util目录下启动三个实例，端口分别是6379、6380、6381. 然后把配置文件全部copy到test目录下：`cp /etc/redis/* ./`
+在test目录下的conf文件里面修改：
+```
+daemonize no
+#logfile /var/log/redis_6380.log
+appendonly no  #如果开启改成no
+```
+就是让Redis实例前台阻塞运行且没有aof
+删除三个实例的Data目录：
+```
+rm -rf /var/lib/redis/6379/*
+rm -rf /var/lib/redis/6380/*
+rm -rf /var/lib/redis/6381/*
+```
+等于之前所有持久化的数据都没有了.然后启动各个Redis实例：
+```
+redis-server ~/test/6379.conf
+redis-server ~/test/6380.conf
+redis-server ~/test/6381.conf
+```
+
+
+
 ### 配置
 
 ##### 1.解压
@@ -426,6 +449,97 @@ eureka中有的机器可能看到一个服务里面有50台机器可用，有的
 启动3个实例，从节点使用replicaof ip port这个命令进行跟随主节点。
 
 （注意，在redis 5之前，我们可以通过slaveof进行跟随主节点，但是，从redis5之后，改为了replicaof进行跟随）
+6380/6381上面执行
+```
+REPLICAOF localhost 6379 
+```
+在6379那里会打印：
+```
+10006:M 20 Jan 2020 21:32:47.257 * Replica 127.0.0.1:6380 asks for synchronization
+10006:M 20 Jan 2020 21:32:47.257 * Partial resynchronization not accepted: Replication ID mismatch (Replica asked for '366ea54afd924a232cfa745d1dbea460ac5b0c58', my replication IDs are '4900448cbbf36e29e5386a528a76d96c099dc9bd' and '0000000000000000000000000000000000000000')
+10006:M 20 Jan 2020 21:32:47.259 * Starting BGSAVE for SYNC with target: disk
+10006:M 20 Jan 2020 21:32:47.261 * Background saving started by pid 10182
+10182:C 20 Jan 2020 21:32:47.287 * DB saved on disk
+10182:C 20 Jan 2020 21:32:47.288 * RDB: 0 MB of memory used by copy-on-write
+10006:M 20 Jan 2020 21:32:47.358 * Background saving terminated with success
+10006:M 20 Jan 2020 21:32:47.358 * Synchronization with replica 127.0.0.1:6380 succeeded
+```
+先数据落地。在6380/6381那里会打印：
+```
+10012:S 20 Jan 2020 21:32:46.620 * REPLICAOF 127.0.0.1:6379 enabled (user request from 'id=4 addr=127.0.0.1:51080 fd=7 name= age=461 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=44 qbuf-free=32724 obl=0 oll=0 omem=0 events=r cmd=replicaof')
+10012:S 20 Jan 2020 21:32:47.229 * Connecting to MASTER 127.0.0.1:6379
+10012:S 20 Jan 2020 21:32:47.230 * MASTER <-> REPLICA sync started
+10012:S 20 Jan 2020 21:32:47.230 * Non blocking connect for SYNC fired the event.
+10012:S 20 Jan 2020 21:32:47.231 * Master replied to PING, replication can continue...
+10012:S 20 Jan 2020 21:32:47.257 * Trying a partial resynchronization (request 366ea54afd924a232cfa745d1dbea460ac5b0c58:1).
+10012:S 20 Jan 2020 21:32:47.262 * Full resync from master: 6b0978a20110746724c64e271b27959449742d95:0
+10012:S 20 Jan 2020 21:32:47.262 * Discarding previously cached master state.
+10012:S 20 Jan 2020 21:32:47.358 * MASTER <-> REPLICA sync: receiving 175 bytes from master
+10012:S 20 Jan 2020 21:32:47.358 * MASTER <-> REPLICA sync: Flushing old data
+10012:S 20 Jan 2020 21:32:47.359 * MASTER <-> REPLICA sync: Loading DB in memory
+10012:S 20 Jan 2020 21:32:47.359 * MASTER <-> REPLICA sync: Finished with success
+```
+Flushing old data这里是为了先把自己的老数据删除，再跟主Redis同步,把主上面的数据copy过来  
+6379下面：
+```
+set k1 aaa
+```
+6380/6381下面：
+```
+127.0.0.1:6380> get k1
+aaa
+127.0.0.1:6380> keys *
+k1
+```
+但是默认Redis从节点禁止写入：
+```
+127.0.0.1:6380> set k2 aaa
+READONLY You can't write against a read only replica.
+```
+但是配置文件可以调整这个。然后查看`/var/lib/redis/6379`等目录，发现dump.rdb文件出现了。  
+
+现在强制断掉6381:Control + C，则主Redis实例前端收到一条提示：
+```
+10006:M 20 Jan 2020 21:52:12.729 # Connection with replica 127.0.0.1:6381 lost.
+```
+再次启动6381:
+```
+redis-server ~/test/6381.conf --replicaof 127.0.0.1 6379
+```
+启动和追随一步到位，然后6381打印：
+```
+10425:S 20 Jan 2020 21:59:24.918 * Ready to accept connections
+10425:S 20 Jan 2020 21:59:24.918 * Connecting to MASTER 127.0.0.1:6379
+10425:S 20 Jan 2020 21:59:24.918 * MASTER <-> REPLICA sync started
+10425:S 20 Jan 2020 21:59:24.919 * Non blocking connect for SYNC fired the event.
+10425:S 20 Jan 2020 21:59:24.919 * Master replied to PING, replication can continue...
+10425:S 20 Jan 2020 21:59:24.919 * Trying a partial resynchronization (request 6b0978a20110746724c64e271b27959449742d95:2053).
+10425:S 20 Jan 2020 21:59:24.919 * Successful partial resynchronization with master.
+10425:S 20 Jan 2020 21:59:24.919 * MASTER <-> REPLICA sync: Master accepted a Partial Resynchronization.
+```
+发现只是同步了掉钱期间的增量数据：`Trying a partial resynchronization (request 6b0978a20110746724c64e271b27959449742d95:2053).`
+
+6381再次退出然后以以下命令重启：
+```
+redis-server ~/test/6381.conf --replicaof 127.0.0.1 6379 --appendonly yes
+```
+而在主Redis：6379这里发现：
+```
+10006:M 20 Jan 2020 22:05:27.278 * Replica 127.0.0.1:6381 asks for synchronization
+10006:M 20 Jan 2020 22:05:27.278 * Full resync requested by replica 127.0.0.1:6381
+10006:M 20 Jan 2020 22:05:27.278 * Starting BGSAVE for SYNC with target: disk
+10006:M 20 Jan 2020 22:05:27.279 * Background saving started by pid 10494
+10494:C 20 Jan 2020 22:05:27.287 * DB saved on disk
+10494:C 20 Jan 2020 22:05:27.287 * RDB: 0 MB of memory used by copy-on-write
+10006:M 20 Jan 2020 22:05:27.367 * Background saving terminated with success
+10006:M 20 Jan 2020 22:05:27.367 * Synchronization with replica 127.0.0.1:6381 succeeded
+```
+这次执行数据落地了，而且每次以这种方式启动，都会走这个过程，不管主机那边是否有数据更新。带上--appendonly yes之后，先load rdb然后再AOF重写，做了一个全量同步。  
+
+下面测试主挂了的情况  
+
+讲主挂之前要知道一件事：凡是一个从，手工方式连到主，主总是知道都是谁连上他了。
+
 
 ##### 3.使用追加方式
 
