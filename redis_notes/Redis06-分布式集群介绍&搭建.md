@@ -538,7 +538,39 @@ redis-server ~/test/6381.conf --replicaof 127.0.0.1 6379 --appendonly yes
 
 ##### 下面测试主挂了的情况  
 
-讲主挂之前要知道一件事：凡是一个从，手工方式连到主，主总是知道都是谁连上他了。
+讲主挂之前要知道一件事：凡是一个从，手工方式连到主，主总是知道都是谁连上他了。现在让主下线，然后两个从就都发现了. 这时候可以把其中的一个从的追随对象改成`on one`，手工让它变成主：
+```
+replicaof no one
+```
+然后发现其前端打印：
+```
+MASTER MODE enabled
+```
+自己变成了主。在6381上面执行
+```
+REPLICAOF 127.0.0.1 6380
+```
+则打印：
+```
+10538:S 20 Jan 2020 22:35:33.386 * REPLICAOF 127.0.0.1:6380 enabled (user request from 'id=4 addr=127.0.0.1:53740 fd=7 name= age=277 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=44 qbuf-free=
+	  32724 obl=0 oll=0 omem=0 events=r cmd=replicaof')
+10538:S 20 Jan 2020 22:35:33.893 * Connecting to MASTER 127.0.0.1:6380
+10538:S 20 Jan 2020 22:35:33.893 * MASTER <-> REPLICA sync started
+10538:S 20 Jan 2020 22:35:33.893 * Non blocking connect for SYNC fired the event.
+10538:S 20 Jan 2020 22:35:33.893 * Master replied to PING, replication can continue...
+10538:S 20 Jan 2020 22:35:33.893 * Trying a partial resynchronization (request 6b0978a20110746724c64e271b27959449742d95:5023).
+10538:S 20 Jan 2020 22:35:33.894 * Successful partial resynchronization with master.
+10538:S 20 Jan 2020 22:35:33.894 # Master replication ID changed to 3eda71bd4a1315791d1681992f25cd4cf79f3f7e
+10538:S 20 Jan 2020 22:35:33.894 * MASTER <-> REPLICA sync: Master accepted a Partial Resynchronization.
+```
+在6380那里也发现了它：
+```
+10012:M 20 Jan 2020 22:35:33.894 * Replica 127.0.0.1:6381 asks for synchronization
+10012:M 20 Jan 2020 22:35:33.894 * Partial resynchronization request from 127.0.0.1:6381 accepted. Sending 0 bytes of backlog starting from offset 5023.
+```
+
+查看配置文件：~/test/6379.conf, 配置replicaof <masterip> <masterport>可以指定追随谁，masterauth <master-password>可以提前设置好密码。 replica-serve-stale-data yes 设置的是，从机再次上线的时候，同步数据会等一段时间，
+在这期间从机的老数据是否对外暴露？yes就是老的数据可以查，no的意思就是必须同步完了才能对外提供数据
 
 
 ##### 3.使用追加方式
