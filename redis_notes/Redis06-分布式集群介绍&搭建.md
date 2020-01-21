@@ -611,7 +611,99 @@ redis-server ./26380.conf --sentinel
 11820:X 21 Jan 2020 01:46:57.532 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
 11820:X 21 Jan 2020 01:46:58.970 * +sentinel sentinel 80778eb29eb217741deafa7f2fd68c706b495fcb 127.0.0.1 26379 @ mymaster 127.0.0.1 6379
 ```
-即原来的那个哨兵发现了这个新哨兵，而且配置文件里只写了监控谁，没告诉他从和其他的哨兵，他是怎么知道的？这是因为上面的监控理论，必须两两组建成势力才可以
+即原来的那个哨兵发现了这个新哨兵，而且配置文件里只写了监控谁，没告诉他从和其他的哨兵，他是怎么知道的？这是因为上面的监控理论，监控必须两两组建成势力才可以，否则就成了单个机器，自己说了算，组建成势力之后才能决定自己的行为.再启动一台
+哨兵：
+```
+redis-server ./26381.conf --sentinel
+```
+则三台哨兵都有类似下面的打印输出：
+```
+11931:X 21 Jan 2020 01:54:16.543 # Sentinel ID is 895f7b3a185b493197818cb1d421e02e03310f82
+11931:X 21 Jan 2020 01:54:16.543 # +monitor master mymaster 127.0.0.1 6379 quorum 2
+11931:X 21 Jan 2020 01:54:16.544 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11931:X 21 Jan 2020 01:54:16.546 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
+11931:X 21 Jan 2020 01:54:16.874 * +sentinel sentinel dd9e9b9441d9e812694ed24ae8b85820e2cff13a 127.0.0.1 26380 @ mymaster 127.0.0.1 6379
+11931:X 21 Jan 2020 01:54:17.362 * +sentinel sentinel 80778eb29eb217741deafa7f2fd68c706b495fcb 127.0.0.1 26379 @ mymaster 127.0.0.1 6379
+```
+现在强制主下线，然后发现两个从肯定发现它挂掉了：
+```
+59:12.087 * MASTER <-> REPLICA sync started
+11627:S 21 Jan 2020 01:59:12.087 # Error condition on socket for SYNC: Connection refused
+```
+一小段时间之后，三个哨兵会投票选出一个leader，leader会打印：
+```
+11820:X 21 Jan 2020 01:59:31.696 # +sdown master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:31.768 # +odown master mymaster 127.0.0.1 6379 #quorum 2/2
+11820:X 21 Jan 2020 01:59:31.768 # +new-epoch 1
+11820:X 21 Jan 2020 01:59:31.768 # +try-failover master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:31.770 # +vote-for-leader dd9e9b9441d9e812694ed24ae8b85820e2cff13a 1
+11820:X 21 Jan 2020 01:59:31.780 # 895f7b3a185b493197818cb1d421e02e03310f82 voted for dd9e9b9441d9e812694ed24ae8b85820e2cff13a 1
+11820:X 21 Jan 2020 01:59:31.781 # 80778eb29eb217741deafa7f2fd68c706b495fcb voted for dd9e9b9441d9e812694ed24ae8b85820e2cff13a 1
+11820:X 21 Jan 2020 01:59:31.846 # +elected-leader master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:31.846 # +failover-state-select-slave master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:31.909 # +selected-slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:31.909 * +failover-state-send-slaveof-noone slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:31.976 * +failover-state-wait-promotion slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:32.409 # +promoted-slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:32.409 # +failover-state-reconf-slaves master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:32.475 * +slave-reconf-sent slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:32.910 # -odown master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:33.439 * +slave-reconf-inprog slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:33.439 * +slave-reconf-done slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:33.522 # +failover-end master mymaster 127.0.0.1 6379
+11820:X 21 Jan 2020 01:59:33.522 # +switch-master mymaster 127.0.0.1 6379 127.0.0.1 6380
+11820:X 21 Jan 2020 01:59:33.522 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380
+11820:X 21 Jan 2020 01:59:33.522 * +slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+11820:X 21 Jan 2020 02:00:03.551 # +sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+```
+非leader哨兵打印：
+```
+11931:X 21 Jan 2020 01:59:31.669 # +sdown master mymaster 127.0.0.1 6379
+11931:X 21 Jan 2020 01:59:31.774 # +new-epoch 1
+11931:X 21 Jan 2020 01:59:31.780 # +vote-for-leader dd9e9b9441d9e812694ed24ae8b85820e2cff13a 1
+11931:X 21 Jan 2020 01:59:32.481 # +config-update-from sentinel dd9e9b9441d9e812694ed24ae8b85820e2cff13a 127.0.0.1 26380 @ mymaster 127.0.0.1 6379
+11931:X 21 Jan 2020 01:59:32.481 # +switch-master mymaster 127.0.0.1 6379 127.0.0.1 6380
+11931:X 21 Jan 2020 01:59:32.481 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380
+11931:X 21 Jan 2020 01:59:32.481 * +slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+11931:X 21 Jan 2020 02:00:02.521 # +sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+```
+以及
+```
+11740:X 21 Jan 2020 01:59:31.730 # +sdown master mymaster 127.0.0.1 6379
+11740:X 21 Jan 2020 01:59:31.773 # +new-epoch 1
+11740:X 21 Jan 2020 01:59:31.781 # +vote-for-leader dd9e9b9441d9e812694ed24ae8b85820e2cff13a 1
+11740:X 21 Jan 2020 01:59:31.797 # +odown master mymaster 127.0.0.1 6379 #quorum 3/2
+11740:X 21 Jan 2020 01:59:31.797 # Next failover delay: I will not start a failover before Tue Jan 21 02:05:32 2020
+11740:X 21 Jan 2020 01:59:32.483 # +config-update-from sentinel dd9e9b9441d9e812694ed24ae8b85820e2cff13a 127.0.0.1 26380 @ mymaster 127.0.0.1 6379
+11740:X 21 Jan 2020 01:59:32.483 # +switch-master mymaster 127.0.0.1 6379 127.0.0.1 6380
+11740:X 21 Jan 2020 01:59:32.484 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380
+11740:X 21 Jan 2020 01:59:32.484 * +slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+11740:X 21 Jan 2020 02:00:02.495 # +sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+```
+leader哨兵操控着做的故障转移：推举出了新的主,而且哨兵们转而去监控`mymaster 127.0.0.1 6380`了, 这里跟各个哨兵的最初的配置文件就不一样了. 在6380那里打印了：
+```
+11603:M 21 Jan 2020 01:59:31.976 # Setting secondary replication ID to b52c8ae0ffa3c65fbdb15ef57989baf314d7a4e3, valid up to offset: 130560. New replication ID is e6327c42b3b9414f433ffd1c5035a93ac247e139
+11603:M 21 Jan 2020 01:59:31.976 * Discarding previously cached master state.
+11603:M 21 Jan 2020 01:59:31.976 * MASTER MODE enabled (user request from 'id=7 addr=127.0.0.1:51227 fd=10 name=sentinel-dd9e9b94-cmd age=754 idle=0 flags=x db=0 sub=0 psub=0 multi=3 qbuf=140 qbuf-free=32628 obl=36 oll=0 omem=0 events=r cmd=exec')
+11603:M 21 Jan 2020 01:59:31.978 # CONFIG REWRITE executed with success.
+11603:M 21 Jan 2020 01:59:33.250 * Replica 127.0.0.1:6381 asks for synchronization
+11603:M 21 Jan 2020 01:59:33.250 * Partial resynchronization request from 127.0.0.1:6381 accepted. Sending 688 bytes of backlog starting from offset 130560
+```
+MASTER MODE enabled --- 新主登基。然后在6381那里打印：
+```
+11627:S 21 Jan 2020 01:59:32.475 * REPLICAOF 127.0.0.1:6380 enabled (user request from 'id=7 addr=127.0.0.1:53751 fd=10 name=sentinel-dd9e9b94-cmd age=755 idle=0 flags=x db=0 sub=0 psub=0 multi=3 qbuf=281 qbuf-free=32487 obl=36 oll=0 omem=0 events=r cmd=exec')
+11627:S 21 Jan 2020 01:59:32.480 # CONFIG REWRITE executed with success.
+11627:S 21 Jan 2020 01:59:33.250 * Connecting to MASTER 127.0.0.1:6380
+11627:S 21 Jan 2020 01:59:33.250 * MASTER <-> REPLICA sync started
+11627:S 21 Jan 2020 01:59:33.250 * Non blocking connect for SYNC fired the event.
+11627:S 21 Jan 2020 01:59:33.250 * Master replied to PING, replication can continue...
+11627:S 21 Jan 2020 01:59:33.250 * Trying a partial resynchronization (request b52c8ae0ffa3c65fbdb15ef57989baf314d7a4e3:130560).
+11627:S 21 Jan 2020 01:59:33.250 * Successful partial resynchronization with master.
+11627:S 21 Jan 2020 01:59:33.250 # Master replication ID changed to e6327c42b3b9414f433ffd1c5035a93ac247e139
+11627:S 21 Jan 2020 01:59:33.250 * MASTER <-> REPLICA sync: Master accepted a Partial Resynchronization.
+```
+从主那里同步数据，以示臣服
+
 ##### 3.使用追加方式
 
 开启时候，使用appendonly yes这个配置，进行追加的方式进行写入集群。
