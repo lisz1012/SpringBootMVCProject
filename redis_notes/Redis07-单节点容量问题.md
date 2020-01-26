@@ -1,5 +1,7 @@
 # Redis单节点容量问题
 
+作业：Redis spring的API自学：https://docs.spring.io/spring-data/redis/docs/2.2.4.RELEASE/reference/html/#reference 先快速多看几遍中文的，再看英文的。各个官网和Github都要会自己查
+
 ###  一、单节点容量问题
 
 我们在实际场景中，往往遇上一个单节点容量问题。
