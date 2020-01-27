@@ -120,10 +120,11 @@ multi
 predixy软件，也可作为替代品
 
 ```
-wget https://github.com/joyieldInc/predixy/releases/download/1.0.5/predixy-1.0.5-bin-amd64-linux.tar.gz
+wget https://github.com/joyieldInc/predixy/releases/download/1.0.5/predixy-1.0.5-bin-amd64-linux.tar.gz -O predixy-1.0.5-bin-amd64-linux.tar.gz
 ```
-
-修改predixy.conf
+或者在https://github.com/joyieldInc/predixy/releases 下载
+修改predixy.conf 参考：https://github.com/joyieldInc/predixy/blob/master/doc/config_CN.md 其中“Group xxx”是指定那个Master，一个哨兵可以监控多个主从复制，上面的
+“Distribution modula|random”可以把数据打散到多套主从复制里
 
 ```
 打开Bind 127.0.0.1:7617
