@@ -117,6 +117,7 @@ multi
 
 ```
 
+### Predixy
 predixy软件，也可作为替代品
 
 ```
@@ -179,7 +180,7 @@ redis-server ~/test/26381.conf --sentinel
 再启动代理：
 `/root/soft/predixy/predixy-1.0.5/bin/predixy /root/soft/predixy/predixy-1.0.5/conf/predixy.conf`
 
-predixy只支持单Group的事务
+predixy只支持单Group的事务。这里由于predixy是64位的而CentOS是32位的，实验做不了
 
 之后可以直接测试
 
