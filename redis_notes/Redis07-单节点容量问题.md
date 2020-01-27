@@ -129,7 +129,10 @@ wget https://github.com/joyieldInc/predixy/releases/download/1.0.5/predixy-1.0.5
 ```
 打开Bind 127.0.0.1:7617
 打开include sentinel.conf
+注释掉：#Include try.conf
 ```
+
+然后vim sentinel.conf修改哨兵的配置。 按冒号后输入`.,$y`回车是选中并复制当前光标行到最后的文字，p是粘贴 `.,$s/#//`是把选中的部分的#全部去掉. `2dd`是删除包括当前光标行在内的往下的2行
 
 修改26379的哨兵
 
@@ -138,6 +141,7 @@ port 26379
 sentinel monitor ooxx 127.0.0.1 36379 2
 sentinel monitor xxoo 127.0.0.1 46379 2
 ```
+上面的“ooxx”和“xxoo”就是要填入Group XXX那里，取代XXX，然后上面的Distribution modula就会把数据哈希取模，指不定放进哪一个group
 
 修改26380的哨兵
 
@@ -146,8 +150,36 @@ port 26380
 sentinel monitor ooxx 127.0.0.1 36379 2
 sentinel monitor xxoo 127.0.0.1 46379 2
 ```
+同理，修改26381哨兵
+```
+port 26381
+sentinel monitor ooxx 127.0.0.1 36379 2
+sentinel monitor xxoo 127.0.0.1 46379 2
+```
+哨兵的配置只是最上面的端口不一样，如果三台物理机，端口也可以一样了  
+现在配置了一个三哨兵集群：26379、26380、26381，一起监视着两个Redis主从复制集群，他们的Master分别是36379和46379
 
-下面分别启动，省略了。
+
+下面分别启动。先跑哨兵：
+```
+redis-server ~/test/26379.conf --sentinel
+redis-server ~/test/26380.conf --sentinel
+redis-server ~/test/26381.conf --sentinel
+```
+再启动两套主从复制集群：
+```
+[root@chaoren0 test]# mkdir 36379
+[root@chaoren0 test]# mkdir 36380
+[root@chaoren0 test]# mkdir 46379
+[root@chaoren0 test]# mkdir 46380
+[root@chaoren0 test]# cd 36379/
+[root@chaoren0 36379]# redis-server --port 36379
+[root@chaoren0 36380]# redis-server --port 36380 --replicaof 127.0.0.1 36379
+```
+再启动代理：
+`/root/soft/predixy/predixy-1.0.5/bin/predixy /root/soft/predixy/predixy-1.0.5/conf/predixy.conf`
+
+predixy只支持单Group的事务
 
 之后可以直接测试
 
