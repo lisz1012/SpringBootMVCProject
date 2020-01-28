@@ -180,8 +180,231 @@ redis-server ~/test/26381.conf --sentinel
 再启动代理：
 `/root/soft/predixy/predixy-1.0.5/bin/predixy /root/soft/predixy/predixy-1.0.5/conf/predixy.conf`
 
-predixy只支持单Group的事务。这里由于predixy是64位的而CentOS是32位的，实验做不了
+predixy只支持单Group的事务。这里由于predixy是64位的而CentOS是32位的，实验做不了。predixy只支持一套主从复制的事务。
 
-之后可以直接测试
+#### Redis自带的Cluster
 
-相类似的，还有codis和Redis自带的Cluster
+老版本的还需要使用Ruby，4.0之后好像就不需要了
+
+Cluster做的几件事：1. 跑起来 2.分槽位 3. 需不需要挂上一个从节点、哨兵、HA？
+在redis-5.0.7/utils/create-cluster 下面有个create-cluster可执行文件脚本，其中有：
+```
+NODES=6
+REPLICAS=1
+```
+其实就是3主3从的cluster，改这里的数字完了之后直接
+```
+./create-cluster start
+```
+启动集群, 命令行输出：
+```
+Starting 30001
+Starting 30002
+Starting 30003
+Starting 30004
+Starting 30005
+Starting 30006
+```
+这是因为NODES有6个，而可执行脚本里面写了`PORT=30000`，就是各个node的监听端口从30000开始，递增6个.然后分配槽位：
+```
+./create-cluster create
+```
+然后输出槽位分配情况：
+```
+>>> Performing hash slots allocation on 6 nodes...
+Master[0] -> Slots 0 - 5460
+Master[1] -> Slots 5461 - 10922
+Master[2] -> Slots 10923 - 16383
+Adding replica 127.0.0.1:30005 to 127.0.0.1:30001
+Adding replica 127.0.0.1:30006 to 127.0.0.1:30002
+Adding replica 127.0.0.1:30004 to 127.0.0.1:30003
+>>> Trying to optimize slaves allocation for anti-affinity
+[WARNING] Some slaves are in the same host as their master
+M: 0a78c5c3f2a3072b878481a2bf4ffa08e17d7fc3 127.0.0.1:30001
+   slots:[0-5460] (5461 slots) master
+M: a44213d2b5c16d63798c7bb7ab9a47b0c4666f57 127.0.0.1:30002
+   slots:[5461-10922] (5462 slots) master
+M: ba8929aa894d30f7ef47928da0ebe6a6da05f8ce 127.0.0.1:30003
+   slots:[10923-16383] (5461 slots) master
+S: 19b310b5e99ed3c231a98921d60b7b0318a2630b 127.0.0.1:30004
+   replicates ba8929aa894d30f7ef47928da0ebe6a6da05f8ce
+S: ff431ce35750e38c78548e7d486f9ae1bfca31eb 127.0.0.1:30005
+   replicates 0a78c5c3f2a3072b878481a2bf4ffa08e17d7fc3
+S: 810e0f9918a5b0b620dc5936d4e659386e5ccf6d 127.0.0.1:30006
+   replicates a44213d2b5c16d63798c7bb7ab9a47b0c4666f57
+Can I set the above configuration? (type 'yes' to accept):
+```
+输入yes就好了。然后登录30001，执行 set k1 fdgfd 结果发现报错：
+```
+[root@chaoren0 create-cluster]# redis-cli -p 30001
+127.0.0.1:30001> set k1 dfdh
+(error) MOVED 12706 127.0.0.1:30003
+127.0.0.1:30001> keys *
+(empty list or set)
+```
+这就是因为传的key不是该节点分到负责的，所以报了个错然后客户端跳转到了30003。虽然客户端想连谁连谁，但是普通客户端只能识别出他是个报错。这里正确的客户端登录方法应该是：
+```
+redis-cli -c -p 30001
+```
+然后就不报错了：
+```
+[root@chaoren0 create-cluster]# redis-cli -c -p 30001
+127.0.0.1:30001> set k1 refhrei
+-> Redirected to slot [12706] located at 127.0.0.1:30003
+OK
+127.0.0.1:30003>
+```
+命令行已经先跳转了，然后创建了k1.不管是get还是set或者WATCH，发现当前节点不负责key就立刻先跳转. 这里有一种报错：
+```
+127.0.0.1:30001> WATCH k2
+OK
+127.0.0.1:30001> MULTI
+OK
+127.0.0.1:30001> set k1 werewbv
+-> Redirected to slot [12706] located at 127.0.0.1:30003
+OK
+127.0.0.1:30003> set rwfrefg werferge
+-> Redirected to slot [8013] located at 127.0.0.1:30002
+OK
+127.0.0.1:30002> exec
+(error) ERR EXEC without MULTI
+```
+是因为在事务期间跳转节点了，事务没有在最初开启的节点上执行。这时候要用{}指定参与事务的keys的做哈希的、不变的那部分，然后所有的这些keys就都放到同一个节点上了，然后就可以用这些类似{oo}xxx的keys做事务了。
+正如前面讲到的，Redis是单进程单线程的，串行处理请求，用户只要保证做事务的数据都放到同一个节点上就可以保证事务。  
+
+做完实验, 结束各个Redis实例之前查看目录发现自动生成的rdb和aof文件：
+```
+[root@chaoren0 create-cluster]# ll
+total 104
+-rw-r--r--. 1 root root 2286 Jan 27 23:16 30001.log
+-rw-r--r--. 1 root root 2286 Jan 27 23:16 30002.log
+-rw-r--r--. 1 root root 2286 Jan 27 23:16 30003.log
+-rw-r--r--. 1 root root 3400 Jan 27 23:16 30004.log
+-rw-r--r--. 1 root root 3400 Jan 27 23:16 30005.log
+-rw-r--r--. 1 root root 3400 Jan 27 23:16 30006.log
+-rw-r--r--. 1 root root  234 Jan 27 23:36 appendonly-30001.aof
+-rw-r--r--. 1 root root   63 Jan 27 23:34 appendonly-30002.aof
+-rw-r--r--. 1 root root   91 Jan 27 23:33 appendonly-30003.aof
+-rw-r--r--. 1 root root  183 Jan 27 23:33 appendonly-30004.aof
+-rw-r--r--. 1 root root  326 Jan 27 23:36 appendonly-30005.aof
+-rw-r--r--. 1 root root  155 Jan 27 23:34 appendonly-30006.aof
+-rwxrwxr-x. 1 root root 2344 Nov 19 09:05 create-cluster
+-rw-r--r--. 1 root root  175 Jan 27 23:16 dump-30001.rdb
+-rw-r--r--. 1 root root  175 Jan 27 23:16 dump-30002.rdb
+-rw-r--r--. 1 root root  175 Jan 27 23:16 dump-30003.rdb
+-rw-r--r--. 1 root root  175 Jan 27 23:16 dump-30004.rdb
+-rw-r--r--. 1 root root  175 Jan 27 23:16 dump-30005.rdb
+-rw-r--r--. 1 root root  175 Jan 27 23:16 dump-30006.rdb
+-rw-r--r--. 1 root root  811 Jan 27 23:16 nodes-30001.conf
+-rw-r--r--. 1 root root  787 Jan 27 23:16 nodes-30002.conf
+-rw-r--r--. 1 root root  799 Jan 27 23:16 nodes-30003.conf
+-rw-r--r--. 1 root root  799 Jan 27 23:16 nodes-30004.conf
+-rw-r--r--. 1 root root  823 Jan 27 23:16 nodes-30005.conf
+-rw-r--r--. 1 root root  787 Jan 27 23:16 nodes-30006.conf
+-rw-rw-r--. 1 root root 1317 Nov 19 09:05 README
+```
+执行：
+```
+./create-cluster stop
+./create-cluster clean
+```
+然后各个Redis Cluster的进程就都结束了而且再次查看上述文件，发现不见了：
+```
+[root@chaoren0 create-cluster]# ll
+total 8
+-rwxrwxr-x. 1 root root 2344 Nov 19 09:05 create-cluster
+-rw-rw-r--. 1 root root 1317 Nov 19 09:05 README
+```
+也可以不用这个脚本，自己手工设置好然后启动cluster，调出帮助：
+```
+redis-cli --cluster help
+``` 
+然后执行：
+```
+./create-cluster start
+redis-cli --cluster create 127.0.0.1:30001 127.0.0.1:30002 127.0.0.1:30003 127.0.0.1:30004 127.0.0.1:30005 127.0.0.1:30006 --cluster-replicas 1
+```
+分配任务就不用这个脚本了，这就可以搭建一个完全分布式的集群了（同样还是3主3从），而不仅仅是一台机器上的不同的端口跑不同Redis的实例.  
+
+数据倾斜了怎么办？用reshard命令，参考: `redis-cli --cluster help`
+```
+[root@chaoren0 create-cluster]# redis-cli --cluster reshard 127.0.0.1:30001
+>>> Performing Cluster Check (using node 127.0.0.1:30001)
+M: 982f0f108a5a3fdef56361136a3c7c40a8b419ca 127.0.0.1:30001
+   slots:[0-5460] (5461 slots) master
+   13810101726901960705 additional replica(s)
+S: 867f24d7191583ca6821183a575ffe1c1a6e9896 127.0.0.1:30006
+   slots: (0 slots) slave
+   replicates 6cefabb3da71de84cdaed87c4312c7e3dc326a87
+S: b6139ae5a6e94df94a9558065e5db3c7e127bcab 127.0.0.1:30004
+   slots: (0 slots) slave
+   replicates a30f62a79639487658043227f6db11b34855d377
+M: a30f62a79639487658043227f6db11b34855d377 127.0.0.1:30003
+   slots:[10923-16383] (5461 slots) master
+   634394024265908225 additional replica(s)
+S: 91dfaf610988c638c575aa0be5117e1751b3248f 127.0.0.1:30005
+   slots: (0 slots) slave
+   replicates 982f0f108a5a3fdef56361136a3c7c40a8b419ca
+M: 6cefabb3da71de84cdaed87c4312c7e3dc326a87 127.0.0.1:30002
+   slots:[5461-10922] (5462 slots) master
+   634395261216489473 additional replica(s)
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+How many slots do you want to move (from 1 to 16384)? 2000
+What is the receiving node ID? 6cefabb3da71de84cdaed87c4312c7e3dc326a87
+Please enter all the source node IDs.
+  Type 'all' to use all the nodes as source nodes for the hash slots.
+  Type 'done' once you entered all the source nodes IDs.
+Source node #1: 982f0f108a5a3fdef56361136a3c7c40a8b419ca
+Source node #2: done
+```
+然后输入“yes”，就会从30001那台主982f0f108a5a3fdef56361136a3c7c40a8b419ca移动2000个槽位到30002那个主6cefabb3da71de84cdaed87c4312c7e3dc326a87，其他的不动。但是具体移动哪些槽位，Redis说了算
+查看reshard后的集群信息：
+```
+redis-cli --cluster info 127.0.0.1:30001
+```
+随便找一台就会打印全局的信息。发现原来平均分配的槽位现在已经不平均了：
+```
+[root@chaoren0 create-cluster]# redis-cli --cluster info
+[ERR] Wrong number of arguments for specified --cluster sub command
+[root@chaoren0 create-cluster]# redis-cli --cluster info 127.0.0.1:30001
+127.0.0.1:30001 (982f0f10...) -> 0 keys | 3461 slots | 1 slaves.
+127.0.0.1:30003 (a30f62a7...) -> 1 keys | 5461 slots | 1 slaves.
+127.0.0.1:30002 (6cefabb3...) -> 0 keys | 7462 slots | 1 slaves.
+[OK] 1 keys in 3 masters.
+0.00 keys per slot on average.
+```
+还可以用check命令，检查任意实例，返回全局的信息：
+```
+[root@chaoren0 create-cluster]# redis-cli --cluster check 127.0.0.1:30001
+127.0.0.1:30001 (982f0f10...) -> 0 keys | 3461 slots | 1 slaves.
+127.0.0.1:30003 (a30f62a7...) -> 1 keys | 5461 slots | 1 slaves.
+127.0.0.1:30002 (6cefabb3...) -> 0 keys | 7462 slots | 1 slaves.
+[OK] 1 keys in 3 masters.
+0.00 keys per slot on average.
+>>> Performing Cluster Check (using node 127.0.0.1:30001)
+M: 982f0f108a5a3fdef56361136a3c7c40a8b419ca 127.0.0.1:30001
+   slots:[2000-5460] (3461 slots) master
+   13823331050807361537 additional replica(s)
+S: 867f24d7191583ca6821183a575ffe1c1a6e9896 127.0.0.1:30006
+   slots: (0 slots) slave
+   replicates 6cefabb3da71de84cdaed87c4312c7e3dc326a87
+S: b6139ae5a6e94df94a9558065e5db3c7e127bcab 127.0.0.1:30004
+   slots: (0 slots) slave
+   replicates a30f62a79639487658043227f6db11b34855d377
+M: a30f62a79639487658043227f6db11b34855d377 127.0.0.1:30003
+   slots:[10923-16383] (5461 slots) master
+   687610490129481729 additional replica(s)
+S: 91dfaf610988c638c575aa0be5117e1751b3248f 127.0.0.1:30005
+   slots: (0 slots) slave
+   replicates 982f0f108a5a3fdef56361136a3c7c40a8b419ca
+M: 6cefabb3da71de84cdaed87c4312c7e3dc326a87 127.0.0.1:30002
+   slots:[0-1999],[5461-10922] (7462 slots) master
+   687611727080062977 additional replica(s)
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+```
