@@ -367,8 +367,6 @@ redis-cli --cluster info 127.0.0.1:30001
 ```
 随便找一台就会打印全局的信息。发现原来平均分配的槽位现在已经不平均了：
 ```
-[root@chaoren0 create-cluster]# redis-cli --cluster info
-[ERR] Wrong number of arguments for specified --cluster sub command
 [root@chaoren0 create-cluster]# redis-cli --cluster info 127.0.0.1:30001
 127.0.0.1:30001 (982f0f10...) -> 0 keys | 3461 slots | 1 slaves.
 127.0.0.1:30003 (a30f62a7...) -> 1 keys | 5461 slots | 1 slaves.
