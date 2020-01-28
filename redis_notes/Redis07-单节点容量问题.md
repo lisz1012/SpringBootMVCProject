@@ -324,7 +324,7 @@ redis-cli --cluster help
 ./create-cluster start
 redis-cli --cluster create 127.0.0.1:30001 127.0.0.1:30002 127.0.0.1:30003 127.0.0.1:30004 127.0.0.1:30005 127.0.0.1:30006 --cluster-replicas 1
 ```
-分配任务就不用这个脚本了，这就可以搭建一个完全分布式的集群了（同样还是3主3从），而不仅仅是一台机器上的不同的端口跑不同Redis的实例.  
+分配任务就不用这个脚本了(./create-cluster start是模拟各台分布式物理机的Redis实例都已经启动了)，这就可以搭建一个完全分布式的集群了（同样还是3主3从），而不仅仅是一台机器上的不同的端口跑不同Redis的实例.  
 
 数据倾斜了怎么办？用reshard命令，参考: `redis-cli --cluster help`
 ```
