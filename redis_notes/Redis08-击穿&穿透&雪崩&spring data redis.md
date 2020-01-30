@@ -1,4 +1,6 @@
-# Redis08-击穿&穿透&雪崩&spring data redis
+# Redis08-击穿&穿透&雪崩&分布式锁&spring data redis
+
+Jedis底层是线程不安全的，虽然有poll但是不如luttce性能好。顶多大数据里会用到Jedis
 
 ### 一、常见概念
 
