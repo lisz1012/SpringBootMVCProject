@@ -69,7 +69,9 @@ Jedis底层是线程不安全的，虽然有poll但是不如luttce性能好。�
 
 ### 二、SpringDataRedis
 
-客户端连接，我们可以使用Jedis、lettuce、redisson...但是，我们在技术选型时，鉴于多方面考虑，选用SpringDataRedis
+客户端连接，我们可以使用Jedis、lettuce、redisson...但是，我们在技术选型时，鉴于多方面考虑，选用SpringDataRedis。Spring支持Jedis、lettuce，所以redisson已经成了可选项了. Jedis是线程不安全的：
+一个Jedis可以被两个线程访问到，不加锁的话会两个线程都开启事务，然后往里面放命令，后执行的就被拦住了。解决方法：准备一个Jedis连接池（注意不是线程池），每个用户拿到的是单独的跟Redis的连接，各自去访问。
+Jedis、lettuce各有各的Github：https://github.com/xetorthio/jedis 和 https://github.com/lettuce-io/lettuce-core 学的话不用买书，直接看他们的Readme.md
 
 ##### 1.创建一个SpringBoot项目，勾选Spring Data Redis，也可以直接引入
 
