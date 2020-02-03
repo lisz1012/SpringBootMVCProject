@@ -71,7 +71,12 @@ Jedis底层是线程不安全的，虽然有poll但是不如luttce性能好。�
 
 客户端连接，我们可以使用Jedis、lettuce、redisson...但是，我们在技术选型时，鉴于多方面考虑，选用SpringDataRedis。Spring支持Jedis、lettuce，所以redisson已经成了可选项了. Jedis是线程不安全的：
 一个Jedis可以被两个线程访问到，不加锁的话会两个线程都开启事务，然后往里面放命令，后执行的就被拦住了。解决方法：准备一个Jedis连接池（注意不是线程池），每个用户拿到的是单独的跟Redis的连接，各自去访问。
-Jedis、lettuce各有各的Github：https://github.com/xetorthio/jedis 和 https://github.com/lettuce-io/lettuce-core 学的话不用买书，直接看他们的Readme.md
+Jedis、lettuce各有各的Github：https://github.com/xetorthio/jedis 和 https://github.com/lettuce-io/lettuce-core 学的话不用买书，直接看他们的Readme.md  
+
+spring-data-redis的参考文档：https://docs.spring.io/spring-data/redis/docs/2.2.4.RELEASE/reference/html/#reference 和
+https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/reference/html/boot-features-nosql.html#boot-features-connecting-to-redis
+
+通过spring用Redis的思路是：1.连上Redis 2.选择使用高阶的还是低阶的API 3.数据怎么编解码放进Redis去，序列化 
 
 ##### 1.创建一个SpringBoot项目，勾选Spring Data Redis，也可以直接引入
 
@@ -82,22 +87,84 @@ Jedis、lettuce各有各的Github：https://github.com/xetorthio/jedis 和 https
 </dependency>
 ```
 
+```SpringApplication.run(RedisStudyApplication.class, args);```
+基于Web开发，有Tomcat的话，Tomcat完成以上调用，拿到uri去匹配，从里面找到那些对象调起那些方法.Springboot有Redis约定俗成的一些配置，就可以跳过连接Redis，直接选择高低配置了
+
 ##### 2.使用序列化的方式，进行set和get值（乱码）
+
+```
+@Autowired
+@Qualifier("redisTemplate")
+private RedisTemplate template;
+```
 
 ```
 ValueOperations vo = redisTemplate.opsForValue();
 vo.set("Hello","china");
 System.out.println(vo.get("Hello"));
 ```
+在Linux服务器上跑一个Redis实例：
+```
+[root@chaoren0 ~]# mkdir springboot
+[root@chaoren0 ~]# cd springboot/
+[root@chaoren0 springboot]# redis-server --port 6379
+```
+在application.properties文件中配置：
+```
+spring.redis.host=192.168.1.106
+spring.redis.port=6379
+```
+这样，springboot在启动运行的时候会自动初始化各种Redis相关的Factory和连接等，然后注入给我们，我们就可以直接用了. 这里还有一个保护模式，默认只允许本机访问，这里要先把它临时关闭：
+```
+redis-cli
+config set protected-mode no
+```
+另外，可以用
+```
+config get *
+```
+查看所有配置
+现在运行刚才的这个程序，springboot会输出china，但是查看redis-cli发现不对：
+```
+127.0.0.1:6379> keys *
+1) "\xac\xed\x00\x05t\x00\x05hello"
+```
+出现乱码.这是因为Redis是二进制安全的，只存字节数组，任何一个客户端都要注意他的数据是怎么变成的字节数组的。高阶的RedisTemplate是面向最基本的java序列化方式的，java序列化时会在前面加一些东西的，而不是
+直接字面意思的编码
 
 ##### 3.使用StringRedisTemplate来调整乱码情况
+
+修改依赖注入：
+```
+@Autowired
+@Qualifier("stringRedisTemplate")
+private RedisTemplate stringRedisTemplate;
+```
+或者
+```
+@Autowired
+private StringRedisTemplate template;
+```
+
 
 ```
 ValueOperations<String, String> svo = stringRedisTemplate.opsForValue();
 svo.set("a","b");
 System.out.println(svo.get("a"));
 ```
-
+再次在redis-cli上查看得到：
+```
+127.0.0.1:6379> keys *
+1) "\xac\xed\x00\x05t\x00\x05hello"
+2) "hello"
+```
+低阶API中的：
+```
+RedisConnectionFactory redisConnectionFactory = template.getConnectionFactory();
+RedisConnection redisConnection = redisConnectionFactory.getConnection();
+redisConnection.setXXX...
+```
+set的key都是byte[]类型，这还是因为二进制安全，client要把key变成byte[]扔过去
 ##### 4.Hash操作
 
 ```
@@ -111,6 +178,12 @@ System.out.println(hash.get("sean","sex"));;
 ```
 
 ##### 5.对象操作(这边需要引入Spring Json)
+```
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
 
 ```
 HashOperations<String,Object,Object> hash=stringRedisTemplate.opsForHash();
