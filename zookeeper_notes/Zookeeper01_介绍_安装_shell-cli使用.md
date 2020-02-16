@@ -26,20 +26,38 @@ client在另一半没同步到的机器上找A，这台机器先去同步在返�
 https://www.jianshu.com/p/c5dd1b4b0697  
 
 ### 配置
+更改主机名：
+/etc/hosts:  
+```
+127.0.0.1   localhost node03
+192.168.1.131   node01
+192.168.1.132   node02
+192.168.1.133   node03
+192.168.1.134   node04
+```
+/etc/sysconfig/network:
+```
+NETWORKING=yes
+HOSTNAME=node03
+```
+重启机器  
+
 
 进入`/opt/mashibing/apache-zookeeper-3.5.7/conf`目录下`cp zoo_sample.cfg zoo.cfg`然后进入后者查看都配置了什么。tickTime：leader和follower之间是有心跳的，来维护对方还活着这件事情，这是心跳的时间，根据生产环境
 来。initLimit=10，说明follower和leader建立连接的时候，leader最多可以忍受follower 2000*10 = 20s的初始延迟，超过了就不要这个follower了。syncLimit=5 也就是说5 * 2000 = 10s，leader下达同步的时候10秒之后还没有
 得到follower的回馈的化，也认为这个follower有问题。dataDir改为`/var/mashibing/zk`(别忘了创建)未来放zk的日志、快照和myid等数据文件. clientPort=2181是开放的服务端口。maxClientCnxns=60允许最多连接60个.在配置的最
 后，加上：
 ```
-server.1=node01:2888:3888
+server.1=0.0.0.0:2888:3888
 server.2=node02:2888:3888
 server.3=node03:2888:3888
 server.4=node04:2888:3888
 ```
+当前这台机器上写0.0.0.0 其余的写机器名或者IP。  
+
 这里跟Redis不同，没有一个pubsub发布订阅来发现都有哪些机器，所以必须手动配置的时候就写出来。而且写下这些节点之后，他们的行数除以2 + 1就是“过半数”，把这个“过半数”。这几行写的都是什么？node01是节点名，3888是在leader挂掉之
 后或者第一次启动还没有leader，大家都慌着的时候的时候，通过3888这个端口建立连接，通过3888这个端口的socket通信，投票选出一个leader，选出的leader会启动一个2888的端口，监听。其他的节点去连接leader的2888端口，后续在有
 leader情况下的的通信在2888端口。server.x这个x最大的自动成为leader，由于过半机制，要么server.3=node03 要么 server.4=node04 就成为了leader.  
 
 `cd /var/mashibing/zk`在这个目录下创建一个叫myid的文件里面就只写一个数字，比如在node01上的这个myid文件写入：1. myid里面的值一定要跟`zoo.cfg`配置文件server.x中的x相一致. 分发文件到各台机器。然后从node01开始挨个
-启动: `zkServer.sh start-foreground` 前台启动,前台阻塞，实时打印日志（`start`参数是后台启动）。
+启动: `zkServer.sh start-foreground` 前台启动,前台阻塞，实时打印日志（`start`参数是后台启动）。其中，leader机器会在日志里打印这样一句话：`LEADING - LEADER ELECTION TOOK`
