@@ -40,4 +40,4 @@ server.4=node04:2888:3888
 后或者第一次启动还没有leader，大家都慌着的时候的时候，通过3888这个端口建立连接，通过3888这个端口的socket通信，投票选出一个leader，选出的leader会启动一个2888的端口，监听。其他的节点去连接leader的2888端口，后续在有
 leader情况下的的通信在2888端口。server.x这个x最大的自动成为leader，由于过半机制，要么server.3=node03 要么 server.4=node04 就成为了leader.  
 
-`cd /var/mashibing/zk`在这个目录下创建一个叫myid的文件里面就只写一个数字，比如在node01上的这个myid文件写入：1
+`cd /var/mashibing/zk`在这个目录下创建一个叫myid的文件里面就只写一个数字，比如在node01上的这个myid文件写入：1. myid里面的值一定要跟`zoo.cfg`配置文件server.x中的x相一致
