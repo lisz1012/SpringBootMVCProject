@@ -22,7 +22,8 @@ client在另一半没同步到的机器上找A，这台机器先去同步在返�
 
 ### 安装
 
-下载tar文件解压，然后放到`/opt/mashibing`目录下即可  
+注意！！一定是下载XXX-bin.tar.gz,而不是tar.gz（否则找不到类）下载文件后解压，然后放到`/opt/mashibing`目录下即可  
+https://www.jianshu.com/p/c5dd1b4b0697  
 
 ### 配置
 
@@ -40,4 +41,5 @@ server.4=node04:2888:3888
 后或者第一次启动还没有leader，大家都慌着的时候的时候，通过3888这个端口建立连接，通过3888这个端口的socket通信，投票选出一个leader，选出的leader会启动一个2888的端口，监听。其他的节点去连接leader的2888端口，后续在有
 leader情况下的的通信在2888端口。server.x这个x最大的自动成为leader，由于过半机制，要么server.3=node03 要么 server.4=node04 就成为了leader.  
 
-`cd /var/mashibing/zk`在这个目录下创建一个叫myid的文件里面就只写一个数字，比如在node01上的这个myid文件写入：1. myid里面的值一定要跟`zoo.cfg`配置文件server.x中的x相一致
+`cd /var/mashibing/zk`在这个目录下创建一个叫myid的文件里面就只写一个数字，比如在node01上的这个myid文件写入：1. myid里面的值一定要跟`zoo.cfg`配置文件server.x中的x相一致. 分发文件到各台机器。然后从node01开始挨个
+启动: `zkServer.sh start-foreground` 前台启动,前台阻塞，实时打印日志（`start`参数是后台启动）。
