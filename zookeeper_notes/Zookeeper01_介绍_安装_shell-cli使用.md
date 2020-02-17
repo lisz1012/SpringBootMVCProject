@@ -60,4 +60,143 @@ server.4=node04:2888:3888
 leader情况下的的通信在2888端口。server.x这个x最大的自动成为leader，由于过半机制，要么server.3=node03 要么 server.4=node04 就成为了leader.  
 
 `cd /var/mashibing/zk`在这个目录下创建一个叫myid的文件里面就只写一个数字，比如在node01上的这个myid文件写入：1. myid里面的值一定要跟`zoo.cfg`配置文件server.x中的x相一致. 分发文件到各台机器。然后从node01开始挨个
-启动: `zkServer.sh start-foreground` 前台启动,前台阻塞，实时打印日志（`start`参数是后台启动）。其中，leader机器会在日志里打印这样一句话：`LEADING - LEADER ELECTION TOOK`
+启动: `zkServer.sh start-foreground` 前台启动,前台阻塞，实时打印日志（`start`参数是后台启动）。其中，leader机器会在日志里打印这样一句话：`LEADING - LEADER ELECTION TOOK`.leader下线会选出新的leader，也会打印
+这句话。集群第一次启动的时候比myid选出leader，再启动的时候看谁的数据完整，都差不多的话再比较myid数字.
+
+客户端登录：`zkCli.sh`默认登陆本机。`ls /`命令查看目录结构，更多命令可以输入help回车查看,create命令可以查看：
+```
+[zk: localhost:2181(CONNECTED) 2] create /abc
+Created /abc
+[zk: localhost:2181(CONNECTED) 3] ls /
+[abc, zookeeper]
+```
+前一个版本必须写`create /abc ""`才可以创建成功，创建失败也不会报错. 还可以创建多级目录：
+```
+[zk: localhost:2181(CONNECTED) 4] create /abc/xyz
+Created /abc/xyz
+[zk: localhost:2181(CONNECTED) 5] ls /
+[abc, zookeeper]
+[zk: localhost:2181(CONNECTED) 6] ls /abc
+[xyz]
+[zk: localhost:2181(CONNECTED) 7]
+```
+还可以用get命令：
+```
+[zk: localhost:2181(CONNECTED) 7] get /abc
+null
+[zk: localhost:2181(CONNECTED) 8] get /abc/xyz
+null
+[zk: localhost:2181(CONNECTED) 9] get /zookeeper
+
+[zk: localhost:2181(CONNECTED) 10]
+```
+set数据, 最多放1M，而且他也是二进制安全的（外界推送过来自己出租，项目重要约定好序列化和反序列化器）：
+```
+[zk: localhost:2181(CONNECTED) 10] set /abc "hello"
+[zk: localhost:2181(CONNECTED) 11] get /abc
+hello
+```
+```
+[zk: localhost:2181(CONNECTED) 15] get -s /abc
+hello
+cZxid = 0x50000000b
+ctime = Sun Feb 16 22:05:11 PST 2020
+mZxid = 0x50000000d
+mtime = Sun Feb 16 22:19:45 PST 2020
+pZxid = 0x50000000c
+cversion = 1
+dataVersion = 1
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 5
+numChildren = 1
+```
+cZxid: zk是顺序执行，体现在这个ID值上，所有的写操作，给到任何节点的时候都会被递交给leader，leader因为是单机，所以维护一个单调递增的计数器很容易。0000000b一共32位，低32位是事务的递增ID；前32位00000005（0省略）
+代表leader的纪元，表示leader几世，每换一个新的leader就会递增一个。field中，第一个字母c表示创建，m表示修改。pZxid：当前的节点下，创建的最后的节点的那个事务的ID号, 这里是cZxid = 0x50000000c:
+```
+[zk: localhost:2181(CONNECTED) 16] get -s /abc/xyz
+null
+cZxid = 0x50000000c
+ctime = Sun Feb 16 22:12:29 PST 2020
+mZxid = 0x50000000c
+mtime = Sun Feb 16 22:12:29 PST 2020
+pZxid = 0x50000000c
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 0
+
+```
+ephemeralOwner：临时的持有者，当前取值是0x0，`/abc/xyz`没有归属者，create的时候没带任何选项，他是持久节点。下面用create -e选项创建临时节点：
+```
+[zk: localhost:2181(CONNECTED) 2] create -e /aaa
+Created /aaa
+[zk: localhost:2181(CONNECTED) 3] set /aaa "afwerf"
+[zk: localhost:2181(CONNECTED) 4] get -s /aaa
+afwerf
+cZxid = 0x500000010
+ctime = Sun Feb 16 22:51:42 PST 2020
+mZxid = 0x500000011
+mtime = Sun Feb 16 22:51:51 PST 2020
+pZxid = 0x500000010
+cversion = 0
+dataVersion = 1
+aclVersion = 0
+ephemeralOwner = 0x100016627d10002
+dataLength = 6
+numChildren = 0
+```
+ephemeralOwner就不是0x0了.另起一个zkCli查看，当前session的zkCli退出之后就没有aaa了
+```
+[zk: localhost:2181(CONNECTED) 0] ls /aaa
+[]
+[zk: localhost:2181(CONNECTED) 1] ls /
+[aaa, abc, zookeeper]
+[zk: localhost:2181(CONNECTED) 2] ls /
+[abc, zookeeper]
+```
+如果连接的server挂掉了，session是高可用的，不光是数据，连session也会统一视图，不会消失。一台机器上的server ID其他所有机器也都知道，所以支持客户端的failover.
+```
+[zk: localhost:2181(CONNECTED) 4] create /ccc
+Created /ccc
+[zk: localhost:2181(CONNECTED) 5] get -s /ccc
+null
+cZxid = 0x500000019
+ctime = Sun Feb 16 23:28:43 PST 2020
+mZxid = 0x500000019
+mtime = Sun Feb 16 23:28:43 PST 2020
+pZxid = 0x500000019
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 6] create /ddd
+Created /ddd
+[zk: localhost:2181(CONNECTED) 7] get -s /ddd
+null
+cZxid = 0x50000001b
+ctime = Sun Feb 16 23:30:21 PST 2020
+mZxid = 0x50000001b
+mtime = Sun Feb 16 23:30:21 PST 2020
+pZxid = 0x50000001b
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 8]
+```
+中间有一个其他的客户端连接到了集群，所以ID号跳过了一个，这从侧面证明了session也是统一视图的，要走leader，把这个事写给所有人的内存。API连接集群的话，一旦挂了就去连别的机器，会亮出session ID，设置临时节点超时时间，比如
+3秒，内回来了的话，节点是不会消失的。客户端断开的时候，删除session有会走一个删除的事务.  
+
+多个客户端创建同名节点的时候覆盖的问题如何解决？用create -s参数：
+```
+[zk: localhost:2181(CONNECTED) 0] create -s /abc/xxx
+Created /abc/xxx0000000002
+```
+这样就可以规避覆盖的问题
