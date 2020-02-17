@@ -157,6 +157,12 @@ ephemeralOwner就不是0x0了.另起一个zkCli查看，当前session的zkCli退
 [zk: localhost:2181(CONNECTED) 2] ls /
 [abc, zookeeper]
 ```
+一个临时节点被创建了之后在他的client退出之前，再有其他的client创建同名的临时节点的话，就会报错：
+```
+[zk: localhost:2181(CONNECTED) 2] create -e /abc/fff
+Node already exists: /abc/fff
+```
+直到当前节点退出。
 如果连接的server挂掉了，session是高可用的，不光是数据，连session也会统一视图，不会消失。一台机器上的server ID其他所有机器也都知道，所以支持客户端的failover.
 ```
 [zk: localhost:2181(CONNECTED) 4] create /ccc
@@ -200,4 +206,16 @@ numChildren = 0
 Created /abc/xxx0000000002
 ```
 后面拼上了一个数字，这样就可以规避覆盖的问题。另一个角度讲这就是分布式命名或者分布式ID，因为每一个人拿到的是绝对不会重复的节点名称。客户端要自己记住拼上的数字。做了隔离可以统一命名。每个人都想创建自己的节点，又都怕覆盖了别人
-的节点，zookeeper于是就要求客户端记住拼上的数字，未来读写的时候带上这个数字就可以了
+的节点，zookeeper于是就要求客户端记住拼上的数字，未来读写的时候带上这个数字就可以了. 删掉节点，ID计数依然会递增，不会重复出现被删除的ID计数：
+```
+[zk: localhost:2181(CONNECTED) 3] rmr /abc/xxx0000000002
+The command 'rmr' has been deprecated. Please use 'deleteall' instead.
+[zk: localhost:2181(CONNECTED) 4] deleteall /abc/xxx0000000002
+Node does not exist: /abc/xxx0000000002
+[zk: localhost:2181(CONNECTED) 5] ls /abc
+[xxx0000000001, xyz]
+[zk: localhost:2181(CONNECTED) 6] create -s /abc/xxx
+Created /abc/xxx0000000003
+```
+以上功能可以完成：1.统一配置管理 --- 1M数据、统一视图。2.分组管理 --- path结构 3. 统一命名 --- sequential 4.分布式锁 --- 临时节点。可以创建一个父节点，下面有很多带序列的临时子节点，然后就会有好几把锁。如果后一个锁
+盯住前一个锁，只有前一把锁消失之后后一把锁才继续操作的话，这样就可以做队列式事务。这些高级一些的功能需要客户端代码去实现。zk还可以做HA选主节点
