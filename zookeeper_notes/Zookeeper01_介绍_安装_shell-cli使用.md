@@ -218,4 +218,43 @@ Node does not exist: /abc/xxx0000000002
 Created /abc/xxx0000000003
 ```
 以上功能可以完成：1.统一配置管理 --- 1M数据、统一视图。2.分组管理 --- path结构 3. 统一命名 --- sequential 4.分布式锁 --- 临时节点。可以创建一个父节点，下面有很多带序列的临时子节点，然后就会有好几把锁。如果后一个锁
-盯住前一个锁，只有前一把锁消失之后后一把锁才继续操作的话，这样就可以做队列式事务。这些高级一些的功能需要客户端代码去实现。zk还可以做HA选主节点
+盯住前一个锁，只有前一把锁消失之后后一把锁才继续操作的话，这样就可以做队列式事务。这些高级一些的功能需要客户端代码去实现。zk还可以做HA选主节点  
+
+注意：千万不要用Zookeeper去做DB，读的多写的少的应用场景，用来做被动感知.  
+
+根据配置文件列表后面的节点追前面节点的3888选主端口，不需要两两的3888都相连，两两之间有一个socket就可以双向通信了
+```
+[root@node01 ~]# netstat -natp | egrep '(2888|3888)'
+tcp        0      0 :::3888                     :::*                        LISTEN      5148/java           
+tcp        0      0 ::ffff:192.168.1.131:3888   ::ffff:192.168.1.132:53021  ESTABLISHED 5148/java           
+tcp        0      0 ::ffff:192.168.1.131:3888   ::ffff:192.168.1.134:43787  ESTABLISHED 5148/java           
+tcp        0      0 ::ffff:192.168.1.131:37157  ::ffff:192.168.1.133:2888   ESTABLISHED 5148/java           
+tcp        0      0 ::ffff:192.168.1.131:3888   ::ffff:192.168.1.133:48944  ESTABLISHED 5148/java
+``` 
+```
+[root@node02 ~]# netstat -natp | egrep '(2888|3888)'
+tcp        0      0 :::3888                     :::*                        LISTEN      6168/java           
+tcp        0      0 ::ffff:192.168.1.132:53021  ::ffff:192.168.1.131:3888   ESTABLISHED 6168/java           
+tcp        0      0 ::ffff:192.168.1.132:33158  ::ffff:192.168.1.133:2888   ESTABLISHED 6168/java           
+tcp        0      0 ::ffff:192.168.1.132:3888   ::ffff:192.168.1.134:46626  ESTABLISHED 6168/java           
+tcp        0      0 ::ffff:192.168.1.132:3888   ::ffff:192.168.1.133:54255  ESTABLISHED 6168/java
+```
+```
+[root@node03 ~]# netstat -natp | egrep '(2888|3888)'
+tcp        0      0 :::2888                     :::*                        LISTEN      4101/java           
+tcp        0      0 :::3888                     :::*                        LISTEN      4101/java           
+tcp        0      0 ::ffff:192.168.1.133:2888   ::ffff:192.168.1.131:37157  ESTABLISHED 4101/java           
+tcp        0      0 ::ffff:192.168.1.133:54255  ::ffff:192.168.1.132:3888   ESTABLISHED 4101/java           
+tcp        0      0 ::ffff:192.168.1.133:2888   ::ffff:192.168.1.134:60456  ESTABLISHED 4101/java           
+tcp        0      0 ::ffff:192.168.1.133:2888   ::ffff:192.168.1.132:33158  ESTABLISHED 4101/java           
+tcp        0      0 ::ffff:192.168.1.133:3888   ::ffff:192.168.1.134:47541  ESTABLISHED 4101/java           
+tcp        0      0 ::ffff:192.168.1.133:48944  ::ffff:192.168.1.131:3888   ESTABLISHED 4101/java
+```
+```
+[root@node04 ~]# netstat -natp | egrep '(2888|3888)'
+tcp        0      0 :::3888                     :::*                        LISTEN      4287/java           
+tcp        0      0 ::ffff:192.168.1.134:43787  ::ffff:192.168.1.131:3888   ESTABLISHED 4287/java           
+tcp        0      0 ::ffff:192.168.1.134:46626  ::ffff:192.168.1.132:3888   ESTABLISHED 4287/java           
+tcp        0      0 ::ffff:192.168.1.134:47541  ::ffff:192.168.1.133:3888   ESTABLISHED 4287/java           
+tcp        0      0 ::ffff:192.168.1.134:60456  ::ffff:192.168.1.133:2888   ESTABLISHED 4287/java
+```
