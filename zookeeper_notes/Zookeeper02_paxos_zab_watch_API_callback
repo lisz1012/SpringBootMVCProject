@@ -1,0 +1,16 @@
+## 提要
+
+1. paxos
+2. ZAb
+3. watch
+4. API： 不怕写zk client
+5. callback -> reactive响应式编程，更充分地压榨OS，HW资源、性能  
+
+Zookeeper走分布式协调：  
+
+扩展性：框架架构就是包括了各个不同的角色，他们之间通信联系，且它们自己是有自己的职能的。通过上次的讲解，已知的角色有leader、follower。除了他们意外，还有个角色叫observer。从扩展性的角度来讲，还有个特点是读写分离，其中所有的
+	   增删改查都可以给leader，查询可以压在follower或者observer身上。为什么还要有个Observer呢？是因为zk要求快，一个层面上是它活着的时候响应快，另一个层面是从失败到恢复可用也很快。zk从没有leader到有leader，一定是经过
+	   了一个投票选举的过程选出来了一个leader。只有follower才能选举，observer其实是比follower更low的一个级别。leader挂了的话，各个follower进行投票，observer一边等着，一旦选出来了新的leader，observer只是追随
+	   leader，同步数据、接受用户的查询用户发写请求的时候转给leader。投票选举的效率由follower的数量决定。observer放大查询能力，30台机器有个21台observer。zk更倾向于被主要用来查询，而不是更改
+可靠性、顺序性（时序性）
+快速！
