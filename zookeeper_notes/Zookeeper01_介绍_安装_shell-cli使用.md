@@ -258,3 +258,4 @@ tcp        0      0 ::ffff:192.168.1.134:46626  ::ffff:192.168.1.132:3888   ESTA
 tcp        0      0 ::ffff:192.168.1.134:47541  ::ffff:192.168.1.133:3888   ESTABLISHED 4287/java           
 tcp        0      0 ::ffff:192.168.1.134:60456  ::ffff:192.168.1.133:2888   ESTABLISHED 4287/java
 ```
+3888选主端口：node02、node03、node04都连接到node01；node03、node04都连接到node02；node04连接到node03，共6个连接。2888数据同步端口：node01、node02、node04都连接到leader node03节点
