@@ -50,3 +50,6 @@ Watch： 手表、观察、监控。zk可以做到统一视图，目录树的结
 顺序性（时序性）
 快速！
 
+## API
+
+杂记：spring的redis、spark、flink、dubbo底层都牵扯到netty
