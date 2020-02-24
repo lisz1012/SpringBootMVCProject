@@ -51,5 +51,46 @@ Watch： 手表、观察、监控。zk可以做到统一视图，目录树的结
 快速！
 
 ## API
+上来先连上192.168.1.131，然后做操作，client一直保持不断开，然后把192.168.1.131这台机器强制退出zk（挂机），然后发现client转而连接了192.168.1.134，然后sessionid = 0x10009ca42810004保持不变：
+```
+2020-02-23 23:54:16,319 [myid:] - INFO  [main:ZooKeeper@868] - Initiating client connection, connectString=192.168.1.131:2181,192.168.1.132:2181,192.168.1.133:2181,192.168.1.134:2181 sessionTimeout=10000 watcher=com.lisz.zookeeper.App$1@35851384
+2020-02-23 23:54:16,323 [myid:] - INFO  [main:X509Util@79] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2020-02-23 23:54:16,332 [myid:] - INFO  [main:ClientCnxnSocket@237] - jute.maxbuffer value is 4194304 Bytes
+2020-02-23 23:54:16,338 [myid:] - INFO  [main:ClientCnxn@1653] - zookeeper.request.timeout value is 0. feature enabled=
+2020-02-23 23:54:16,351 [myid:192.168.1.131:2181] - INFO  [main-SendThread(192.168.1.131:2181):ClientCnxn$SendThread@1112] - Opening socket connection to server 192.168.1.131/192.168.1.131:2181. Will not attempt to authenticate using SASL (unknown error)
+2020-02-23 23:54:16,379 [myid:192.168.1.131:2181] - INFO  [main-SendThread(192.168.1.131:2181):ClientCnxn$SendThread@959] - Socket connection established, initiating session, client: /192.168.1.102:61467, server: 192.168.1.131/192.168.1.131:2181
+2020-02-23 23:54:16,939 [myid:192.168.1.131:2181] - INFO  [main-SendThread(192.168.1.131:2181):ClientCnxn$SendThread@1394] - Session establishment complete on server 192.168.1.131/192.168.1.131:2181, sessionid = 0x10009ca42810004, negotiated timeout = 10000
+New ZK watcher: WatchedEvent state:SyncConnected type:None path:null
+Connected...
+Connected.
+olddata
+getData watcher: WatchedEvent state:SyncConnected type:NodeDataChanged path:/ooxx
+getData watcher: WatchedEvent state:SyncConnected type:NodeDataChanged path:/ooxx
+2020-02-23 23:54:44,273 [myid:192.168.1.131:2181] - INFO  [main-SendThread(192.168.1.131:2181):ClientCnxn$SendThread@1240] - Unable to read additional data from server sessionid 0x10009ca42810004, likely server has closed socket, closing socket connection and attempting reconnect
+New ZK watcher: WatchedEvent state:Disconnected type:None path:null
+getData watcher: WatchedEvent state:Disconnected type:None path:null
+2020-02-23 23:54:44,871 [myid:192.168.1.134:2181] - INFO  [main-SendThread(192.168.1.134:2181):ClientCnxn$SendThread@1112] - Opening socket connection to server 192.168.1.134/192.168.1.134:2181. Will not attempt to authenticate using SASL (unknown error)
+2020-02-23 23:54:44,888 [myid:192.168.1.134:2181] - INFO  [main-SendThread(192.168.1.134:2181):ClientCnxn$SendThread@959] - Socket connection established, initiating session, client: /192.168.1.102:61471, server: 192.168.1.134/192.168.1.134:2181
+2020-02-23 23:54:44,900 [myid:192.168.1.134:2181] - INFO  [main-SendThread(192.168.1.134:2181):ClientCnxn$SendThread@1394] - Session establishment complete on server 192.168.1.134/192.168.1.134:2181, sessionid = 0x10009ca42810004, negotiated timeout = 10000
+New ZK watcher: WatchedEvent state:SyncConnected type:None path:null
+Connected...
+getData watcher: WatchedEvent state:SyncConnected type:None path:null
+```
+且在zkCli.sh命令行里的ephemeralOwnery = 0x10009ca42810004也保持不变：
+```
+[zk: localhost:2181(CONNECTED) 6] get -s /ooxx
+newdata_2
+cZxid = 0xa00000060
+ctime = Sun Feb 23 23:55:04 PST 2020
+mZxid = 0xa00000062
+mtime = Sun Feb 23 23:55:04 PST 2020
+pZxid = 0xa00000060
+cversion = 0
+dataVersion = 2
+aclVersion = 0
+ephemeralOwner = 0x10009ca42810004
+dataLength = 9
+numChildren = 0
+```
 
 杂记：spring的redis、spark、flink、dubbo底层都牵扯到netty
