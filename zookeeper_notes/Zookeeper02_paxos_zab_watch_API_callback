@@ -93,4 +93,6 @@ dataLength = 9
 numChildren = 0
 ```
 
+回调方法的好处是：你是方法内容的缔造者，而不是逻辑执行顺序的缔造者，后者由框架决定，减少阻塞和空转
+
 杂记：spring的redis、spark、flink、dubbo底层都牵扯到netty
