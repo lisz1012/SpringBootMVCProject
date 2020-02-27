@@ -95,5 +95,5 @@ numChildren = 0
 
 回调方法的好处是：你是方法内容的缔造者，而不是逻辑执行顺序的缔造者，后者由框架决定，减少阻塞和空转。
 
-杂记：spring的redis、spark、flink、dubbo底层都牵扯到netty. zk bug（其实是feature）:myid如果不是最大的挂掉之后再启动会加不回来：Have smaller server identifier, so dropping the connection: (3, 2) 
+杂记：spring的redis、spark、flink、dubbo底层都牵扯到netty. zk bug（其实是feature ^_^）:myid如果不是最大的挂掉之后再启动会加不回来：Have smaller server identifier, so dropping the connection: (3, 2) 
 https://github.com/apache/zookeeper/blob/master/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumCnxManager.java#L461 后启动的连接先启动的
