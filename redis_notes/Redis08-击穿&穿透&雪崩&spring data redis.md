@@ -202,6 +202,11 @@ Map<Object, Object> map = stringRedisTemplate.opsForHash().entries("sean01");
 System.out.println(map);
 Person person = objectMapper.convertValue(map, Person.class);
 ```
+报错：ClassCastException的时候检查 template的类型 StringRedisTemplate/RedisTemplate 是否选择正确，选择RedisTemplate不会报错，但是查看redis-cli会有序列化的问题：
+```
+"\xac\xed\x00\x05t\x00\x04john"
+```
+这里要用StringRedisTemplate的低阶API并对他自身做调整
 
 注：tb双十一会有预加载，例子是提前几天更新手机客户端，这样会把缓存数据提前加载到客户端，打散流量，把访问量前置了，前一周或者一个月让大量的人分散的把双十一时的缓存下载好。这样到了双十一晚上12点的时候不会有
    太大的流量去整体做更新。这个时候你必须已经准备好了未来那个时点的数据，才可以使用预加载这个方案
