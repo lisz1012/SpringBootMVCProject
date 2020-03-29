@@ -13,3 +13,17 @@ MMF，Memory Mapped File。磁盘空间映射到内核级别的内存空间 —�
 以阻塞的方式写到磁盘，但会损失性能。
              
 数据被消费者读出的时候，直接通过内核空间将数据传输出去，并不抵达用户空间，0拷贝。DMA加进来会大大减少磁盘读写时CPU的中断次数
+
+## 单机安装
+
+1. 首先安装JDK：
+    i    先下载`jdk-13.0.1_linux-x64_bin.rpm`
+    ii   如果有原来的JDK则可以卸载：rpm -e `rpm -qa | grep jdk`
+    iii  `rpm -ivh ./jdk-13.0.1_linux-x64_bin.rpm`
+    iv   `vim ~/.bashrc` 配置环境变量，在文件的最后加入：
+          ```
+          export JAVA_HOME
+          export PATH
+          export CLASSPATH
+          ```
+          保存退出之后执行`source ~/.bashrc`
