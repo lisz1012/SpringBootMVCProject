@@ -27,3 +27,5 @@ MMF，Memory Mapped File。磁盘空间映射到内核级别的内存空间 —�
           export CLASSPATH
           ```
           保存退出之后执行`source ~/.bashrc`
+2. 安装Zookeeper，`tar xf ...` 在`/usr/local/zk/conf`下复制zoo_sample.cfg到zoo.cfg,并修改中的条目：
+`dataDir=/root/zkdata`, 然后`mkdir /root/zkdata`创建该目录
