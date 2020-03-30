@@ -42,4 +42,7 @@ standalone出现的话就算成功了
 
 4. 在`/user/local`目录下解压`kafka_2.13-2.4.1.tar`: `tar xf kafka_2.13-2.4.1.tar`  
 5. 配置`/usr/local/kafka/config/server.properties`:
-    
+    i    打开注释并配置`listeners=PLAINTEXT://Kafka_1:9092`注意：这里要写主机名，不要写IP  
+    ii   配置`log.dir`，这里是当前broker节点存储: `log.dirs=/usr/local/kafka/logs`  
+    iii  配置zookeeper服务的地址：`zookeeper.connect=Kafka_1:2181`这里Kafka_1是因为我们把Zookeeper安装到了
+         Kafka_1上
