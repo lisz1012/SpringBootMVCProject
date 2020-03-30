@@ -40,4 +40,6 @@ Mode: standalone
 ```
 standalone出现的话就算成功了  
 
-4. 在`/user/local`目录下解压`kafka_2.13-2.4.1.tar`: `tar xf kafka_2.13-2.4.1.tar`
+4. 在`/user/local`目录下解压`kafka_2.13-2.4.1.tar`: `tar xf kafka_2.13-2.4.1.tar`  
+5. 配置`/usr/local/kafka/config/server.properties`:
+    
