@@ -17,9 +17,9 @@ MMF，Memory Mapped File。磁盘空间映射到内核级别的内存空间 —�
 ## 单机安装
 
 1. 首先安装JDK：
-    i    先下载`jdk-13.0.1_linux-x64_bin.rpm`
-    ii   如果有原来的JDK则可以卸载：rpm -e `rpm -qa | grep jdk`
-    iii  `rpm -ivh ./jdk-13.0.1_linux-x64_bin.rpm`
+    i    先下载`jdk-13.0.1_linux-x64_bin.rpm`  
+    ii   如果有原来的JDK则可以卸载：rpm -e `rpm -qa | grep jdk`  
+    iii  `rpm -ivh ./jdk-13.0.1_linux-x64_bin.rpm`  
     iv   `vim ~/.bashrc` 配置环境变量，在文件的最后加入：
           ```
           export JAVA_HOME
