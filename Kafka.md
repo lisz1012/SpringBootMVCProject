@@ -26,9 +26,11 @@ MMF，Memory Mapped File。磁盘空间映射到内核级别的内存空间 —�
           export PATH
           export CLASSPATH
           ```
-          保存退出之后执行`source ~/.bashrc`
+          保存退出之后执行`source ~/.bashrc`  
+          
 2. 安装Zookeeper，`tar xf ...` 在`/usr/local/zk/conf`下复制zoo_sample.cfg到zoo.cfg,并修改中的条目：
-`dataDir=/root/zkdata`, 然后`mkdir /root/zkdata`创建该目录
+`dataDir=/root/zkdata`, 然后`mkdir /root/zkdata`创建该目录  
+
 3. 启动zk：`/usr/local/zk/bin/zkServer.sh start zoo.cfg`, 可以jps验证是否出现QuorumPeerMain进程.进一步验证：
 ```
 [root@Kafka_1 bin]# ./zkServer.sh status
@@ -36,4 +38,6 @@ JMX enabled by default
 Using config: /usr/local/zk/bin/../conf/zoo.cfg
 Mode: standalone
 ```
-standalone出现的话就算成功了
+standalone出现的话就算成功了  
+
+4. 在`/user/local`目录下解压`kafka_2.13-2.4.1.tar`: `tar xf kafka_2.13-2.4.1.tar`
