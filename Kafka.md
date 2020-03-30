@@ -63,4 +63,5 @@ topic和consumer group，同一个consumer group下的consumer消费消息的时
 
 ## 观察到的现象
 consumer被指定了不同的partitions，不同的partitions之间有个负载均衡，大概均分消息。一旦consumer数多于partition数，就会有
-consumer现在备用，一旦有consumer退出或挂机，就立刻顶上来
+consumer现在备用，一旦有consumer退出或挂机，就立刻顶上来开始消费消息。不同的consumer group共享消息，各个组件之间处理和分享
+消息的逻辑在consumer groups之间都是保持相同的
