@@ -41,9 +41,26 @@ Mode: standalone
 standalone出现的话就算成功了  
 
 4. 在`/user/local`目录下解压`kafka_2.13-2.4.1.tar`: `tar xf kafka_2.13-2.4.1.tar`  
-5. 配置`/usr/local/kafka/config/server.properties`:
+5. 配置`/usr/local/kafka/config/server.properties`:  
     i    打开注释并配置`listeners=PLAINTEXT://Kafka_1:9092`注意：这里要写主机名，不要写IP  
     ii   配置`log.dir`，这里是当前broker节点存储: `log.dirs=/usr/local/kafka/logs`(可以自己创建，没有会自动创建)  
     iii  配置zookeeper服务的地址：`zookeeper.connect=Kafka_1:2181`这里Kafka_1是因为我们把Zookeeper安装到了
          Kafka_1上
 6. 启动Kafka：`/usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties`
+7. 关闭Kafka：`/usr/local/kafka/bin/kafka-server-stop.sh`
+
+## 在Kafka里面创建Topic
+`kafka-topics.sh --bootstrap-server Kafka_1:9092 --create --topic topic01 --partitions 3 --replication-factor 1`
+`--replication-factor`的个数不能大于broker的个数，大于的话就会有broker存储两个或以上的副本，没有意义了，Kafka为此也会报错。
+
+## 首先开启Consumer等着消费
+`kafka-console-consumer.sh --bootstrap-server Kafka_1:9092 --topic topic01 --group group1` 这里指定了Kafka主机、
+topic和consumer group，同一个consumer group下的consumer消费消息的时候，一个消息只能被消费一次；不同的consumer group可以
+消费同一个消息
+
+## 然后开启Producer发出消息
+`kafka-console-producer.sh --broker-list Kafka_1:9092 --topic topic01` 
+
+## 观察到的现象
+consumer被指定了不同的partitions，不同的partitions之间有个负载均衡，大概均分消息。一旦consumer数多于partition数，就会有
+consumer现在备用，一旦有consumer退出或挂机，就立刻顶上来
