@@ -65,3 +65,22 @@ topic和consumer group，同一个consumer group下的consumer消费消息的时
 consumer被指定了不同的partitions，不同的partitions之间有个负载均衡，大概均分消息。一旦consumer数多于partition数，就会有
 consumer现在备用，一旦有consumer退出或挂机，就立刻顶上来开始消费消息。不同的consumer group共享消息，各个组件之间处理和分享
 消息的逻辑在consumer groups之间都是保持相同的
+
+## 集群安装
+
+1. 每一台机器上其他配置基本都一样，但是有以下要修改的地方：  
+zk/conf/zoo.cfg里面，最下面加上zk集群的各台机器的信息以及他们的zk数据传输端口2888和主从选举端口3888：
+```
+server.1=192.168.1.11:2888:3888
+server.2=192.168.1.12:2888:3888
+server.3=192.168.1.13:2888:3888
+```
+并分发给所有的机器，并保证各个`dataDir=/root/zkdata`（或者其他目录）都已经创建，并且在这个目录下面有个叫做myid的文件，里面分别
+写了1、2、3作为他们的ID. 注意：这里必须用IP而不能用hostname，否则只能有两个节点，有一个节点会加不进来，报错：
+`Have smaller server identifie`与启动顺序无关，但尽量按照ID的从小到大顺序：
+https://grokbase.com/t/zookeeper/user/142tpev8rx/new-zookeeper-server-fails-to-join-quorum-with-msg-have-smaller-server-identifie
+
+2. 启动各个zk节点  
+3. 在各台机器上修改/usr/local/kafka/config/server.properties，写出所有机器及其及端口：`zookeeper.connect=Kafka_1:2181,Kafka_2:2181,Kafka_3:2181`  
+4. 仍然修改此文件，把broker.id改为各自的编号, 把listeners后面的主机名改为各自的：`listeners=PLAINTEXT://Kafka_2:9092`
+
