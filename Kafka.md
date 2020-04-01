@@ -82,5 +82,5 @@ https://grokbase.com/t/zookeeper/user/142tpev8rx/new-zookeeper-server-fails-to-j
 
 2. 启动各个zk节点  
 3. 在各台机器上修改/usr/local/kafka/config/server.properties，写出所有机器及其及端口：`zookeeper.connect=Kafka_1:2181,Kafka_2:2181,Kafka_3:2181`  
-4. 仍然修改此文件，把broker.id改为各自的编号, 把listeners后面的主机名改为各自的：`listeners=PLAINTEXT://Kafka_2:9092`
+4. 仍然修改此文件，把broker.id改为各自的编号, 把listeners后面的主机名改为各自的：`listeners=PLAINTEXT://Kafka_2:9092` `listeners=PLAINTEXT://Kafka_3:9092`
 
