@@ -83,4 +83,13 @@ https://grokbase.com/t/zookeeper/user/142tpev8rx/new-zookeeper-server-fails-to-j
 2. 启动各个zk节点  
 3. 在各台机器上修改/usr/local/kafka/config/server.properties，写出所有机器及其及端口：`zookeeper.connect=Kafka_1:2181,Kafka_2:2181,Kafka_3:2181`  
 4. 仍然修改此文件，把broker.id改为各自的编号, 把listeners后面的主机名改为各自的：`listeners=PLAINTEXT://Kafka_2:9092` `listeners=PLAINTEXT://Kafka_3:9092`
-
+5. 启动集群的各台机器：`/usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties` 去掉-daemon可以显示启动中的错误，如果出现
+```
+[2020-04-01 20:42:00,513] ERROR Fatal error during KafkaServer startup. Prepare to shutdown (kafka.server.KafkaServer)
+kafka.common.InconsistentClusterIdException: The Cluster ID _DlNDaLWSxu0AGL_zquB_Q doesn't match stored clusterId Some(DKaQvMZ9TTKb_ar8kvIhwQ) in 
+meta.properties. The broker is trying to join the wrong cluster. Configured zookeeper.connect may be wrong.
+```
+则删除Kafka log目录（如`/usr/local/kafka/logs`）下的meta.properties, 因为重启的话这里面的内容对不上了，重启之前删除，然后Kafka启动的时候就能自己再生成一致的了。
+6. 在Kafka集群中创建topic：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --create --topic topic01 --partitions 3 
+    --replication-factor 2`
+7. 查看已经创建了多少消息队列：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --list`
