@@ -100,9 +100,9 @@ meta.properties. The broker is trying to join the wrong cluster. Configured zook
     --replication-factor 2`  
 7. 查看已经创建了多少消息队列：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --list`  
 8. 查看所有topic的详细信息：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --describe --topic topic01`输出：
-    ```
-  Topic: topic01	PartitionCount: 3	ReplicationFactor: 2	Configs: segment.bytes=1073741824
-   	      Topic: topic01	Partition: 0	Leader: 0	Replicas: 0,1	Isr: 0,1
-   	      Topic: topic01	Partition: 1	Leader: 2	Replicas: 2,0	Isr: 2
-   	      Topic: topic01	Partition: 2	Leader: 1	Replicas: 1,2	Isr: 1,2
    ```
+   Topic: topic01	PartitionCount: 3	ReplicationFactor: 2	Configs: segment.bytes=1073741824
+      	      Topic: topic01	Partition: 0	Leader: 0	Replicas: 0,1	Isr: 0,1
+      	      Topic: topic01	Partition: 1	Leader: 2	Replicas: 2,0	Isr: 2
+      	      Topic: topic01	Partition: 2	Leader: 1	Replicas: 1,2	Isr: 1,2
+``` 
