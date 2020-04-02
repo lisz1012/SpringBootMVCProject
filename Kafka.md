@@ -45,9 +45,9 @@ standalone出现的话就算成功了
     i    打开注释并配置`listeners=PLAINTEXT://Kafka_1:9092`注意：这里要写主机名，不要写IP  
     ii   配置`log.dir`，这里是当前broker节点存储: `log.dirs=/usr/local/kafka/logs`(可以自己创建，没有会自动创建)  
     iii  配置zookeeper服务的地址：`zookeeper.connect=Kafka_1:2181`这里Kafka_1是因为我们把Zookeeper安装到了
-         Kafka_1上
-6. 启动Kafka：`/usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties`
-7. 关闭Kafka：`/usr/local/kafka/bin/kafka-server-stop.sh`
+         Kafka_1上  
+6. 启动Kafka：`/usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties`  
+7. 关闭Kafka：`/usr/local/kafka/bin/kafka-server-stop.sh`  
 8. 可选。配置环境变量使得执行命令更简单：打开`/etc/profile`, 在末尾加上
     ```
     export KAFKA_HOME=/usr/local/kafka
@@ -97,8 +97,8 @@ meta.properties. The broker is trying to join the wrong cluster. Configured zook
 ```
 则删除Kafka log目录（如`/usr/local/kafka/logs`）下的meta.properties, 因为重启的话这里面的内容对不上了，重启之前删除，然后Kafka启动的时候就能自己再生成一致的了。
 6. 在Kafka集群中创建topic：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --create --topic topic01 --partitions 3 
-    --replication-factor 2`
-7. 查看已经创建了多少消息队列：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --list`
+    --replication-factor 2`  
+7. 查看已经创建了多少消息队列：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --list`  
 8. 查看所有topic的详细信息：`./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --describe --topic topic01`输出：
     ```
   Topic: topic01	PartitionCount: 3	ReplicationFactor: 2	Configs: segment.bytes=1073741824
