@@ -114,3 +114,21 @@ Topic: topic01	PartitionCount: 3	ReplicationFactor: 2	Configs: segment.bytes=107
 	Topic: topic01	Partition: 1	Leader: 2	Replicas: 2,0	Isr: 2
 	Topic: topic01	Partition: 2	Leader: 2	Replicas: 1,2	Isr: 2,1
 ```
+也可以创建另一个topic，2各分区3个副本（这是可以的，副本数并不大于broker数）：
+```
+[root@Kafka_2 kafka]# ./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --describe --topic topic02
+Topic: topic02	PartitionCount: 2	ReplicationFactor: 3	Configs: segment.bytes=1073741824
+	    Topic: topic02	Partition: 0	Leader: 2	Replicas: 2,0,1	Isr: 2,1
+	    Topic: topic02	Partition: 1	Leader: 1	Replicas: 1,2,0	Isr: 2,1
+```
+
+## 修改分区
+
+Kafka的分区数只能增加不能减少:
+ ```
+[root@Kafka_2 kafka]# ./bin/kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --alter --topic topic02 --partitions 1
+Error while executing topic command : org.apache.kafka.common.errors.InvalidPartitionsException: Topic currently has 2 partitions, which is 
+higher than the requested 1.
+[2020-04-01 22:40:59,956] ERROR java.util.concurrent.ExecutionException: org.apache.kafka.common.errors.InvalidPartitionsException: Topic currently has 2 partitions, which is higher than the requested 1.
+```
+
