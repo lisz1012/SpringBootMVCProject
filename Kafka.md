@@ -127,7 +127,8 @@ Kafka_1总是连不上，报错：
 WARN [AdminClient clientId=adminclient-1] Connection to node -1 (Kafka_1/127.0.0.1:9092) could not be established. Broker may not be available. (org.apache.kafka.clients.NetworkClient)
 ```
 仔细读错误，注意到`Kafka_1/127.0.0.1:9092`, 最后发现是`etc/hosts`配置不对，把127.0.0.1配置成了Kafka_1而不是localhost，改成后者就好了
-## 修改分区
+
+## 修改Topic分区数
 
 Kafka的分区数只能增加不能减少:
  ```
@@ -136,4 +137,24 @@ Error while executing topic command : org.apache.kafka.common.errors.InvalidPart
 higher than the requested 1.
 [2020-04-01 22:40:59,956] ERROR java.util.concurrent.ExecutionException: org.apache.kafka.common.errors.InvalidPartitionsException: Topic currently has 2 partitions, which is higher than the requested 1.
 ```
+--partitions后面的数字改成3就可以了
 
+## 删除Topic
+`kafka-topics.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --delete --topic topic01`
+
+## 集群中订阅消费消息
+`kafka-console-consumer.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --topic topic01 --group g1 --property print.key=true --property print.value=true --property key.separator=,`
+默认不打印key只打印值，现在指定都打印，而且这里还指定了key和value之间的分隔符  
+produce消息：  
+`kafka-console-producer.sh --broker-list Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --topic topic01` 则消费者那一端会显示：  
+`null,我是hello` key为空。显示组的信息： `kafka-consumer-groups.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --list`返回所有Consumer Groups的
+列表，这里只有g1. 还可以查看g1组的详细信息：
+```
+[root@Kafka_1 kafka]# kafka-consumer-groups.sh --bootstrap-server Kafka_1:9092,Kafka_2:9092,Kafka_3:9092 --describe --group g1
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                        HOST            CLIENT-ID
+g1              topic01         0          1               1               0               consumer-g1-1-2577bd7d-23ad-4383-8ffd-c9ff5e7ffccd /192.168.1.11   consumer-g1-1
+g1              topic01         1          0               0               0               consumer-g1-1-2577bd7d-23ad-4383-8ffd-c9ff5e7ffccd /192.168.1.11   consumer-g1-1
+g1              topic01         2          1               1               0               consumer-g1-1-4b02fb0c-b3d0-41b0-86aa-897678c84114 /192.168.1.12   consumer-g1-1
+```
+其中LAG是生产与消费的差值=0
