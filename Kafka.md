@@ -81,7 +81,7 @@ server.1=192.168.1.11:2888:3888
 server.2=192.168.1.12:2888:3888
 server.3=192.168.1.13:2888:3888
 ```
-并分发给所有的机器，并保证各个`dataDir=/root/zkdata`（或者其他目录）都已经创建，并且在这个目录下面有个叫做myid的文件，里面分别
+并分发给所有的机器，并保证各个机器上的数据目录`dataDir=/root/zkdata`（或者其他路径）都已经创建，并且在这个目录下面有个叫做myid的文件，里面分别
 写了1、2、3作为他们的ID. 注意：这里必须用IP而不能用hostname，否则只能有两个节点，有一个节点会加不进来，报错：
 `Have smaller server identifie`与启动顺序无关，但尽量按照ID的从小到大顺序：
 https://grokbase.com/t/zookeeper/user/142tpev8rx/new-zookeeper-server-fails-to-join-quorum-with-msg-have-smaller-server-identifie
