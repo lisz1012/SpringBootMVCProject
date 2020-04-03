@@ -157,4 +157,4 @@ g1              topic01         0          1               1               0    
 g1              topic01         1          0               0               0               consumer-g1-1-2577bd7d-23ad-4383-8ffd-c9ff5e7ffccd /192.168.1.11   consumer-g1-1
 g1              topic01         2          1               1               0               consumer-g1-1-4b02fb0c-b3d0-41b0-86aa-897678c84114 /192.168.1.12   consumer-g1-1
 ```
-其中LAG是生产与消费的差值=0
+其中LAG是生产与消费的差值=0，没有消息积压的情况
