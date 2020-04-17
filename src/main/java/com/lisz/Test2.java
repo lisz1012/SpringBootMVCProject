@@ -5,38 +5,44 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Test {
+public class Test2 {
     private static final int TIMES = 10000000;
 
     public static void main(String[] args) {
-        Map<Integer, Integer> map1 = Collections.synchronizedMap(new HashMap<>());
-        Map<Integer, Integer> map2 = new ConcurrentHashMap<>();
-        Map<Integer, Integer> map3 = new HashMap<>();
-        Map<Integer, Integer> map4 = new HashMap<>();
+        Map<Object, Object> map1 = Collections.synchronizedMap(new HashMap<>());
+        Map<Object, Object> map2 = new ConcurrentHashMap<>();
+        Map<Object, Object> map3 = new HashMap<>();
+        Map<Object, Object> map4 = new HashMap<>();
+
+        Object objects[] = new Object[TIMES * 2];
+
+        for (int i = 0; i < objects.length; i++) {
+            objects[i] = new Object();
+        }
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < TIMES; i++) {
-            map1.put(i, i);
+            map1.put(objects[i], objects[i + TIMES]);
         }
         System.out.println("Synchronized Map: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         for (int i = 0; i < TIMES; i++) {
-            map2.put(i, i);
+            map2.put(objects[i], objects[i + TIMES]);
         }
         System.out.println("ConcurrentHashMap: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         for (int i = 0; i < TIMES; i++) {
-            synchronized (Test.class) {
-                map3.put(i, i);
+            synchronized (Test2.class) {
+                map3.put(objects[i], objects[i + TIMES]);
             }
         }
         System.out.println("synchronized block: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         for (int i = 0; i < TIMES; i++) {
-            map4.put(i, i);
+            map4.put(objects[i], objects[i + TIMES]);
         }
         System.out.println("HashMap: " + (System.currentTimeMillis() - start));
     }
