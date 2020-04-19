@@ -37,6 +37,7 @@ read-your-writes、如何保证单调读（monotonic reads）以及处理消息�
 链接：  
 https://www.zhihu.com/question/327925275/answer/731053968  
 https://www.zhihu.com/question/327925275/answer/705690755
+为什么Kafka不支持读写分离：https://blog.csdn.net/zl1zl2zl3/article/details/87982038
 
 ## 单机安装
 
