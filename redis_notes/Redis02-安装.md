@@ -27,6 +27,7 @@ tar -xf redis-5.0.5.tar.gz
 Linux下的程序基本都是C语言开发的。源码安装的套路就是上来先看解压后文件夹里的README.md文件
 
 ```
+cd /usr/local/redis/src
 make
 make install PREDIX=/opt/redis
 ```
@@ -42,14 +43,14 @@ Makefile这个文件的。Makefile是程序的厂商提供的，里面有编译�
 
 ```
 vim /etc/profile
-export REDIS_HOME:/opt/redis
-export PATH:.$PATH:REDIS_HOME/bin
+export REDIS_HOME=/opt/redis
+export PATH=$PATH:$REDIS_HOME/bin
 ```
 
 ##### 2.5.安装服务
 
 ```
-cd utils
+cd /usr/local/redis/utils/
 ./install_server.sh 按脚本填写配置，自动生成脚本文件在/etc/redis/6379
 ```
 
