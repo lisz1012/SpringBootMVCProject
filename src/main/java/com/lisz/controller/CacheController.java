@@ -26,7 +26,7 @@ public class CacheController {
     @RequestMapping("/")
     public ResponseEntity<String> last(@RequestHeader(value="IF-Modified-Since",required = false) Date ifModifiedSince) {
 
-        // 想象成是一个ConcurrentHashMap，是线程安全的，而且自带超时功能
+        // 想象成是一个ConcurrentHashMap，是线程安全的，而且自带超时功能。这个LoadingCache跟RateLimiter用法的不同之处在于流量超出限制之后，这里是报错，而RateLimiter是阻塞等待
         LoadingCache<Long, AtomicLong> counter = CacheBuilder
                                                 .newBuilder()
                                                 .expireAfterWrite(2, TimeUnit.SECONDS) //自带超时功能，反正就只统计过去一秒的访问量，2秒过期
