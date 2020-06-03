@@ -56,8 +56,8 @@ Lucene：就是个jar包，帮我们创建倒排索引，提供了复杂的API
 Type：逻辑上的数据分类，es 7.x中删除了type的概念。类比MySQL中的Table
 Index：一类相同或者类似的doc，比如一个员工索引，商品索引。类比MySQL的DB
 ### Shard分片：
-    1：一个index包含多个Shard，默认5个Primary Shard，默认每个Primary Shard分配一个Replica Shard，P的数量在创建索引的时候设置，如果想修改，需要重建索引。
-       读写分离，副本分片不做写入操作，只做查询
+    1：一个index包含多个Shard，默认5个Primary Shard，默认每个Primary Shard分配一个Replica Shard，
+       P的数量在创建索引的时候设置，如果想修改，需要重建索引。读写分离，副本分片不做写入操作，只做查询
     2：每个Shard都是一个Lucene实例，有完整的创建索引的处理请求能力。
     3：ES会自动在nodes上为我们做shard 均衡。ES自动为我们做shard rebalance
     4：一个doc是不可能同时存在于多个PShard中的，但是可以存在于多个RShard中。
