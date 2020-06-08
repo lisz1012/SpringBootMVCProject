@@ -22,7 +22,7 @@
     http.cors.allow-origin: "*"
     ```
     并重启ES  
-18. 点击"Connect"  
+18. 在 `http://192.168.1.3:9100/` 页面上点击"Connect"  
 
 **参考文档**：  
 https://juejin.im/post/5cb81bf4e51d4578c35e727d  
