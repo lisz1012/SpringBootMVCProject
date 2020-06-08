@@ -22,3 +22,8 @@
     ```
     并重启ES  
 17. 点击"Connect"  
+
+参考文档：  
+https://juejin.im/post/5cb81bf4e51d4578c35e727d  
+https://blog.csdn.net/gaowenhui2008/article/details/81181508  
+https://www.cnblogs.com/happyliusiyi/p/11684136.html  
