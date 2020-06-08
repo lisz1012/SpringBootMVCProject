@@ -12,16 +12,17 @@
 10. `vim /usr/local/elasticsearch-head-master/Gruntfile.js`, 在9100端口配置上面加上：`hostname: '*'`  
 11. `npm install --global phantomjs-prebuilt  --unsafe-perm`  
 12. `npm install --unsafe-perm`  
-13. `npm run start`  
-14. 访问该ES master节点的9100端口：`http://192.168.1.3:9100/`
-15. 在URL输入框中用IP地址替换掉"localhost"，如`http://192.168.1.3:9200/`
-16. 为了不在本机上也能访问9200端口，需要在elasticsearch.yml中加入
+13. `npm audit fix`  
+14. `npm run start`  
+15. 访问该ES master节点的9100端口：`http://192.168.1.3:9100/`
+16. 在URL输入框中用IP地址替换掉"localhost"，如`http://192.168.1.3:9200/`
+17. 为了不在本机上也能访问9200端口，需要在elasticsearch.yml中加入
     ```
     http.cors.enabled: true
     http.cors.allow-origin: "*"
     ```
     并重启ES  
-17. 点击"Connect"  
+18. 点击"Connect"  
 
 **参考文档**：  
 https://juejin.im/post/5cb81bf4e51d4578c35e727d  
