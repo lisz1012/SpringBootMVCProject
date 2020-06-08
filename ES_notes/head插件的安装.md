@@ -9,7 +9,7 @@
 7. `node -v`  
 8. `npm install -g grunt-cli`
 9. `grunt -version`
-10. `vim /usr/local/elasticsearch-head-master/Gruntfile.js`, 在9100端口配置上面加上：`hostname: '*'`  
+10. `vim /usr/local/elasticsearch-head-master/Gruntfile.js`, 在9100端口配置上面加上：`hostname: '*',`  
 11. `npm install --global phantomjs-prebuilt  --unsafe-perm`  
 12. `npm install --unsafe-perm`  
 13. `npm audit fix`  
