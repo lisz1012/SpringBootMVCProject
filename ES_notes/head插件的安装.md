@@ -23,8 +23,14 @@
     ```
     并重启ES  
 18. 在 `http://192.168.1.3:9100/` 页面上点击"Connect"  
-
+  
+  
 **参考文档**：  
-https://juejin.im/post/5cb81bf4e51d4578c35e727d  
+
+配置head IP：  
 https://blog.csdn.net/gaowenhui2008/article/details/81181508  
+非本机访问ES web UI：  
+https://juejin.im/post/5cb81bf4e51d4578c35e727d  
 https://www.cnblogs.com/happyliusiyi/p/11684136.html  
+`npm install` 错误的解决方案：  
+https://github.com/Medium/phantomjs/issues/765
