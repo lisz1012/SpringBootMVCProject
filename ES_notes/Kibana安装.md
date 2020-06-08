@@ -12,3 +12,4 @@
 **参考文档**  
 https://www.elastic.co/guide/cn/kibana/current/targz.html  
 https://soyuone.github.io/2020/01/06/elasticsearch-setup-linux/  
+https://www.jianshu.com/p/0ce405db9ceb  
