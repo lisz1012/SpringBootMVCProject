@@ -15,4 +15,10 @@
 13. `npm run start`  
 14. 访问该ES master节点的9100端口：`http://192.168.1.3:9100/`
 15. 在URL输入框中用IP地址替换掉"localhost"，如`http://192.168.1.3:9200/`
-16. 点击"Connect"  
+16. 为了不在本机上也能访问9200端口，需要在elasticsearch.yml中加入
+    ```
+    http.cors.enabled: true
+    http.cors.allow-origin: "*"
+    ```
+    并重启ES  
+17. 点击"Connect"  
