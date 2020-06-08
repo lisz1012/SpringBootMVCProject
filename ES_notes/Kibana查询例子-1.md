@@ -1,3 +1,4 @@
+```
 GET /_cat/indices?v
 PUT /test?pretty
 PUT /product/_doc/1
@@ -82,3 +83,4 @@ GET /product/_search
   ]
 }
 DELETE /product/_doc/1
+```
