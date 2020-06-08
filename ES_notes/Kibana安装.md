@@ -9,6 +9,6 @@
 5. 到web UI上去验证，例如：`192.168.1.3:5601`  
 
 
-**参考文档**
+**参考文档**  
 https://www.elastic.co/guide/cn/kibana/current/targz.html  
 https://soyuone.github.io/2020/01/06/elasticsearch-setup-linux/  
