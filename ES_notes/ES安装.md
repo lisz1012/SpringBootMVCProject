@@ -11,6 +11,7 @@ http.cors.enabled: true
 http.cors.allow-origin: "*"
 ```
 
+下载链接：  
 https://www.elastic.co/guide/en/elasticsearch/reference/7.7/rpm.html#rpm-repo
 
 ES部署建议：不要部署在Docker或者K8S中。因为，他们的意义是简化复杂的部署，但是ES的部署不复杂，而且ES的服务器功能很单一，
