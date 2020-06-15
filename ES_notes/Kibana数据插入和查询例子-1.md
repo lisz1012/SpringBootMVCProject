@@ -92,3 +92,6 @@ PUT /<INDEX>/_settings
     "number_of_replicas": 1
 }
 ```
+
+快捷键：
+https://www.elastic.co/guide/cn/kibana/current/keyboard-shortcuts.html
