@@ -84,3 +84,11 @@ GET /product/_search
 }
 DELETE /product/_doc/1
 ```
+
+修改副本数为1：
+```
+PUT /<INDEX>/_settings
+{
+    "number_of_replicas": 1
+}
+```

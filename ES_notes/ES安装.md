@@ -19,3 +19,6 @@ ES部署建议：不要部署在Docker或者K8S中。因为，他们的意义是
 
 ES服务安装：
 https://www.cnblogs.com/zhi-leaf/p/8487404.html
+
+配置文件详解：
+https://cloud.tencent.com/developer/article/1579116
