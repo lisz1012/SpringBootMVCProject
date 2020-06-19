@@ -182,7 +182,7 @@ GET /product/_search
 }
 
 
-#query and filter
+### query and filter
 GET /product/_search
 {
   "query": {
@@ -210,7 +210,7 @@ GET /product/_search
   }
 }
 
-# filter默认不计算相关度，所以性能要比must、match要高，而且filter支持缓存。先进行filter，然后再去进行must和match这样就更省时间
+### filter默认不计算相关度，所以性能要比must、match要高，而且filter支持缓存。先进行filter，然后再去进行must和match这样就更省时间
 GET /product/_search
 {
   "query": {
@@ -244,7 +244,7 @@ GET /product/_search
   }
 }
 
-# should 类似或者 or 
+### should 类似或者 or 
 GET /product/_search
 {
   "query": {
@@ -271,7 +271,7 @@ GET /product/_search
   }
 }
 
-# should 类似或者 or, minimum_should_match设置了should中最少满足几个才会被选出来，如果这个指定的数字等于should里面的条目数，则这个should相当于一个must。
+### should 类似或者 or, minimum_should_match设置了should中最少满足几个才会被选出来，如果这个指定的数字等于should里面的条目数，则这个should相当于一个must。https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
 GET /product/_search
 {
   "query": {
@@ -299,7 +299,7 @@ GET /product/_search
   }
 }
 
-# 只有should自己，默认minimum_should_match就是1
+### 只有should自己，默认minimum_should_match就是1
 GET /product/_search
 {
   "query": {
@@ -320,7 +320,7 @@ GET /product/_search
   }
 }
 
-# 有must有should， minimum_should_match的默认值是0，也就是说should实在匹配不上，must匹配上的也可以选出来
+### 有must有should， minimum_should_match的默认值是0，也就是说should实在匹配不上，must匹配上的也可以选出来
 GET /product/_search
 {
   "query": {
