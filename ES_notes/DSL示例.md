@@ -403,7 +403,7 @@ GET /product/_search
     }
   }
 }
-# 跟上一条查询有何区别吗？
+# 跟上一条查询有何区别吗？score不一样
 GET /product/_search
 {
   "query": {
