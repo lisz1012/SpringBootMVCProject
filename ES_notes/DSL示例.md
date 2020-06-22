@@ -456,6 +456,7 @@ GET /product/_search
   }
 }
 
+# name中有xiaomi nfc phone，或者价钱在2999以下的手机
 GET /product/_search
 {
   "query": {
