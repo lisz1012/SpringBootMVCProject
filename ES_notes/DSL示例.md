@@ -1,7 +1,9 @@
+```
 GET /product/_search
 GET /product/_search?timeout=0ms
 GET /product/_search?q=name:xiaomi
 GET /product/_search?from=0&size=2&sort=price:asc
+```
 
 GET /product/_search
 {
