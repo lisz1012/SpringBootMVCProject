@@ -22,6 +22,7 @@ GET /product/_search
 }
 ```
 # name中包含的，且按照价格的降序排列
+```
 GET /product/_search
 {
   "query": {
@@ -37,7 +38,9 @@ GET /product/_search
     }
   ]
 }
+```
 # name或desc中包含nfc的(多个字段中包含同一个关键词)，且按照价格的降序排列
+```
 GET /product/_search
 {
   "query": {
@@ -63,6 +66,7 @@ GET /product/_search
     }
   }
 }
+```
 # select name, price from product; _source这里规定了要哪些字段
 GET /product/_search
 {
