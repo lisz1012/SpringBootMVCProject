@@ -4,7 +4,7 @@ GET /product/_search?timeout=0ms
 GET /product/_search?q=name:xiaomi
 GET /product/_search?from=0&size=2&sort=price:asc
 ```
-
+```
 GET /product/_search
 {
   "query": {
@@ -20,6 +20,7 @@ GET /product/_search
     }
   }
 }
+```
 # name中包含的，且按照价格的降序排列
 GET /product/_search
 {
