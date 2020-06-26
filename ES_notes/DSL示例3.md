@@ -20,7 +20,7 @@ GET /_mget
       "_id": 1
     },
     {
-      "_index": "product",
+      "_index": "product2",
       "_id": 2
     }
   ]
