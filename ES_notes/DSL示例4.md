@@ -1,5 +1,5 @@
 GET /product2/_search
-
+```
 #### ES内部执行，没有了网络请求和并发，计算向数据移动
 POST /product2/_update/4
 {
@@ -246,3 +246,4 @@ GET /product/_search
     }
   }
 }
+```
