@@ -246,4 +246,203 @@ GET /product/_search
     }
   }
 }
+
+POST /product2/_update/2
+{
+  "script": {
+    "lang": "painless",
+    "source": """
+      ctx._source.name += params.name;
+      ctx._source.price += params.discount;
+    """,
+    "params": {
+      "name": "test",
+      "discount": 1
+    }
+  }
+}
+
+GET /product2/_doc/2
+
+##注意：所有节点的elasticsearch.yml文件中必须加上：script.painless.regex.enabled: true https://discuss.elastic.co/t/script-painless-regex-enabled-true-but-es-log-says-it-is-not/145566
+POST /product2/_update/2
+{
+  "script": {
+    "lang": "painless",
+    "source": """
+      if (ctx._source.name =~ /[\s\S]*phone[\s\S]*/) {
+        ctx._source.name = "- match";
+      } else {
+        ctx.op="noop";
+      }
+    """
+  }
+}
+
+POST /_bulk
+{"update": {"_index": "product2","_id": "2","retry_on_conflict":3}}
+{"doc":{"date":"2020-06-27"}}
+
+POST /product2/_update/2
+{
+  "script": {
+    "lang": "painless",
+    "source": """
+      if (ctx._source.date =~ /.*06.*/) {
+        ctx._source.name = "xioami nfc phone";
+      } else {
+        ctx.op="noop";
+      }
+    """
+  }
+}
+
+POST /product2/_update/2
+{
+  "script": {
+    "lang": "painless",
+    "source": """
+      if (ctx._source.date ==~ /2020-\d\d-\d\d/) {
+        ctx._source.name += "- match"
+      }
+    """
+  }
+}
+
+GET /product2/_search
+
+GET /product2/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {"range": {
+          "price": {
+            "lt": 1000
+          }
+        }}
+      ]
+    }
+  },
+  "aggs": {
+    "test_sum": {
+      "sum": {
+        "script": {
+          "lang": "painless",
+          "source": """
+            int total = 0;
+            for (int i=0; i<doc['tags'].length; i++) {
+              total ++;
+            }
+            return total;
+          """
+        }
+      }
+    }
+  }
+}
+
+# 用params['_source']['price']，"lang": "painless"可以不写
+GET /product2/_search
+{
+  "aggs": {
+    "test": {
+      "sum": {
+        "script": {
+          "lang": "painless",
+          "source": """
+            int total = 0;
+            if (params['_source']['price'] != null && params['_source']['price'] < 1000) {
+              total ++;
+            }
+            return total;
+          """
+        }
+      }
+    }
+  }
+}
+
+#### 写doc就不行。doc会把[]中的数据加载到内存里，查询效率更高，而且只支持简单类型
+GET /product2/_search
+{
+  "aggs": {
+    "test": {
+      "sum": {
+        "script": {
+          "lang": "painless",
+          "source": """
+            int total = 0;
+            if(doc['price'] != null && doc['price'] < 1000) {
+              total ++;
+            }
+            return total;
+          """
+        }
+      }
+    }
+  }
+}
+
+
+
+
+GET /product2/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "range": {
+            "price": {
+              "lte": 1000
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+POST /tvs/_bulk
+{ "index": {}}
+{ "price" : 1000, "color" : "红色", "brand" : "长虹", "sold_date" : "2016-10-28" }
+{ "index": {}}
+{ "price" : 2000, "color" : "红色", "brand" : "长虹", "sold_date" : "2016-11-05" }
+{ "index": {}}
+{ "price" : 3000, "color" : "绿色", "brand" : "小米", "sold_date" : "2017-05-18" }
+{ "index": {}}
+{ "price" : 1500, "color" : "蓝色", "brand" : "TCL", "sold_date" : "2017-07-02" }
+{ "index": {}}
+{ "price" : 1200, "color" : "绿色", "brand" : "TCL", "sold_date" : "2018-08-19" }
+{ "index": {}}
+{ "price" : 2000, "color" : "红色", "brand" : "长虹", "sold_date" : "2017-11-05" }
+{ "index": {}}
+{ "price" : 8000, "color" : "红色", "brand" : "三星", "sold_date" : "2017-01-01" }
+{ "index": {}}
+{ "price" : 2500, "color" : "蓝色", "brand" : "小米", "sold_date" : "2018-02-12" }
+
+
+GET /tvs/_search
+{
+  "size": 0,
+  "aggs": {
+    "group_color": {
+      "terms": {
+        "field": "color.keyword"
+      }
+    }
+  }
+}
+
+GET /product2/_search
+{
+  "aggs": {
+    "test": {
+      "terms": {
+        "field": "price"
+      }
+    }
+  }
+}
 ```
