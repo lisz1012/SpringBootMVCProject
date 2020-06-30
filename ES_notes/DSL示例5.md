@@ -248,7 +248,7 @@ GET _analyze
 GET _analyze
 {
   "analyzer": "ik_max_word",
-  "text": "我的心里深深地爱着小鹿"
+  "text": "我的心里"
 }
 
 PUT my_index7
