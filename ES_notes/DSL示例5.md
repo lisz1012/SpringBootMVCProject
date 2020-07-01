@@ -270,4 +270,228 @@ GET _analyze
   "analyzer": "my_analyzer",
   "text": "《Teacher》 ma & is a also at <a>think</a> is <mother's friends> is good"
 }
+
+##########################################################################
+##########################################################################
+##########################################################################
+
+
+POST /my_index/_bulk
+{"index": {"_id": 1}}
+{"text": "my english"}
+{"index": {"_id": 2}}
+{"text": "my english is good"}
+{"index": {"_id": 3}}
+{"text": "my chinese is good"}
+{"index": {"_id": 4}}
+{"text": "my japanese is bad"}
+{"index": {"_id": 5}}
+{"text": "my disk is full"}
+
+GET /my_index/_search
+{
+  "query": {
+    "prefix": {
+      "text": {
+        "value": "ch"
+      }
+    }
+  }
+}
+# prefix wildcard reg匹配的都是分词后倒排索引的结果，对于日期ik会比standard好用
+# text能搜到结果
+GET /my_index/_search
+{
+  "query": {
+    "wildcard": {
+      "text": {
+        "value": "engl?sh"
+      }
+    }
+  }
+}
+# keyword不能搜到结果，与上面不同
+GET /my_index/_search
+{
+  "query": {
+    "wildcard": {
+      "keyword": {
+        "value": "engl?sh"
+      }
+    }
+  }
+}
+GET /my_index/_search
+{
+  "query": {
+    "wildcard": {
+      "text.keyword": {
+        "value": "engl?sh"
+      }
+    }
+  }
+}
+#原因是 .keyword是全量匹配
+GET /my_index/_search
+{
+  "query": {
+    "wildcard": {
+      "text.keyword": {
+        "value": "*engl?sh*"
+      }
+    }
+  }
+}
+
+GET /product/_search
+{
+  "query": {
+    "wildcard": {
+      "tags": {
+        "value": "f?shao"
+      }
+    }
+  }
+}
+
+GET /product/_search
+{
+  "query": {
+    "regexp": {
+      "name": "[\\s\\S]*nfc[\\s\\S]*"
+    }
+  }
+}
+GET /product/_search
+{
+  "query": {
+    "regexp": {
+      "name": {
+        "value": "[\\s\\S]*nfc[\\s\\S]*",
+        "flags": "ALL",
+        "max_determinized_states": 10000,
+        "rewrite": "constant_score"
+      }
+    }
+  }
+}
+GET /product/_search
+{
+  "query": {
+    "regexp": {
+      "desc": ".*zhandouji.*"
+    }
+  }
+}
+GET _analyze
+{
+  "text": "shouji zhong 2020-05-20 de zhandouji",
+  "analyzer": "ik_max_word"
+}
+
+GET _analyze
+{
+  "text": "shouji zhong 2020-05-20 de zhandouji",
+  "analyzer": "ik_smart"
+}
+
+PUT /my_index
+{
+  "mappings": {
+    "properties": {
+      "text": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_max_word"
+      }
+    }
+  }
+}
+
+PUT /my_index/_doc/1
+{
+  "testid": "123456",
+  "text": "shouji zhong 2020-05-20 de zhandouji"
+}
+GET /my_index/_doc/1
+GET /my_index/_search
+{
+  "query": {
+    "regexp": {
+      "text": {
+        "value": ".*2020-05-20.*",
+        "flags": "ALL"
+      }
+    }
+  }
+}
+
+
+
+PUT /my_index
+{
+  "settings": {
+    "analysis": {
+      "analyzer": "ik_max_word"
+    }
+  }
+}
+
+POST /my_index/_bulk
+{"index": {"_id": 1}}
+{"text": "此情可待成追忆，只是当时已惘然。"}
+{"index": {"_id": 2}}
+{"text": "念天地之悠悠，独怆然而涕下。"}
+{"index": {"_id": 3}}
+{"text": "事了拂衣去，深藏功与名。"}
+{"index": {"_id": 4}}
+{"text": "天生我材必有用，千金散尽还复来。"}
+{"index": {"_id": 5}}
+{"text": "春心莫共花争发，一寸相思一寸灰。"}
+
+GET /my_index/_search
+
+GET /my_index/_search
+{
+  "query": {
+    "prefix": {
+      "text": {
+        "value": "天生"
+      }
+    }
+  }
+}
+
+GET _analyze
+{
+  "text": "天生我材必有用",
+  "analyzer": "standard"
+}
+
+# "quangengneng"被容错，"quangongneng"还是被搜索了出来
+# "fuzziness": 2 表示编辑距离为2以内的都可以算作匹配上了，比如ES中：axe => aex
+# 距离就是1，表示调换了一下相邻的字母
+GET /product/_search
+{
+  "query": {
+    "fuzzy": {
+      "desc": {
+        "value": "quangengneng",
+        "fuzziness": 2
+      }
+    }
+  }
+}
+
+GET /product/_search
+{
+  "query": {
+    "match": {
+      "desc": {
+        "query": "quangengneng nfc",
+        "fuzziness": "AUTO"
+      }
+    }
+  }
+}
 ```
