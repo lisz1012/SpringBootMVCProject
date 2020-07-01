@@ -494,4 +494,47 @@ GET /product/_search
     }
   }
 }
+# match_phrase_prefix
+# 先回顾一下短语搜索, 匹配match_phrase指定的字符串的整体
+# "desc": "shouji zhong d"就不会搜索到结果
+# 但是用match搜就会搜索到
+# 但是
+GET /product/_search
+{
+  "query": {
+    "match_phrase": {
+      "desc": "shouji zhong de"
+    }
+  }
+}
+GET /product/_search
+{
+  "query": {
+    "match": {
+      "desc": "shouji zhong d"
+    }
+  }
+}
+
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": "shouji zhong d"
+    }
+  }
+}
+#再倒排索引中扫描，匹配到max_expansions个还没有匹配到结果就不匹配了，为了性能考虑的
+#不同的shard可能都有一个doc，所以最终结果可能不止一个
+GET /product/_search?routing=0
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "zhong d",
+        "max_expansions": 1
+      }
+    }
+  }
+}
 ```
