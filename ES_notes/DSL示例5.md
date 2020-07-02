@@ -525,7 +525,7 @@ GET /product/_search
   }
 }
 #再倒排索引中扫描，匹配到max_expansions个还没有匹配到结果就不匹配了，为了性能考虑的
-#不同的shard可能都有一个doc，所以最终结果可能不止一个
+#不同的shard可能都有一个doc，doc之间还互不相同。所以最终结果可能不止一个
 GET /product/_search?routing=0
 {
   "query": {
