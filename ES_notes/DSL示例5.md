@@ -537,4 +537,232 @@ GET /product/_search?routing=0
     }
   }
 }
+########################
+########################
+#按理说"zhong zhandouji" 搜不出来，但是"slop": 2(>=1)之后就可以了.slop指示了中间可以隔几个词都可以认为匹配，slop默认值是0
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "zhong zhandouji",
+        "max_expansions": 1,
+        "slop": 2
+      }
+    }
+  }
+}
+#仍然匹配
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "shouji de zhong zhandouji",
+        "max_expansions": 1,
+        "slop": 2
+      }
+    }
+  }
+}
+#仍然匹配
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "zhong shouji de zhandouji",
+        "max_expansions": 1,
+        "slop": 2
+      }
+    }
+  }
+}
+
+#不匹配了，shouji要往左移动两次，之后de再往右移动两次，一共4次大于slop的值2
+#移动每一个单词的时候，分别跟被匹配的字符串做比较。空格会在分词的时候被替换掉
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "de zhong shouji zhandouji",
+        "max_expansions": 1,
+        "slop": 2
+      }
+    }
+  }
+}
+
+#slop改成4，就又匹配了
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "de zhong shouji zhandouji",
+        "max_expansions": 1,
+        "slop": 4
+      }
+    }
+  }
+}
+
+#匹配
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "de shouji zhandouji",
+        "max_expansions": 1,
+        "slop": 4
+      }
+    }
+  }
+}
+#匹配
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "shouji zhandouji",
+        "max_expansions": 1,
+        "slop": 2
+      }
+    }
+  }
+}
+#不匹配删除也是一次slop
+GET /product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "desc": {
+        "query": "shouji zhandouji",
+        "max_expansions": 1,
+        "slop": 1
+      }
+    }
+  }
+}
+#ngram默认min_gram=1 max_gram=2, 可以等于1或者2，没有必要一定max_gram大于min_gram
+#不能大于2，否则必须在index level上进行修改
+GET _analyze
+{
+  "tokenizer": "ik_max_word",
+  "filter": [
+    {
+      "type": "ngram",
+      "max_gram": 2,
+      "min_gram": 1
+    }
+  ],
+  "text": "She always loves me"
+}
+
+PUT my_index
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "2_3_gram": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3
+        }
+      },
+      "analyzer": {
+        "my_ngram": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["2_3_gram"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "text": {
+        "type": "text",
+        "analyzer": "my_ngram",
+        "search_analyzer": "standard"
+      }
+    }
+  }
+}
+
+GET _analyze
+{
+  "tokenizer": "ik_max_word",
+  "filter": [
+    {
+      "type": "ngram",
+      "max_gram": 3,
+      "min_gram": 2
+    }
+  ],
+  "text": "She always loves me"
+}
+
+POST /my_index/_bulk
+{"index": {"_id": 1}}
+{"text": "my english"}
+{"index": {"_id": 2}}
+{"text": "my english is good"}
+{"index": {"_id": 3}}
+{"text": "my chinese is good"}
+{"index": {"_id": 4}}
+{"text": "my japanese is bad"}
+{"index": {"_id": 5}}
+{"text": "my disk is full"}
+
+#搜得到，最大粒度是3:ngl，goo匹配。slop默认是0
+#词的顺序还不能不一样，有一个词匹配不了也不行
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my ngl is goo"
+    }
+  }
+}
+#分出来的词就没有engl，所以匹配不到，"my english is good"都匹配不到. 
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my engl is good"
+    }
+  }
+}
+#也搜不到，最小粒度是2
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my e is goo"
+    }
+  }
+}
+# 词序不对也不行，搜不到
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my is e goo"
+    }
+  }
+}
+
+# 有一个词不匹配也不行，搜不到
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my en ss goo"
+    }
+  }
+}
 ```
