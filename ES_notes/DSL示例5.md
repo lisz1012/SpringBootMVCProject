@@ -765,4 +765,14 @@ GET /my_index/_search
     }
   }
 }
+
+# match全文检索，任意一个能匹配就可以搜到，my匹配所有，所以全都搜出来了
+GET /my_index/_search
+{
+  "query": {
+    "match": {
+      "text": "my en ss goo"
+    }
+  }
+}
 ```
