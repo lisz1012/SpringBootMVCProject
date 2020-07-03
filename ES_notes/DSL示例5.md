@@ -775,4 +775,78 @@ GET /my_index/_search
     }
   }
 }
+
+GET _analyze
+{
+  "tokenizer": "ik_max_word",
+  "filter": ["edge_ngram"],
+  "text": "reba always loves me"
+}
+
+PUT my_index
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "2_3_grams": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 3
+        }
+      },
+      "analyzer": {
+        "my_edge_ngram": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["2_3_grams"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "text": {
+        "type": "text",
+        "analyzer": "my_edge_ngram",
+        "search_analyzer": "standard"
+      }
+    }
+  }
+}
+
+POST /my_index/_bulk
+{"index": {"_id": 1}}
+{"text": "my english"}
+{"index": {"_id": 2}}
+{"text": "my english is good"}
+{"index": {"_id": 3}}
+{"text": "my chinese is good"}
+{"index": {"_id": 4}}
+{"text": "my japanese is bad"}
+{"index": {"_id": 5}}
+{"text": "my disk is full"}
+
+GET /my_index/_search
+GET /my_index/_mapping
+
+# 匹配前若干个，能匹配
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my en is goo"
+    }
+  }
+}
+# 匹配前若干个，能匹配
+GET /my_index/_search
+{
+  "query": {
+    "match_phrase": {
+      "text": "my en is"
+    }
+  }
+}
 ```
+
+我们ES是要照相关度最高的，而不是找到的结果越多越好（召回率高）
