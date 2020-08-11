@@ -341,6 +341,7 @@ HA模式下：有一个问题，你的NN是2台？在某一时刻，谁是Active
 
 core-site.xml
 fs.defaultFs -> hdfs://node01:9000
+但是这时候由于有两个name node了，就不能写一个单独的name node进程了
 
 配置：
 	core-site.xml
