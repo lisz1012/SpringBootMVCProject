@@ -427,7 +427,7 @@ fs.defaultFs -> hdfs://node01:9000
 		1）先启动JN   hadoop-daemon.sh start journalnode
 		2）选择一个NN 做格式化：hdfs namenode -format   <只有第一次搭建做，以后不用做>
 		3)启动这个格式化的NN ，以备另外一台同步  hadoop-daemon.sh start namenode
-		4)在另外一台机器中： hdfs namenode -bootstrapStandby
+		4)在另外一台机器中： hdfs namenode -bootstrapStandby 仅仅格式化其中一台name node，这是保证VERSION中的ID一致，他们才是一个集群，否则会生成新的CID
 		5)格式化zk：   hdfs zkfc  -formatZK     <只有第一次搭建做，以后不用做>
 		6) start-dfs.sh
 	使用
