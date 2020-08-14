@@ -586,7 +586,7 @@ hdfs是一个文件系统
 			hdfs dfs -mkdir /temp/abc  <失败
 			hdfs groups
 				good:        <因为hdfs已经启动了，不知道你操作系统又偷偷摸摸创建了用户和组
-	*node01 (active 和 standy 的name node都可以):
+	*node01 (active 上面改才可以):
 		root:
 			useradd good
 			groupadd ooxx
