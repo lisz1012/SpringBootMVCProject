@@ -597,6 +597,7 @@ hdfs是一个文件系统
 		good:
 			hdfs groups
 				good : good ooxx
+	这时候即使在Linux系统中删除ooxx也还能创建新目录，因为ooxx这个组已经在hdfs中了
 
 	结论：默认hdfs依赖操作系统上的用户和组
 
