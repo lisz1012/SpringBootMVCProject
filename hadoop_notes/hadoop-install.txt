@@ -576,7 +576,7 @@ hdfs是一个文件系统
 		hdfs dfs -mkdir   /temp
 		hdfs dfs -chown god:ooxx  /temp
 		hdfs dfs -chmod 770 /temp
-	node04:
+	node04（在这里执行会失败，只是演示一下）:
 		root:
 			useradd good
 			groupadd ooxx
@@ -585,8 +585,8 @@ hdfs是一个文件系统
 		su good
 			hdfs dfs -mkdir /temp/abc  <失败
 			hdfs groups
-				good:        <因为hdfs已经启动了，不知道你操作系统又偷偷摸摸创建了用户和组
-	*node01 (active 上面改才可以):
+				good:        <因为hdfs已经启动了，不知道你操作系统又偷偷摸摸创建了用户和组（hdfs刚启动的时候会刷一下）
+	*node01 (注意：只有在active的name node 上面做以下修改才可以):
 		root:
 			useradd good
 			groupadd ooxx
