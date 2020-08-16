@@ -623,6 +623,71 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 	hdfs的pom：
 		hadoop：（common，hdfs，yarn，mapreduce）
 
+===================================================================
+
+学习方法
+hdfs：
+    存储模型
+        切块：散列->分治 目的：分布式计算
+    实现：-> 框架
+        角色：NN，DN
+    特长/特点：-> 架构师：【技术选型】
+        读写流程很重要
+
+mapreduce：批量计算 （与之相对的是流式计算）
+        计算模型
+            2阶段：map和reduce是一种阻塞关系
+            map阶段
+                单条记录加工和处理
+            reduce阶段
+                按组，多条记录加工处理
+        实现： -> 框架
+            计算向数据移动：
+                hdfs暴露数据的位置
+                    1. 资源管理
+                    2. 任务调度
+                角色：
+                    JobTracker
+                        1. 资源管理
+                        2. 任务调度
+                    TaskTracker
+                        1. 任务管理
+                        2. 资源汇报
+                    【客户端】
+                        1. 会根据每次计算的数据，咨询NN元数据（block）计算得到一个切片split的清单
+                           map的数量就有了
+                           split是逻辑的，block是物理的，block身上有offset，location，split和block是由映射关系的，默认一一对应
+                           结果：split包含偏移量，以及split对应的map任务应该移动到哪些节点（locations）
+                           split01 文件A  0  1024  n1  n3  n5
+                           可以支持数据向计算移动了
+                        2. 生成计算程序未来相关的配置文件。。。。。xml
+                        3. 未来的移动应该相对可靠
+                           客户端会将jar、split清单、xml配置  上传到hdfs目录中（上传的数据副本数默认为10，为了提过更高的并发下载）
+                        4. 客户端会调用JobTracker，通知要启动计算程序了，并且告知文件都放在了hdfs的哪些地方
+
+                        JobTracker收到启动程序后：
+                            1. 从hdfs中取回【split清单】
+                            2. 根据自己收到的TaskTracker汇报的资源，最终确定每一个split对应的map应该去哪一个节点，【确定清单】
+                            3. 未来，TaskTracker在心跳的时候，会从JobTracker取回分配给自己的人物信息
+                        TaskTracker
+                            1. 在心跳取回任务后
+                            2. 从hdfs下载jar，xml到本机
+                            3. 最终启动任务描述中的MapTask/ReduceTask（最终，代码在某一个节点上被启动，是通过cli上传，TaskTracker下载，实现了计算向数据移动）
+
+                        问题：
+                            1. JobTracker 单点故障
+                            2. JobTracker 压力过大
+                            3. 集成了【资源管理和任务调度】，两者耦合。
+                                弊端：未来新的计算框架不能复用资源管理
+                                    1. 重复造轮子
+                                    2. 因为各自实现资源管理但是他们部署在同一批硬件上因为隔离，所以不能感知对方的使用情况
+                                        so：资源争抢
+
+实现：架构/框架
+    ResourceManager 主
+        负责整体的资源管理
+    NodeManager 从
+        向RM汇报心跳，提交自己的资源情况
 
 ===================================================================
 MapReduce on yarn
@@ -632,8 +697,8 @@ MapReduce on yarn
 3. 启动AppMaster，从hdfs下载切片清单，向RM申请资源
 4. 由RM根据自己掌握的资源情况得到一个确定的清单，通知NM来启动Container
 5. Container启动后会反向注册到已经启动的MRAppMaster进程
-6. MRAppMaster（曾经的JobTracker，但是不带资源管理功能）最终将任务消息发送给Container
-7. Container根据消息下载jar，然后反射相应的Task类为对象，调用方法执行，其结果是我们的业务逻辑代码的执行
+6. MRAppMaster（曾经的JobTracker，但是不带资源管理功能，只管调度）最终将任务消息发送给Container
+7. Container根据消息，从hdfs下载jar，然后反射相应的Task类为对象，调用方法执行，其结果是我们的业务逻辑代码的执行
 8. 计算框架都有Task失败重试的机制
 
 结论：
@@ -646,10 +711,9 @@ MapReduce on yarn
         3. 集成了【资源管理和任务调度】，两者耦合
             因为yarn只是资源管理器，不负责具体的任务调度
             是公立的，只要计算框架继承yarn的AppMaster，大家都可以使用一个统一视图的资源层
-
-
-
 ===================================================================
+
+
 1，最终去开发MR计算程序
 	*,HDFS和YARN  是俩概念
 2，hadoop2.x  出现了一个yarn ： 资源管理  》  MR  没有后台常服务
