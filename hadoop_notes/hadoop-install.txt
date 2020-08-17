@@ -743,9 +743,9 @@ MapReduce on yarn
 		node03			*		*	 *	 *	*
 		node04					*	 *	 *	*
 
-	hadoop	1.x		2.x			3.x
+	hadoop	1.x		     2.x			                                                            3.x
 	hdfs:	no ha		ha(向前兼容，没有过多的改NN，二是通过新增了角色 zkfc)
-	yarn	no yarn		yarn  （不是新增角色，二是直接在RM进程中增加了HA的模块）
+	yarn	no yarn		yarn（不是新增角色，而是直接在RM进程中增加了HA的模块，好像zkfc和NN合成一个东西了）
 
 
 -----通过官网：
@@ -788,6 +788,8 @@ MapReduce on yarn
 		   <value>node04</value>
 		 </property>
 
+注意：这里不同的版本会有不一样的配置：如果是hadoop 2.10.0, 要参考https://hadoop.apache.org/docs/r2.10.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerHA.html
+添加两个RM的webapp配置
 
 	流程：
 	我hdfs等所有的都用root来操作的
