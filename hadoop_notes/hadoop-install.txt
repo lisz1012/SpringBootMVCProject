@@ -699,10 +699,10 @@ hadoop 2.x yarn
 ===================================================================
 MapReduce on yarn
 
-1. 客户端去访问NN，获得split清单并且上传配置文件和jar到hdfs，然后访问RM申请AppMaster
+1. 客户端去访问NN，获得split清单并且上传配置文件和jar到hdfs，然后访问RM申请AppMaster （与hadoop 1.x一样）
 2. RM选择一台不忙的节点通知NM启动一个Container，在里面反射一个MRAppMaster
-3. 启动AppMaster，从hdfs下载切片清单，向RM申请资源
-4. 由RM根据自己掌握的资源情况得到一个确定的清单，通知NM来启动Container
+3. 启动AppMaster，从hdfs下载切片清单，并拿着切片信息向RM申请资源
+4. 由RM根据自己掌握的资源情况和NM提交上来的split清单得到一个确定的清单，通知NM来启动Container
 5. Container启动后会反向注册到已经启动的MRAppMaster进程
 6. MRAppMaster（曾经的JobTracker，但是不带资源管理功能，只管调度）最终将任务消息发送给Container
 7. Container根据消息，从hdfs下载jar，然后反射相应的Task类为对象，调用方法执行，其结果是我们的业务逻辑代码的执行
