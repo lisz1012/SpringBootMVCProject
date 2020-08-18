@@ -746,7 +746,7 @@ MapReduce on yarn
 	hadoop	1.x		     2.x			                                                            3.x
 	hdfs:	no ha		ha(向前兼容，没有过多的改NN，二是通过新增了角色 zkfc)
 	yarn	no yarn		yarn（不是新增角色，而是直接在RM进程中增加了HA的模块，好像zkfc和NN合成一个东西了）
-
+    yarn的web UI跑在Resource manager 上：http://hadoop-03:8088/cluster/apps
 
 -----通过官网：
 	mapred-site.xml  >  mapreduce on yarn
@@ -819,15 +819,16 @@ MapReduce on yarn
 			1)webui:
 			2)cli:
 		hdfs dfs -ls /data/wc/output
-			-rw-r--r--   2 root supergroup          0 2019-06-22 11:37 /data/wc/output/_SUCCESS  //标志成功的文件
+			-rw-r--r--   2 root supergroup          0 2019-06-22 11:37 /data/wc/output/_SUCCESS  //标志成功的文件, 空
 			-rw-r--r--   2 root supergroup     788922 2019-06-22 11:37 /data/wc/output/part-r-00000  //数据文件
 				part-r-00000
 				part-m-00000
 					r/m :  map+reduce   r   / map  m
-		hdfs dfs -cat  /data/wc/output/part-r-00000
+		hdfs dfs -cat  /data/wc/output/part-r-00000 OR hdfs dfs -text  /data/wc/output/part-r-00000
 		hdfs dfs -get  /data/wc/output/part-r-00000  ./
 	抛出一个问题：
 		data.txt 上传会切割成2个block 计算完，发现数据是对的~！~？后边注意听源码分析~！~~
+		注：data.txt存在/var/bigdata/hadoop/ha/dfs/data/current/BP-688671320-192.168.1.6-1597305746582/current/finalized/subdir0/subdir0 里面
 
 
 
