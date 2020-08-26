@@ -1,0 +1,1 @@
+配置好HA之后要先启动zk，然后启动HDFS，然后启动yarn的NodeManager，最后启动yarn的resourceManager
