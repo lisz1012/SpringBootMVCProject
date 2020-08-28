@@ -1,0 +1,88 @@
+原始数据：
+id,姓名,爱好,住址
+1,小明1,lol-book-movie,beijing:mashibing-shanghai:pudong
+2,小明2,lol-book-movie,beijing:mashibing-shanghai:pudong
+3,小明3,lol-book-movie,beijing:mashibing-shanghai:pudong
+4,小明4,lol-book-movie,beijing:mashibing-shanghai:pudong
+5,小明5,lol-movie,beijing:mashibing-shanghai:pudong
+6,小明6,lol-book-movie,beijing:mashibing-shanghai:pudong
+7,小明7,lol-book,beijing:mashibing-shanghai:pudong
+8,小明8,lol-book,beijing:mashibing-shanghai:pudong
+9,小明9,lol-book-movie,beijing:mashibing-shanghai:pudong
+
+新建一个data文件在linux本地，并加入以上内容
+
+create table psn
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':'
+
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML
+
+load data local inpath '/root/data/data' into table psn; //加上local是从本地加载，不加local其实就是从hdfs的某一个目录往另一个目录加载数据
+
+再新建一个data2，并写入以下内容
+
+11,小明11,lol-book-movie,beijing:mashibing-shanghai:pudong
+21,小明21,lol-book-movie,beijing:mashibing-shanghai:pudong
+31,小明31,lol-book-movie,beijing:mashibing-shanghai:pudong
+41,小明41,lol-book-movie,beijing:mashibing-shanghai:pudong
+51,小明51,lol-movie,beijing:mashibing-shanghai:pudong
+61,小明61,lol-book-movie,beijing:mashibing-shanghai:pudong
+71,小明71,lol-book,beijing:mashibing-shanghai:pudong
+81,小明81,lol-book,beijing:mashibing-shanghai:pudong
+91,小明91,lol-book-movie,beijing:mashibing-shanghai:pudong
+
+然后执行：hdfs dfs -put data2 /user/hive_remote/warehouse/psn；
+再从hive的命令行执行select * from psn; 则可以看到新数据也加进来了，所以，表所对应的目录下的所有的文件都会被处理，形成hive数据。实际上底层就是
+HDFS的数据。Hive很傻，他只会读指定表格的目录下的文件，而不管它们是通过何种方式传上来的。MySQL在插入数据的时候类型和长度等必须匹配才能成功，
+这叫"写时检查"。而hive是"读时检查"上传不规则的数据文件到hive表的目录之后，不规则数据在select之后会显示：
+91	小明91	["lol","book","movie"]	{"beijing":"mashibing","shanghai":"pudong"}
+NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL
+不符合创建表的时候规定的格式就显示NULL，符合才正常显示数据
+
+create table psn2
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+);
+
+分隔符：^A是,^B是-,^C是: control+v再control+A输入，分隔符有^A ^B ^C... ^H一共是8个
+
+对于,-:等分隔符，也有这么写的：'\001','\002','\003':
+create table psn3
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+row format delimited
+fields terminated by '\001'
+collection items terminated by '\002'
+map keys terminated by '\003';
+
+//外部表
+create external table psn4
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':'
+location '/data1';
