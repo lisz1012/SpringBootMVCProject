@@ -188,3 +188,5 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
 WITH SERDEPROPERTIES (
 "input.regex" = "([^ ]*) ([^ ]*) ([^ ]*) \\[(.*)\\] \"(.*)\" (-|[0-9]*) (-|[0-9]*)"
 ) STORED AS TEXTFILE;
+
+sqoop是做关系型数据库跟大数据平台数据迁移的
