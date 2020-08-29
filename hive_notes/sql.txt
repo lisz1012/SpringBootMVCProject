@@ -22,7 +22,7 @@ create table psn
 row format delimited
 fields terminated by ','
 collection items terminated by '-'
-map keys terminated by ':'
+map keys terminated by ':';
 
 https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL
 https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML
@@ -86,3 +86,105 @@ fields terminated by ','
 collection items terminated by '-'
 map keys terminated by ':'
 location '/data1';
+
+//分区表: 单分区
+create table psn5
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+partitioned by (gender string)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+//分区表: 多分区
+create table psn6
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+partitioned by (gender string,age int)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+//load data：
+load data local inpath '/root/data/data' into table psn6 partition (gender='male',age=18);
+load data local inpath '/root/data/data' into table psn6 partition (age=12,gender='male');
+最后partition必须全部写出来，但是他们的顺序可以随便写，没关系，hive会按照每个分区以树状结构创建目录。
+
+create external table psn7
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+partitioned by (age int)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':'
+location '/lisz';
+
+create table psn8
+(
+    id int,
+    name string,
+    likes array<string>,
+    address map<string,string>
+)
+partitioned by (age int)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':'
+location '/lisz';
+
+create table psn9
+(
+    id int,
+    name string
+)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+create table psn10
+(
+    id int
+);
+
+from psn4
+insert overwrite table psn9
+select id,name
+insert into table psn10
+select id;
+
+insert overwrite local directory '/root/data/tmp'
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':'
+select * from psn4;
+
+CREATE TABLE logtbl (
+host STRING,
+identity STRING,
+t_user STRING,
+time STRING,
+request STRING,
+referer STRING,
+agent STRING)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
+WITH SERDEPROPERTIES (
+"input.regex" = "([^ ]*) ([^ ]*) ([^ ]*) \\[(.*)\\] \"(.*)\" (-|[0-9]*) (-|[0-9]*)"
+) STORED AS TEXTFILE;
