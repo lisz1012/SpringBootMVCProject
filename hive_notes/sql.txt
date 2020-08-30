@@ -190,3 +190,58 @@ WITH SERDEPROPERTIES (
 ) STORED AS TEXTFILE;
 
 sqoop是做关系型数据库跟大数据平台数据迁移的
+
+
+create table psn21
+(
+id int,
+name string,
+age int,
+gender string,
+likes array<string>,
+address map<string,string>
+)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+create table psn22
+(
+id int,
+name string,
+likes array<string>,
+address map<string,string>
+)
+partitioned by (age int,gender string)
+row format delimited
+fields terminated by ','
+collection items terminated by '-'
+map keys terminated by ':';
+
+insert into table psn22
+partition(age,gender)
+select id, name, likes, address, age, gender from psn21;
+
+create table psn31
+(
+id int,
+name string,
+age int
+)
+row format delimited
+fields terminated by ','
+;
+
+create table psnbucket
+(
+id int,
+name string,
+age int
+)
+clustered by (age) into 4 buckets
+row format delimited
+fields terminated by ','
+;
+
+insert into table psnbucket select * from psn31;
