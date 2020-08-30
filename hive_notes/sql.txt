@@ -245,3 +245,7 @@ fields terminated by ','
 ;
 
 insert into table psnbucket select * from psn31;
+
+select count(distinct(likes_count)), count(distinct(address_city)) from psn
+lateral view explode(likes) psn as likes_count
+lateral view explode(address) psn as address_city, address_district;
