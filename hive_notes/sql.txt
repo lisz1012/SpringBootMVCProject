@@ -252,3 +252,5 @@ lateral view explode(address) psn as address_city, address_district;
 
 select id, myCol1 from psn
 lateral view explode(likes) psn as myCol1;
+
+explode(likes) 这样的在一个sql里面只能有一个
