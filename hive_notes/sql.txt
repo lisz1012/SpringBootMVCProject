@@ -254,3 +254,21 @@ select id, myCol1 from psn
 lateral view explode(likes) psn as myCol1;
 
 explode(likes) 这样的在一个sql里面只能有一个
+
+索引存的是某一列在硬盘上的位置，包括在哪个目录的哪个文件，及其偏移量
+
+一般是在只读的情况下，表的数据都生成完了之后创建索引。
+
+数据量比较小的时候，加了索引之后查询反而变慢，这是因为会先查索引表，躲得开一次文件。而MySQL的索引存在内存里，以B+树的形式存储
+
+
+Join
+
+join一般是指inner join，两张表里必须有完全匹配的记录，left join是指：把左表记录显示全了，而不管右表，右表如果有则正常显示，如果没有，显示NULL；right join反之。FULL：都显示，匹配不上则显示
+NULL
+
+left semi join代替的是 in 或者 exists ，select中不能包括右表的字段
+
+多次连续join的时候，尽量多写相同的连接字段在各个on () 里面
+
+做join的时候 on(a.id = b.id)，两个map任务，相同的id为key，reduce的时候放在同一台reducer
