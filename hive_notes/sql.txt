@@ -276,3 +276,15 @@ left semi join代替的是 in 或者 exists ，select中不能包括右表的字
 如果是，则没必要做join了，如果不是，则join。MR分为split、map、shuffle、reduce 4 个阶段，其中shuffle最耗时，效率的瓶颈在IO操作。mapjoin对于一张大表和一张小表有效，把小表放入内存做join
 
 Hive一般不做分页，limit的意思是限制输出，并不是分页
+
+
+<property>
+                <name>hadoop.proxyuser.root.groups</name>
+                <value>*</value>
+        </property>
+        <property>
+                <name>hadoop.proxyuser.root.hosts</name>
+                <value>*</value>
+        </property>
+
+是让root用户代理其他用户，使之有权限修改文件，并且文件的属主是这个其他用户，而不是root
