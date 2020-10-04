@@ -1,5 +1,6 @@
-配置好HA之后要先启动zk，然后启动HDFS: start-dfs.sh
+配置好HA之后要先启动zk: 在hadoop-02, hadoop-03, hadoop-04上执行 `zkServer.sh start`
+然后启动HDFS: start-dfs.sh
 然后启动yarn的NodeManager: start-yarn.sh
-最后启动yarn的resourceManager: yarn-daemon.sh start resourcemanager
+最后启动yarn的resourceManager，在RM节点(hadoop-03, hadoop-04)上: yarn-daemon.sh start resourcemanager
 
 注：如果启动hive，则必须启动HDFS和Yarn，前者存储数据，后者负责计算和调度mapred.job.tracker, 并且要启动MySQL，存储元数据
