@@ -25,7 +25,8 @@ create table person1
 row format delimited
 fields terminated by ',';
 ```
-4. 并往里面load数据：`load data local inpath '/root/data/data' into table person1;`  
+4. 并往里面load数据：  
+`load data local inpath '/root/data/data' into table person1;`  
 建立与ES的联系表
 ```
 create external table person (
@@ -45,7 +46,7 @@ create external table person (
 注意，这里虽然是"overwrite", 但是其实是每次都追加.想要每次都是新数据，都要把联系表删掉重新建立，在hive命令行可以删，在ES删除
 也有相同的效果, 也就是说，联系表的同步是双向的
 
-6. Kibana上查看数据
+6. Kibana上查看数据  
 http://192.168.1.3:5601/app/kibana#/dev_tools/console
 ```
 GET /person/_search
