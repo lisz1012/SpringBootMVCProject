@@ -10,7 +10,7 @@ id,姓名,爱好,住址
 8,小明8,lol-book,beijing:mashibing-shanghai:pudong
 9,小明9,lol-book-movie,beijing:mashibing-shanghai:pudong
 
-新建一个data文件在linux本地，并加入以上内容
+新建一个data文件在linux本地(hadoop-04)，并加入以上内容
 
 create table psn
 (
@@ -287,4 +287,23 @@ Hive一般不做分页，limit的意思是限制输出，并不是分页
                 <value>*</value>
         </property>
 
-是让root用户代理其他用户，使之有权限修改文件，并且文件的属主是这个其他用户，而不是root
+是让root用户代理其他用户，使之有权限修改文件，并且文件的属主是这个其他用户，而不是root 会自行判断能不能并行计算，然后就可以在适当的情况下并行计算了
+
+create table person1
+(
+    id int,
+    name string
+)
+row format delimited
+fields terminated by ',';
+
+create external table person (
+    id int,
+    name string
+    )
+    stored by 'org.elasticsearch.hadoop.hive.EsStorageHandler'
+    TBLPROPERTIES('es.resource' = 'person',
+    'es.index.auto.create' = 'false',
+    'es.nodes' = '192.168.1.3',
+    'es.port'='9200'
+);
