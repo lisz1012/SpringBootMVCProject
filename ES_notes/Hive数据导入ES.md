@@ -13,7 +13,10 @@ add jar /LOCAL/PATH/elasticsearch-hadoop-7.7.1.jar
 add jar /LOCAL/PATH/httpclient-4.5.12.jar
 add jar /LOCAL/PATH/org.apache.commons.httpclient.jar
 ```
-也可以用jar包在HDFS的路径
+也可以用jar包在HDFS的路径:
+```
+add jar hdfs://nameservice1/lib/commons-httpclient-3.1.jar;
+```
 
 3. 先建立一个基础表，真实数据在这里：
 ```
