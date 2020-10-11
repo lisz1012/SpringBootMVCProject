@@ -48,7 +48,7 @@ create external table person (
 `insert overwrite table person select * from person1;`  
 注意，这里虽然是"overwrite", 但是其实是每次都追加,overwrite似乎不起作用.想要每次都是新数据，都要把联系表删掉重新建立，
 在hive命令行可以删，在ES删除也有相同的效果, 也就是说，联系表的同步是双向的. 如果想让overwrite起作用，可以用'es.mapping.id'='想要设置的主键字段'
-来设置'_id'. 如果'es.nodes'是个域名："http:..." 则还需要加一个参数：'es.nodes.wan.only'='true'.
+来设置'_id'. 如果`'es.nodes'`是个域名：`"http:..."` 则还需要加一个参数：`'es.nodes.wan.only'='true'`.
 
 6. Kibana上查看数据  
 http://192.168.1.3:5601/app/kibana#/dev_tools/console
