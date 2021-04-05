@@ -207,7 +207,55 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
 WITH SERDEPROPERTIES (
 "input.regex" = "([^ ]*) ([^ ]*) ([^ ]*) \\[(.*)\\] \"(.*)\" (-|[0-9]*) (-|[0-9]*)"
 ) STORED AS TEXTFILE;
+括号里面的是要保留的，其余的[]""属于要去除的
 
+启动hiveserver2： hive --service hiveserver2
+之后才能访问 http://hadoop-03:10002 hiveserver2可以用beeline打开连接
+执行beeline就可以登录beeline客户端。 用：
+!connect jdbc:hive2://hadoop-03:10000/default root ^abc123$
+beeline的命令执行的时候要加!
+!close 退出当前hiveserver2
+!quite 退出整个beeline
+beeline -u jdbc:hive2://hadoop-03:10000/default 直接登录
+beeline -u jdbc:hive2://hadoop-03:10000/default -n root 123 也行，用户名密码在hiveserver2这里无效
+hiveserver2可以支持web图形化界面的, 而且hiveserver2也不能做增删改，只能查询，是给查询用户使用的。
+Beeline可以不用再hive集群里执行，连10000端口就行
+启动hiveserver2的时候其实也启动了一个类似metastore的服务
+
+hive不能impersonate错误如果爆出来的话，要在两台nn中的core-site.xml文件里加上：
+<property>
+    <name>hadoop.proxyuser.root.groups</name>
+    <value>*</value>
+</property>
+<property>
+    <name>hadoop.proxyuser.root.hosts</name>
+    <value>*</value>
+</property>
+并在两台nn上执行：
+hdfs dfsadmin -fs hdfs://hadoop-01:8020 -refreshSuperUserGroupsConfiguration
+hdfs dfsadmin -fs hdfs://hadoop-02:8020 -refreshSuperUserGroupsConfiguration
+来使配置生效且无需重启hadoop集群
+取array中第一项的value
+select likes[1] from psn;
+已知key，取map中的value
+select address['beijing'] from psn;
+
+hive实现wordcount：
+先把文本文件放入hdfs的/wc中，然后再hive执行：create external table wc(line string) location '/wc';  创建表
+再利用函数和子查询往结果表中插入数据：
+from (select explode(split(line, ' ')) word from wc) t insert into wc_result select word, count(word) group by word;
+最后查看结果：
+hive> select * from wc_result;
+OK
+wc_result.word	wc_result.ct
+hadoop	3
+hello	2
+hi	3
+hive	2
+spark	1
+
+查看map、reduce和总耗时定位到底是哪个阶段比较慢，除了map和reduce之外的时间是被用来申请服务器资源了
+什么操作会触发MR？hive有些会做优化，不会触发MR。
 sqoop是做关系型数据库跟大数据平台数据迁移的
 
 
@@ -326,3 +374,31 @@ create external table person (
     'es.nodes' = '192.168.1.3',
     'es.port'='9200'
 );
+
+
+ create table psn21
+    (id int, name string, age int, gender string, likes array<string>, address map<string, string>)
+    row format delimited
+    fields terminated by ','
+    collection items terminated by '-'
+    map keys terminated by ':';
+
+create table psn22
+    (id int, name string, likes array<string>, address map<string, string>)
+    partitioned by (age int, gender string)
+    row format delimited
+    fields terminated by ','
+    collection items terminated by '-'
+    map keys terminated by ':';
+
+create table psn31 (id int, name string, age int)
+    row format delimited fields terminated by ',';
+create table psnbucket (id int, name string, age int)
+    clustered by (age) into 4 buckets
+    row format delimited fields terminated by ',';
+
+create index t1_index on table psn(name)
+as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler' with deferred rebuild in table t1_index_table;
+
+create index t2_index on table psn(name)
+as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler' with deferred rebuild;
