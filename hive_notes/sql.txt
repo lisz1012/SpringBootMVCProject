@@ -79,6 +79,7 @@ map keys terminated by '\003';
 // 内部表创建的时候存储在hive的默认目录中，外部表创建的时候需要写external关键字，同时需要指定location，指定存储目录
 // 内部表在删除的时候将数据和元数据一起删除，外部表只删除元数据，但并不删除数据
 // 应用场景：内部表：先创建表，在添加数据；外部表可以先创建表再添加数据，也可以先添加数据再创建表. 外部表确实用得比较多
+// location可以用在导入S3表的时候：LOCATION 's3://volvo-region-emr-test/datainput/data/lyb'
 create external table psn4
 (
     id int,
