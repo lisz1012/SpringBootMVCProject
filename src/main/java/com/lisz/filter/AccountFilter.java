@@ -40,6 +40,7 @@ public class AccountFilter implements Filter {
 		IGNORED_URI.add("/static");
 		IGNORED_URI.add("/errorPage");
 		IGNORED_URI.add("/upload");
+		IGNORED_URI.add("/cache");
 	}
 
 	@Override
