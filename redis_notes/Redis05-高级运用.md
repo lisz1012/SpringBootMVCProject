@@ -220,7 +220,7 @@ key
 - 一致性（双写）  
 
 哲学的总结：技术是要易于人的使用，但是理论是极其复杂的
-
+https://www.processon.com/view/link/6156be921e08533a03ffcb0a
 
 
 
