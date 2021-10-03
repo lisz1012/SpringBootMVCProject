@@ -87,7 +87,7 @@ cd scripts
 nutcracker.init
 拷贝这个文件进/etc/init.d目录: cp nutcracker.init /etc/init.d/twemproxy
 nutcracker.init里面指定了OPTIONS是"-d -c /etc/nutcracker/nutcracker.yml, 所以要创建/etc/nutcracker/目录 mkdir /etc/nutcracker/ 配置文件nutcracker.yml在/root/soft/twemproxy/conf
-下面，所以执行cp /root/soft/twemproxy/conf/* /etc/nutcracker/ 把文件copy过去，以符合OPTIONS中的设置
+下面，所以执行cp /root/soft/twemproxy/conf/* /etc/nutcracker/ 把文件copy过去，以符合OPTIONS中的设置 
 拷贝编译运行文件进/usr/bin目录：cp /root/soft/twemproxy/src/nutcracker /usr/bin  然后再操作系统的任何位置就都可以使用这个命令了
 拷贝conf文件夹进/etc/nutcracker目录
 进入/etc/nutcracker，修改nutcracker.yml进行配置
@@ -104,6 +104,7 @@ alpha:
    - 127.0.0.1:6379:1
    - 127.0.0.1:6380:1              # 最后面这个1是他的权重
 
+这里只留下了alpha这一部分，其余的都删除了
 然后创建并分别进入~/data/6379和~/data/6380目录，然后再redis-server --port 6379 和 redis-server --port 6380 Redis手工起的话就拿当前目录作为他的持久化目录
 然后再启动服务：service twemproxy start  监控的端口是22121
 此时redis-cli -p 22121 就能连上22121端口了，也就是twitter的代理那台机器，连的不是具体某一台的Redis机器.在 127.0.0.1:22121>之下可以添加修改查看keys，都有效
