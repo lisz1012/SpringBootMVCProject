@@ -76,4 +76,5 @@ value有没有类型好像无所谓，而value类型的意义是：如果客户�
   参考附件：冯诺依曼体系图
   
 ```
+Notion链接：https://www.notion.so/Redis-311b068fdb724ed8aa9706006e9efcfa
 
