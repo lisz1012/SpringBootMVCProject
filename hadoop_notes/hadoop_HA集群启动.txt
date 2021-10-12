@@ -4,3 +4,5 @@
 最后启动yarn的resourceManager，在RM节点(hadoop-03, hadoop-04)上: yarn-daemon.sh start resourcemanager
 
 注：如果启动hive，则必须启动HDFS和Yarn，前者存储数据，后者负责计算和调度mapred.job.tracker, 并且要启动MySQL，存储元数据
+DN的CID如果跟NN的不一样，则DN无法启动，测试环境下可以直接删除DN上的 `/var/bigdata/hadoop/ha/dfs`目录，再重启cluster：
+stop-dfs.sh  start-dfs.sh
