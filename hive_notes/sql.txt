@@ -29,7 +29,8 @@ https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML
 
 load data local inpath '/root/data/data' into table psn; //加上local是从本地加载，不加local其实就是从hdfs的某一个目录往另一个目录加载数据
 这一句加载数据加载得很快，原因是：Load operations are currently pure copy/move operations that move datafiles into locations corresponding to Hive tables
-相当于hdfs dfs -put操作。而move指的是文件本身已经存在hdfs了
+相当于hdfs dfs -put操作。而move指的是文件本身已经存在hdfs了。与put不同的是，每次load相同的本地文件上去不会报错，而是起一个别名（data_copy_2），
+保存在HDFS中
 
 再新建一个data2，并写入以下内容
 
@@ -77,7 +78,7 @@ map keys terminated by '\003';
 
 //外部表.
 // 内部表创建的时候存储在hive的默认目录中，外部表创建的时候需要写external关键字，同时需要指定location，指定存储目录
-// 内部表在删除的时候将数据和元数据一起删除，外部表只删除元数据，但并不删除数据
+// 内部表在删除的时候将数据和元数据一起删除，外部表只删除元数据(MySQL)，但并不删除数据(HDFS)
 // 应用场景：内部表：先创建表，在添加数据；外部表可以先创建表再添加数据，也可以先添加数据再创建表. 外部表确实用得比较多
 // location可以用在导入S3表的时候：LOCATION 's3://volvo-region-emr-test/datainput/data/lyb'
 create external table psn4
@@ -92,6 +93,11 @@ fields terminated by ','
 collection items terminated by '-'
 map keys terminated by ':'
 location '/data1';
+
+/*
+讲道理，所有的select都应该是一个MR job，但是就并不是这样。
+白天服务器跑实时性要求高的任务，晚上反之
+*/
 
 //分区表: 单分区
 create table psn5
@@ -109,7 +115,7 @@ map keys terminated by ':';
 
 // 不能把partition写在（）里, hive把用来做分区的字段单拿出来的
 
-//分区表: 多分区
+//分区表: 多分区。多个分区插入的时候，各个分区要全写出来
 create table psn6
 (
     id int,
@@ -135,7 +141,7 @@ alter table psn6 drop partition(age=12);
 当数据进入hive的时候，需要根据数据的某一个字段向hive表中插入数据，此时无法满足需求，因此需要使用动态分区。
 分区粒度太大或太小都不好，太小了遍历目录的层数太多，要根据业务来制定
 
-// 直接把数据在对应的目录和分区子目录里放置好，执行下面的建external表语句的时候，可以创建，但是读不到数据，是因为元数据没有
+// 直接把数据在对应的目录和分区子目录里放置好，执行下面的建external表语句的时候，可以创建，但是读不到数据，是因为元数据在MySQL中没有
 create external table psn7
 (
     id int,
@@ -181,7 +187,7 @@ create table psn10
     id int
 );
 
-from psn4
+from psn
 insert overwrite table psn9
 select id,name
 insert into table psn10
@@ -189,12 +195,13 @@ select id;
 //会比较慢，跑MR任务了. 实际工作中用的很多，存储中间临时表
 // hive里的数据不能修改，其实也可以，但是配置非常麻烦，要支持事务才行，需要很多配置，因为底层的HDFS不支持修改
 
+//把查询结果存放在某个路径下的文件里（一般不用）
 insert overwrite local directory '/root/data/tmp'
 row format delimited
 fields terminated by ','
 collection items terminated by '-'
 map keys terminated by ':'
-select * from psn4;
+select * from psn;
 
 CREATE TABLE logtbl (
 host STRING,
