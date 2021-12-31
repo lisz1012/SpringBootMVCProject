@@ -26,7 +26,7 @@ Lucene：就是个jar包，帮我们创建倒排索引，并提供了复杂的AP
      
 ### Elasticsearch：
     分布式、高性能、高可用、可伸缩、易维护. ES≠搜索引擎。中大型集群一般要横向扩容  
-    1. 原生分布式的搜索，存储和数据分析引擎：  
+    1. 原生分布式的搜索，存储和数据分析引擎，所以ES是涵盖了搜索引擎的：  
     2. 优点：  
         1. 面向开发者友好，屏蔽了Lucene的复杂特性，集群自动发现（cluster discovery）当在集群内启动一个节点，
            ES会发现他并把他加到cluster中  
@@ -62,13 +62,14 @@ Lucene：就是个jar包，帮我们创建倒排索引，并提供了复杂的AP
 Type：逻辑上的数据分类，es 7.x中删除了type的概念。类比MySQL中的Table
 Index：一类相同或者类似的doc，比如一个员工索引，商品索引。类比MySQL的DB
 ### Shard分片：
-    1：一个index包含多个Shard，默认5个Primary Shard，默认每个Primary Shard分配一个Replica Shard，
+    1：一个index包含多个Shard，默认5个Primary Shard（最新版从5改为了1），默认每个Primary Shard分配一个Replica Shard，
        P的数量在创建索引的时候设置，如果想修改，需要重建索引。读写分离，副本分片不做写入操作，只做查询
     2：每个Shard都是一个Lucene实例，有完整的创建索引的处理请求能力。
     3：ES会自动在nodes上为我们做shard 均衡。ES自动为我们做shard rebalance
     4：一个doc是不可能同时存在于多个PShard中的，但是可以存在于多个RShard中。
     5: P和对应的R不能同时存在于同一个节点，所以最低的可用配置是两个节点，互为主备（不是说一台机器就完全不行，一台视为不可用）。
     6：shards是读写分离的，Primary shard可读写，replica shard的数据是从Primary 同步过来的
+    7: 不同的业务有的可能被用来做二级索引，有的可能用来做BI的聚合分析（耗时耗资源），他们不能放在一个index里面
 
 不同的数据（比如员工和order）存放在不同的索引里面。可能另一个数据正在被用作复杂的查询、聚合分析，这样就会互相干扰，查询速度变慢
 
