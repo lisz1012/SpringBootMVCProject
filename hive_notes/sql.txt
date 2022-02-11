@@ -115,7 +115,7 @@ map keys terminated by ':';
 
 // 不能把partition写在（）里, hive把用来做分区的字段单拿出来的
 
-//分区表: 多分区。多个分区插入的时候，各个分区要全写出来
+//分区表: 多分区。多个分区插入的时候，各个分区要全写出来.
 create table psn6
 (
     id int,
